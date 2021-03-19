@@ -1,6 +1,10 @@
 .PHONY: all
 all: compile
 
+.PHONY: gdb
+gdb: compile
+	gdb -x gdb_startup.txt
+
 .PHONY: run
 run: compile
 	qemu-system-x86_64 -hda boot.bin
