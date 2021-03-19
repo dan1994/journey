@@ -1,4 +1,4 @@
-ORG 0x0 ; Set offset of addresses to 0 and use segment registers instead
+ORG 0h ; Set offset of addresses to 0 and use segment registers instead
 BITS 16 ; Work in 16 bit mode
 
 ; BIOS Parameter Block
@@ -13,7 +13,7 @@ bpb:
 times 33 db 0 ; Dummy content for BPB fields
 
 bpb_trampoline:
-    jmp 0x7c0:start ; Sets code segment to where the bootloader is loaded
+    jmp 7c0h:start ; Sets code segment to where the bootloader is loaded
 
 ; Main Code
 
@@ -21,14 +21,14 @@ start:
     cli ; Clear interrupts
 
     ; Setup segments
-    mov ax, 0x7c0
+    mov ax, 7c0h
     mov ds, ax ; DS = 0x7c00
     mov es, ax ; ES = 0x7c00
 
     ; Setup stack
-    mov ax, 0x0
+    mov ax, 0h
     mov ss, ax ; SS = 0x0
-    mov sp, 0x7c00
+    mov sp, 7c00h
 
     sti ; Enable interrupts
 
@@ -74,18 +74,18 @@ read_sectors:
 
 ; @arg - si - point to the string to print
 print:
-    mov bx, 0 ; Set foreground color
-    mov ah, 0eh ; Set interrupt to print
+    mov bx, 0h ; Set foreground color
+    mov ah, eh ; Set interrupt to print
 .loop:
     lodsb ; al = si++
-    cmp al, 0 ; Did we reach null?
+    cmp al, 0h ; Did we reach null?
     je .done
-    int 0x10
+    int 10h
     jmp .loop
 .done:
     ret
 
 times 510 - ($ - $$) db 0 ; Fill sector
-dw 0xAA55 ; Add bootable sector signature (reversed because of endianity)
+dw AA55h ; Add bootable sector signature (reversed because of endianity)
 
 buffer:
