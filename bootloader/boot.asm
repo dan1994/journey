@@ -32,9 +32,45 @@ start:
 
     sti ; Enable interrupts
 
-    mov si, message
-    call print
+    call main
     jmp $ ; Infinite loop
+
+main:
+    ; read_sectors(buffer, offset=2, number=1)
+    mov bx, buffer
+    mov cl, 2h
+    mov al, 1h
+    call read_sectors
+
+    ; if(failed) goto .done
+    cmp ax, 0h
+    jnz .done
+
+    ; print(buffer)
+    mov si, buffer
+    call print
+.done:
+    ret
+
+; @arg - bx - pointer to buffer
+; @arg - cl - Sector offset
+; @arg - al - Number of sectors
+; @return - ax - 0 iff success
+read_sectors:
+    mov ah, 2h ; Set interrupt to read
+    mov ch, 0h ; Cylinder low eight bits
+    mov dh, 0h ; Head number
+    int 13h
+    jnc .done
+.error:
+    mov si, .error_message
+    call print
+    mov ax, -1
+    ret
+.done:
+    mov ax, 0
+    ret
+.error_message: db 'Failed to read sectors', 0
 
 ; @arg - si - point to the string to print
 print:
@@ -49,6 +85,7 @@ print:
 .done:
     ret
 
-message: db 'Hello, World!', 0
 times 510 - ($ - $$) db 0 ; Fill sector
 dw 0xAA55 ; Add bootable sector signature (reversed because of endianity)
+
+buffer:
