@@ -92,6 +92,11 @@ start32:
     mov ebp, 0200000h
     mov esp, ebp
 
+.enable_a20_line: ; Allows addressing more than 1 MB
+    in al, 0x92
+    or al, 2
+    out 0x92, al
+
 .infinite_loop:
     jmp $
 
