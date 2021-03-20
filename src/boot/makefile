@@ -1,7 +1,11 @@
 SRC_DIR=.
 BIN_DIR=../../bin/boot
 SOURCES=$(SRC_DIR)/boot.asm
-TARGET=$(BIN_DIR)/boot.bin
+IMAGE=$(BIN_DIR)/boot.bin
+
+export PREFIX:="$(HOME)/opt/cross"
+export TARGET:=i686-elf
+export PATH:="$(PREFIX)/bin:$(PATH)"
 
 .PHONY: all
 all: compile
@@ -12,16 +16,16 @@ gdb: compile
 
 .PHONY: run
 run: compile
-	qemu-system-x86_64 -hda $(TARGET)
+	qemu-system-x86_64 -hda $(IMAGE)
 
 .PHONY: view
 view: compile
-	ndisasm $(TARGET) | less
+	ndisasm $(IMAGE) | less
 
 .PHONY: compile
-compile: $(BIN_DIR) $(TARGET)
+compile: $(BIN_DIR) $(IMAGE)
 
-$(TARGET): $(SOURCES)
+$(IMAGE): $(SOURCES)
 	nasm -f bin $< -o $@
 
 $(BIN_DIR):
