@@ -46,7 +46,8 @@ start:
     or eax, 1h
     mov cr0, eax
 
-    jmp CODE_SEGMENT:start32 ; Jump to 32 bit code
+    ; jmp CODE_SEGMENT:start32 ; Jump to 32 bit code
+    jmp $
 
 ; GDT
 
@@ -78,27 +79,6 @@ gdt_end:
 gdt_descriptor:
     dw gdt_end - gdt_start - 1
     dd gdt_start
-
-[BITS 32] ; Code under here is 32 bits
-start32:
-.setup_segments_and_stack:
-    mov ax, DATA_SEGMENT
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-
-    mov ebp, 0200000h
-    mov esp, ebp
-
-.enable_a20_line: ; Allows addressing more than 1 MB
-    in al, 0x92
-    or al, 2
-    out 0x92, al
-
-.infinite_loop:
-    jmp $
 
 ; Sector Padding
 
