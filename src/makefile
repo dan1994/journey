@@ -1,3 +1,4 @@
+SRC_DIR=.
 BUILD_DIR=../build
 BIN_DIR=../bin
 
@@ -6,7 +7,18 @@ KERNEL=$(BIN_DIR)/kernel/kernel.bin
 TARGET=$(BIN_DIR)/os.bin
 
 .PHONY: all
-all: $(TARGET)
+all: compile
+
+.PHONY: gdb
+gdb: compile
+	gdb -x $(SRC_DIR)/gdb_startup.txt
+
+.PHONY: run
+run: compile
+	qemu-system-x86_64 -hda $(TARGET)
+
+.PHONY: compile
+compile: $(TARGET)
 
 $(TARGET): $(BOOTLOADER) $(KERNEL)
 	rm -f $(TARGET)
