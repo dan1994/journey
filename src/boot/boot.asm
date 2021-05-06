@@ -60,7 +60,7 @@ gdt_code:
     dw 0ffffh ; Segment limit 0:15
     dw 0h ; Base 0:15
     db 0h ; Base 16:23
-    db 10011100b ; Access
+    db 10011010b ; Access
     db 11001111b ; {Flags, Segment limit 16:19}
     db 0h ; Base 24:31
 
@@ -69,7 +69,7 @@ gdt_data:
     dw 0ffffh ; Segment limit 0:15
     dw 0h ; Base 0:15
     db 0h ; Base 16:23
-    db 10010011b ; Access
+    db 10010010b ; Access
     db 11001111b ; {Flags, Segment limit 16:19}
     db 0h ; Base 24:31
 
