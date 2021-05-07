@@ -1,5 +1,7 @@
 [BITS 32] ; Code under here is 32 bits
 
+section .start
+
 global _start
 
 CODE_SEGMENT equ 8h
@@ -24,3 +26,9 @@ _start:
 
 .infinite_loop:
     jmp $
+
+; This code is going to precede the rest of our C code since it has to be loaded
+; at address 0x100000. In order to avoid alignment issues with the C code that
+; comes right after we make sure to align to a sector boundary.
+; The rest of the assembly will be put into a seperate section at the end.
+times 512 - ($ - $$) db 0
