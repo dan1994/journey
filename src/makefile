@@ -17,11 +17,15 @@ gdb: compile
 run: compile
 	qemu-system-x86_64 -hda $(TARGET)
 
+.PHONY: view
+view: compile
+	ndisasm $(TARGET) | less
+
 .PHONY: compile
 compile: $(TARGET)
 
 $(TARGET): $(BOOTLOADER) $(KERNEL)
-	rm -f $(TARGET)
+	rm -f $@
 	dd if=$(BOOTLOADER) >> $@
 	dd if=$(KERNEL) >> $@
 	dd if=/dev/zero bs=512 count=100 >> $@
