@@ -3,6 +3,7 @@
 section .start
 
 global _start
+extern kernel_start
 
 CODE_SEGMENT equ 8h
 DATA_SEGMENT equ 10h
@@ -23,6 +24,9 @@ _start:
     in al, 0x92
     or al, 2
     out 0x92, al
+
+.switch_to_c:
+    call kernel_start
 
 .infinite_loop:
     jmp $
