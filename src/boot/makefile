@@ -8,7 +8,7 @@ all: compile
 
 .PHONY: gdb
 gdb: compile
-	gdb -x $(SRC_DIR)/gdb_startup.txt
+	gdb
 
 .PHONY: run
 run: compile
