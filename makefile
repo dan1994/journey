@@ -1,6 +1,6 @@
-SRC_DIR=.
-BUILD_DIR=../build
-BIN_DIR=../bin
+SRC_DIR=src
+BUILD_DIR=build
+BIN_DIR=bin
 
 BOOTLOADER=$(BIN_DIR)/boot/boot.bin
 KERNEL=$(BIN_DIR)/kernel/kernel.bin
@@ -30,11 +30,13 @@ $(TARGET): $(BOOTLOADER) $(KERNEL)
 	dd if=$(KERNEL) >> $@
 	dd if=/dev/zero bs=512 count=100 >> $@
 
+.PHONY: $(BOOTLOADER)
 $(BOOTLOADER):
-	make -C boot
+	make -C $(SRC_DIR)/boot
 
+.PHONY: $(KERNEL)
 $(KERNEL):
-	make -C kernel
+	make -C $(SRC_DIR)/kernel
 
 .PHONY: clean
 clean:
