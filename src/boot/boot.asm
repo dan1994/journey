@@ -131,11 +131,12 @@ ata_lba_read:
 
     ; Busy wait until data is available
 .wait_for_data:
+    mov dx, 1f7h
     in al, dx
     test al, 8
     jz .wait_for_data
 
-    mov dx, 0x1f0 ; Setup IO register to where read data is stored
+    mov dx, 1f0h ; Setup IO register to where read data is stored
 
     ; Inner loop that reads all bytes of the sector
     ; These two instructions say repeat insw 256 times, where insw reads from
