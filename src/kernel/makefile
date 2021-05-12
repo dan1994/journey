@@ -45,9 +45,11 @@ $(TARGET_ELF): $(OBJECTS)
 	$(LD) $(LINKFLAGS) $^ -o $@
 
 $(BUILD_DIR)/%.c.o: %.c
+	mkdir -p $(@D)
 	$(GCC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.asm.o: %.asm
+	mkdir -p $(@D)
 	nasm $(ASMFLAGS) $< -o $@
 
 $(BUILD_DIR):
