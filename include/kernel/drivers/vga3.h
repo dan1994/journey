@@ -31,9 +31,11 @@ typedef enum {
  * Output a string to the screen at the current position.
  *
  * @param string - The string
- * @param color - One of the supported text mode colors
+ * @param foreground - The text color
+ * @param background - The background color
  */
-void vga3__print(const char *string, VGA3_COLOR color);
+void vga3__print(const char *string, VGA3_COLOR foreground,
+                 VGA3_COLOR background);
 
 /**
  * Clear the entire terminal.
@@ -47,9 +49,11 @@ void vga3__clear();
  * Advancing the position may include moving to a new line or scrolling.
  *
  * @param character - The character
- * @param color - One of the supported text mode colors
+ * @param foreground - The text color
+ * @param background - The background color
  */
-void _vga3__write_char(char character, VGA3_COLOR color);
+void _vga3__write_char(char character, VGA3_COLOR foreground,
+                       VGA3_COLOR background);
 
 /**
  * Scroll one line down.
@@ -65,10 +69,11 @@ void _vga3__scroll();
  * @param terminal_row - The row index
  * @param terminal_column - The column index
  * @param character - The character
- * @param color - One of the supported text mode colors
+ * @param foreground - The text color
+ * @param background - The background color
  */
 void _vga3__put_char(uint8_t row, uint8_t column, char character,
-                     VGA3_COLOR color);
+                     VGA3_COLOR foreground, VGA3_COLOR background);
 
 /**
  * Get the linear offset of a character given its position.
@@ -83,6 +88,8 @@ size_t _vga3__character_offset(uint8_t row, uint8_t column);
  * color, as understood by the text mode controller.
  *
  * @param character - The character
- * @param color - One of the supported text mode colors
+ * @param foreground - The text color
+ * @param background - The background color
  */
-uint16_t _vga3__make_char(char character, VGA3_COLOR color);
+uint16_t _vga3__make_char(char character, VGA3_COLOR foreground,
+                          VGA3_COLOR background);
