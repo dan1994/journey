@@ -72,5 +72,6 @@ size_t _vga3__character_offset(uint8_t row, uint8_t column) {
 
 uint16_t _vga3__make_char(char character, VGA3_COLOR foreground,
                           VGA3_COLOR background) {
-    return ((foreground | background << 4) << 8) | character;
+    const uint8_t colors = (background << 4) | (foreground & 0x0f);
+    return (colors << 8) | character;
 }
