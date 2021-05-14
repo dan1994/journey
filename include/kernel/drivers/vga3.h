@@ -30,9 +30,9 @@ typedef enum {
 /**
  * Output a string to the screen at the current position.
  *
- * @param string - The string
- * @param foreground - The text color
- * @param background - The background color
+ * @param string The string
+ * @param foreground The text color
+ * @param background The background color
  */
 void vga3__print(const char *string, VGA3_COLOR foreground,
                  VGA3_COLOR background);
@@ -48,9 +48,9 @@ void vga3__clear();
  *
  * Advancing the position may include moving to a new line or scrolling.
  *
- * @param character - The character
- * @param foreground - The text color
- * @param background - The background color
+ * @param character The character
+ * @param foreground The text color
+ * @param background The background color
  */
 void _vga3__write_char(char character, VGA3_COLOR foreground,
                        VGA3_COLOR background);
@@ -66,11 +66,11 @@ void _vga3__scroll();
 /**
  * Output a character to the screen at a given position.
  *
- * @param terminal_row - The row index
- * @param terminal_column - The column index
- * @param character - The character
- * @param foreground - The text color
- * @param background - The background color
+ * @param terminal_row The row index
+ * @param terminal_column The column index
+ * @param character The character
+ * @param foreground The text color
+ * @param background The background color
  */
 void _vga3__put_char(uint8_t row, uint8_t column, char character,
                      VGA3_COLOR foreground, VGA3_COLOR background);
@@ -78,8 +78,9 @@ void _vga3__put_char(uint8_t row, uint8_t column, char character,
 /**
  * Get the linear offset of a character given its position.
  *
- * @param row - The row
- * @param column - The column
+ * @param row The row
+ * @param column The column
+ * @return The linear offset matching the row and column
  */
 size_t _vga3__character_offset(uint8_t row, uint8_t column);
 
@@ -87,9 +88,10 @@ size_t _vga3__character_offset(uint8_t row, uint8_t column);
  * Create the binary representation of a character with a specific foreground
  * color, as understood by the text mode controller.
  *
- * @param character - The character
- * @param foreground - The text color
- * @param background - The background color
+ * @param character The character
+ * @param foreground The text color
+ * @param background The background color
+ * @return The reperesentation in memory of the character with the given colors
  */
 uint16_t _vga3__make_char(char character, VGA3_COLOR foreground,
                           VGA3_COLOR background);

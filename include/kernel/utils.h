@@ -3,7 +3,7 @@
 /**
  * Print a string to the screen.
  *
- * @param string - The string
+ * @param string The string
  */
 void print(const char *string);
 
