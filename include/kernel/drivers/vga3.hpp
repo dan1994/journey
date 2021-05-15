@@ -40,14 +40,9 @@ class Vga3 {
      * @param foreground The text color
      * @param background The background color
      */
-    static void print(const char *string, Color foreground, Color background);
+    static void print(const char *string, Color foreground = Color::LIGHT_GRAY,
+                      Color background = Color::BLACK);
 
-    /**
-     * Clear the entire terminal.
-     */
-    static void clear();
-
-   private:
     /**
      * Output a character to the screen at the current position and move to the
      * next position.
@@ -58,8 +53,15 @@ class Vga3 {
      * @param foreground The text color
      * @param background The background color
      */
-    static void write_char(char character, Color foreground, Color background);
+    static void print(char character, Color foreground = Color::LIGHT_GRAY,
+                      Color background = Color::BLACK);
 
+    /**
+     * Clear the entire terminal.
+     */
+    static void clear();
+
+   private:
     /**
      * Scroll one line down.
      *

@@ -10,21 +10,11 @@ volatile uint16_t *const Vga3::VIDEO_MEMORY =
 
 void Vga3::print(const char *string, Color foreground, Color background) {
     while (*string) {
-        write_char(*(string++), foreground, background);
+        print(*(string++), foreground, background);
     }
 }
 
-void Vga3::clear() {
-    for (row = 0; row < SCREEN_HEIGHT; row++) {
-        for (column = 0; column < SCREEN_WIDTH; column++) {
-            put_char(row, column, ' ', Color::BLACK, Color::BLACK);
-        }
-    }
-    row = 0;
-    column = 0;
-}
-
-void Vga3::write_char(char character, Color foreground, Color background) {
+void Vga3::print(char character, Color foreground, Color background) {
     if (character == '\n') {
         row += 1;
         column = 0;
@@ -43,6 +33,16 @@ void Vga3::write_char(char character, Color foreground, Color background) {
         column = 0;
         row = SCREEN_HEIGHT - 1;
     }
+}
+
+void Vga3::clear() {
+    for (row = 0; row < SCREEN_HEIGHT; row++) {
+        for (column = 0; column < SCREEN_WIDTH; column++) {
+            put_char(row, column, ' ', Color::BLACK, Color::BLACK);
+        }
+    }
+    row = 0;
+    column = 0;
 }
 
 void Vga3::scroll() {
