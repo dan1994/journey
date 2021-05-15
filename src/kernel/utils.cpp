@@ -5,7 +5,7 @@
 using namespace drivers;
 
 void print(const char *string) {
-    Vga3::print(string, Vga3Color::LIGHT_GRAY, Vga3Color::BLACK);
+    Vga3::print(string, Vga3::Color::LIGHT_GRAY, Vga3::Color::BLACK);
 }
 
 void clear() {

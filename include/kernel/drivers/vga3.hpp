@@ -10,28 +10,28 @@
 
 namespace drivers {
 
-enum class Vga3Color : uint8_t {
-    BLACK,
-    BLUE,
-    GREEN,
-    CYAN,
-    RED,
-    MAGENTA,
-    BROWN,
-    LIGHT_GRAY,
-    DARK_GREY,
-    LIGHT_BLUE,
-    LIGHT_GREEN,
-    LIGHT_CYAN,
-    LIGHT_RED,
-    LIGHT_MAGENTA,
-    YELLOW,
-    WHITE
-};
-
 class Vga3 {
    public:
     Vga3() = delete;
+
+    enum class Color : uint8_t {
+        BLACK,
+        BLUE,
+        GREEN,
+        CYAN,
+        RED,
+        MAGENTA,
+        BROWN,
+        LIGHT_GRAY,
+        DARK_GREY,
+        LIGHT_BLUE,
+        LIGHT_GREEN,
+        LIGHT_CYAN,
+        LIGHT_RED,
+        LIGHT_MAGENTA,
+        YELLOW,
+        WHITE
+    };
 
     /**
      * Output a string to the screen at the current position.
@@ -40,8 +40,7 @@ class Vga3 {
      * @param foreground The text color
      * @param background The background color
      */
-    static void print(const char *string, Vga3Color foreground,
-                      Vga3Color background);
+    static void print(const char *string, Color foreground, Color background);
 
     /**
      * Clear the entire terminal.
@@ -59,8 +58,7 @@ class Vga3 {
      * @param foreground The text color
      * @param background The background color
      */
-    static void write_char(char character, Vga3Color foreground,
-                           Vga3Color background);
+    static void write_char(char character, Color foreground, Color background);
 
     /**
      * Scroll one line down.
@@ -80,7 +78,7 @@ class Vga3 {
      * @param background The background color
      */
     static void put_char(uint8_t row, uint8_t column, char character,
-                         Vga3Color foreground, Vga3Color background);
+                         Color foreground, Color background);
 
     /**
      * Get the linear offset of a character given its position.
@@ -101,8 +99,8 @@ class Vga3 {
      * @return The reperesentation in memory of the character with the given
      * colors
      */
-    static uint16_t make_char(char character, Vga3Color foreground,
-                              Vga3Color background);
+    static uint16_t make_char(char character, Color foreground,
+                              Color background);
 
     static size_t row;
     static size_t column;
