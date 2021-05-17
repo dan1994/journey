@@ -6,7 +6,7 @@ using namespace drivers;
 
 extern "C" void kernel_start() {
     Vga3::clear();
-    Vga3::print("Initializing DanOS...\n");
+    Vga3::print("Initializing Journey...\n");
 
     Interrupts::init();
     Interrupts::register_interrupt(0, isr_divide_by_zero,
