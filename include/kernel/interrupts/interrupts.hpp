@@ -6,7 +6,7 @@
  * See https://wiki.osdev.org/IDT for more info.
  */
 
-#include "kernel/interrupts/idt.hpp"
+#include "interrupts/idt.hpp"
 
 class Interrupts final {
    public:

@@ -1,6 +1,6 @@
-#include "kernel/drivers/vga3.hpp"
-#include "kernel/interrupts/interrupts.hpp"
-#include "kernel/interrupts/isr.hpp"
+#include "drivers/vga3.hpp"
+#include "interrupts/interrupts.hpp"
+#include "interrupts/isr.hpp"
 
 using namespace drivers;
 

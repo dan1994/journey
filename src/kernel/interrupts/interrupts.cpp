@@ -1,6 +1,6 @@
-#include "kernel/interrupts/interrupts.hpp"
+#include "interrupts/interrupts.hpp"
 
-#include "kernel/entrypoint/config.hpp"
+#include "entrypoint/config.hpp"
 
 extern "C" void load_idt(const IdtRegister *idtr);
 

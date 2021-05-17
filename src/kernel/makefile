@@ -1,5 +1,5 @@
 ROOT_DIR=../..
-INCLUDE_DIR=$(ROOT_DIR)/include
+INCLUDE_DIR=$(ROOT_DIR)/include/kernel
 SRC_DIR=.
 BUILD_DIR=$(ROOT_DIR)/build/kernel
 BIN_DIR=$(ROOT_DIR)/bin/kernel

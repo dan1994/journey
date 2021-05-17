@@ -1,4 +1,4 @@
-#include "kernel/drivers/vga3.hpp"
+#include "drivers/vga3.hpp"
 
 using namespace drivers;
 
