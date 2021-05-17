@@ -11,7 +11,7 @@ extern "C" void kernel_start() {
     Interrupts::init();
     Interrupts::register_interrupt(0, isr_divide_by_zero,
                                    Interrupts::PriviledgeLevel::KERNEL,
-                                   Interrupts::GateType::INTERRUPT32);
+                                   Interrupts::GateSize::BITS32);
 
     asm("int $0");
 }

@@ -13,9 +13,23 @@ void Interrupts::init() {
     load_idt(&idtr);
 }
 
-void Interrupts::register_interrupt(uint8_t interrupt_number,
-                                    Isr handler_address, PriviledgeLevel dpl,
-                                    GateType gate_type) {
+void Interrupts::register_task(Id id, PriviledgeLevel dpl) {
+    constexpr Isr no_isr = nullptr;
+    register_internal(id, no_isr, dpl, GateType::TASK, GateSize::BITS16);
+}
+
+void Interrupts::register_interrupt(Id id, Isr isr, PriviledgeLevel dpl,
+                                    GateSize size) {
+    register_internal(id, isr, dpl, GateType::INTERRUPT, size);
+}
+
+void Interrupts::register_trap(Id id, Isr isr, PriviledgeLevel dpl,
+                               GateSize size) {
+    register_internal(id, isr, dpl, GateType::TRAP, size);
+}
+
+void Interrupts::register_internal(Id id, Isr isr, PriviledgeLevel dpl,
+                                   GateType type, GateSize size) {
     // Enable by default
     constexpr uint8_t ACTIVE = 1;
     // According to the intel manual this bit is always 0.
@@ -23,10 +37,9 @@ void Interrupts::register_interrupt(uint8_t interrupt_number,
     // https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.pdf
     constexpr uint8_t STORAGE_SEGMENT = 0;
 
-    IdtDescriptor *const interrupt = &interrupts[interrupt_number];
+    IdtDescriptor *const interrupt = &interrupts[id];
 
-    const uint32_t handler_address_uint32 =
-        reinterpret_cast<uint32_t>(handler_address);
+    const uint32_t handler_address_uint32 = reinterpret_cast<uint32_t>(isr);
     interrupt->offset_lsb = handler_address_uint32 & 0xffff;
     interrupt->offset_msb = handler_address_uint32 >> 16;
 
@@ -35,18 +48,18 @@ void Interrupts::register_interrupt(uint8_t interrupt_number,
 
     interrupt->zero = 0;
 
-    interrupt->type_attribute = ACTIVE << 7 | static_cast<uint8_t>(dpl) << 5 |
-                                STORAGE_SEGMENT << 4 |
-                                static_cast<uint8_t>(gate_type);
+    interrupt->type_attribute =
+        ACTIVE << 7 | static_cast<uint8_t>(dpl) << 5 | STORAGE_SEGMENT << 4 |
+        static_cast<uint8_t>(size) << 3 | static_cast<uint8_t>(type);
 }
 
-void Interrupts::enable(uint8_t interrupt_number) {
+void Interrupts::enable(Id id) {
     constexpr uint8_t ENABLE_PRESENT_BIT_MASK = 1 << 7;
-    interrupts[interrupt_number].type_attribute |= ENABLE_PRESENT_BIT_MASK;
+    interrupts[id].type_attribute |= ENABLE_PRESENT_BIT_MASK;
 }
 
-void Interrupts::disable(uint8_t interrupt_number) {
+void Interrupts::disable(Id id) {
     constexpr uint8_t DISABLE_PRESENT_BIT_MASK =
         static_cast<uint8_t>(~(1 << 7));
-    interrupts[interrupt_number].type_attribute &= DISABLE_PRESENT_BIT_MASK;
+    interrupts[id].type_attribute &= DISABLE_PRESENT_BIT_MASK;
 }

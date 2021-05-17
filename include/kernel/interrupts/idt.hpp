@@ -12,9 +12,13 @@ typedef struct __attribute__((packed)) {
     uint16_t offset_lsb;     // Offset in memory
     uint16_t selector;       // Selector from the GDT
     uint8_t zero;            // Reserved
-    uint8_t type_attribute;  // {Present, DPL (Descriptor Priviledge Level),
-                             // Storage Segment, Gate Type}
-    uint16_t offset_msb;     // Offset in memory
+    uint8_t type_attribute;  // Equivalent to (assuming LSB->MSB):
+    // uint8_t gate_type : 3;        // Task/Interrupt/Trap
+    // uint8_t gate_size : 1;        // 16/32 bits
+    // uint8_t storage_segment : 1;  // Always 0 according to manual
+    // uint8_t dpl : 2;              // Ring from which can be invoked
+    // uint8_t present : 1;          // Is it active?
+    uint16_t offset_msb;  // Offset in memory
 } IdtDescriptor;
 
 // Structure of the IDT register
