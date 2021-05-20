@@ -1,5 +1,6 @@
 #include "interrupts/interrupts.hpp"
 
+#include "drivers/vga3.hpp"
 #include "entrypoint/config.hpp"
 #include "interrupts/isr.hpp"
 
@@ -30,8 +31,11 @@ void Interrupts::disable(Id id) {
 }
 
 void Interrupts::register_task(Id id, PriviledgeLevel dpl) {
-    constexpr Isr no_isr = nullptr;
-    register_internal(id, no_isr, dpl, GateType::TASK, GateSize::BITS16);
+    drivers::Vga3::print(
+        "TSS selector not yet implemented, task will not be registered.\n");
+
+    // constexpr Isr no_isr = nullptr;
+    // register_internal(id, no_isr, dpl, GateType::TASK, GateSize::BITS16);
 }
 
 void Interrupts::register_interrupt(Id id, Isr isr, PriviledgeLevel dpl,
