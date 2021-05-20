@@ -13,6 +13,28 @@ class Interrupts final {
     // The number used with the int instruction
     using Id = uint8_t;
 
+    Interrupts() = delete;
+
+    /**
+     * Initializes the IDT register, and registers all interrupts.
+     */
+    static void init();
+
+    /**
+     * Enable the entry specified by id.
+     *
+     * @param id The number used to activate the isr.
+     */
+    static void enable(Id id);
+
+    /**
+     * Disable the entry specified by id.
+     *
+     * @param id The number used to activate the isr.
+     */
+    static void disable(Id id);
+
+   private:
     // ISR = Interrupt Service Routine
     using Isr = void (*)(void *);
 
@@ -22,12 +44,12 @@ class Interrupts final {
     // Whether the ISR is written in 16 or 32 bits
     enum class GateSize : uint8_t { BITS16, BITS32 };
 
-    Interrupts() = delete;
-
-    /**
-     * Initializes the IDT register. Must be called for interrupts to work.
-     */
-    static void init();
+    // Whether this is an task, interrupt or trap
+    enum class GateType : uint8_t {
+        TASK = 0x5,
+        INTERRUPT,
+        TRAP,
+    };
 
     /**
      * Register a task on the given interrupt number.
@@ -58,28 +80,6 @@ class Interrupts final {
      */
     static void register_trap(Id id, Isr isr, PriviledgeLevel dpl,
                               GateSize size);
-
-    /**
-     * Enable the entry specified by id.
-     *
-     * @param id The number used to activate the isr.
-     */
-    static void enable(Id id);
-
-    /**
-     * Disable the entry specified by id.
-     *
-     * @param id The number used to activate the isr.
-     */
-    static void disable(Id id);
-
-   private:
-    // Whether this is an task, interrupt or trap
-    enum class GateType : uint8_t {
-        TASK = 0x5,
-        INTERRUPT,
-        TRAP,
-    };
 
     /**
      * Registers a task, interrupt or trap on the given interrupt number.

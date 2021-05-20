@@ -18,6 +18,17 @@ void Interrupts::init() {
                        Interrupts::GateSize::BITS32);
 }
 
+void Interrupts::enable(Id id) {
+    constexpr uint8_t ENABLE_PRESENT_BIT_MASK = 1 << 7;
+    interrupts[id].type_attribute |= ENABLE_PRESENT_BIT_MASK;
+}
+
+void Interrupts::disable(Id id) {
+    constexpr uint8_t DISABLE_PRESENT_BIT_MASK =
+        static_cast<uint8_t>(~(1 << 7));
+    interrupts[id].type_attribute &= DISABLE_PRESENT_BIT_MASK;
+}
+
 void Interrupts::register_task(Id id, PriviledgeLevel dpl) {
     constexpr Isr no_isr = nullptr;
     register_internal(id, no_isr, dpl, GateType::TASK, GateSize::BITS16);
@@ -56,15 +67,4 @@ void Interrupts::register_internal(Id id, Isr isr, PriviledgeLevel dpl,
     interrupt->type_attribute =
         ACTIVE << 7 | static_cast<uint8_t>(dpl) << 5 | STORAGE_SEGMENT << 4 |
         static_cast<uint8_t>(size) << 3 | static_cast<uint8_t>(type);
-}
-
-void Interrupts::enable(Id id) {
-    constexpr uint8_t ENABLE_PRESENT_BIT_MASK = 1 << 7;
-    interrupts[id].type_attribute |= ENABLE_PRESENT_BIT_MASK;
-}
-
-void Interrupts::disable(Id id) {
-    constexpr uint8_t DISABLE_PRESENT_BIT_MASK =
-        static_cast<uint8_t>(~(1 << 7));
-    interrupts[id].type_attribute &= DISABLE_PRESENT_BIT_MASK;
 }
