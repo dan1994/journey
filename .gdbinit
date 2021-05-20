@@ -1,5 +1,5 @@
 target remote | qemu-system-x86_64 -hda bin/os.bin -S -gdb stdio
-add-symbol-file build/kernel/kernel.o -s .start 0x100000 -s .text 0x101000
+add-symbol-file build/kernel/kernel.o -s .start 0x100000 -s .text 0x101000 -s .bss 0x103000
 set disassembly-flavor intel
 layout asm
 set confirm off
