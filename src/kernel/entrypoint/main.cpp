@@ -4,7 +4,7 @@
 
 using namespace drivers;
 
-extern "C" void kernel_start() {
+extern "C" void kernel_main() {
     Vga3::clear();
     Vga3::print("Initializing Journey...\n");
 
