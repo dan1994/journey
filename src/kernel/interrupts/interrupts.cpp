@@ -1,6 +1,7 @@
 #include "interrupts/interrupts.hpp"
 
 #include "entrypoint/config.hpp"
+#include "interrupts/isr.hpp"
 
 extern "C" void load_idt(const IdtRegister *idtr);
 
@@ -11,6 +12,10 @@ void Interrupts::init() {
                               .base = reinterpret_cast<uint32_t>(interrupts)};
 
     load_idt(&idtr);
+
+    register_interrupt(0, isr_divide_by_zero,
+                       Interrupts::PriviledgeLevel::KERNEL,
+                       Interrupts::GateSize::BITS32);
 }
 
 void Interrupts::register_task(Id id, PriviledgeLevel dpl) {
