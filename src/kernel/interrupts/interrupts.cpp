@@ -15,7 +15,7 @@ void Interrupts::init() {
 
     load_idt(&idtr);
 
-    register_interrupt(0, isr_divide_by_zero,
+    register_interrupt(Id::DIVIDE_BY_ZERO, isr_divide_by_zero,
                        Interrupts::PriviledgeLevel::KERNEL,
                        Interrupts::GateSize::BITS32);
 }

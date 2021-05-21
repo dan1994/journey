@@ -11,7 +11,7 @@
 class Interrupts final {
    public:
     // The number used with the int instruction
-    using Id = uint8_t;
+    enum class Id : uint8_t { DIVIDE_BY_ZERO };
 
     Interrupts() = delete;
 
