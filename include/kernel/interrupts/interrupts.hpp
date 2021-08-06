@@ -10,8 +10,28 @@
 
 class Interrupts final {
    public:
+    // The offset in the IDT where we put Programmable Interrupt Controller
+    // interrupts.
+    static constexpr uint8_t PIC_OFFSET = 0x20;
+
     // The number used with the int instruction
-    enum class Id : uint8_t { DIVIDE_BY_ZERO };
+    enum class Id : uint8_t {
+        DIVIDE_BY_ZERO,
+        PIC_TIMER = PIC_OFFSET,
+        PIC_KEYBOARD,
+        PIC_CASCADE,
+        PIC_COM2,
+        PIC_COM1,
+        PIC_LPT2,
+        PIC_FLOPPY,
+        PIC_LPT1,
+        PIC_CMOS_RTC,
+        PIC_UNUSED_0,
+        PIC_UNUSED_1,
+        PIC_UNUSED_2,
+        PIC_PS2,
+        PIC_FPU
+    };
 
     Interrupts() = delete;
 
@@ -50,6 +70,11 @@ class Interrupts final {
         INTERRUPT,
         TRAP,
     };
+
+    /**
+     * Registers all tasks, interrupts and traps.
+     */
+    static void register_all();
 
     /**
      * Register a task on the given interrupt number.

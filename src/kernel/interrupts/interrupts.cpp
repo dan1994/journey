@@ -3,6 +3,7 @@
 #include "drivers/vga3.hpp"
 #include "entrypoint/config.hpp"
 #include "interrupts/isr.hpp"
+#include "interrupts/pic.hpp"
 #include "std/type_traits.hpp"
 
 extern "C" void load_idt(const IdtRegister *idtr);
@@ -15,9 +16,10 @@ void Interrupts::init() {
 
     load_idt(&idtr);
 
-    register_interrupt(Id::DIVIDE_BY_ZERO, isr_divide_by_zero,
-                       Interrupts::PriviledgeLevel::KERNEL,
-                       Interrupts::GateSize::BITS32);
+    ProgrammableInterruptController::remap(
+        ProgrammableInterruptController::Id::MASTER, PIC_OFFSET);
+
+    register_all();
 }
 
 void Interrupts::enable(Id id) {
@@ -31,6 +33,12 @@ void Interrupts::disable(Id id) {
         static_cast<uint8_t>(~(1 << 7));
     interrupts[static_cast<std::underlying_type_t<Id>>(id)].type_attribute &=
         DISABLE_PRESENT_BIT_MASK;
+}
+
+void Interrupts::register_all() {
+    register_interrupt(Id::DIVIDE_BY_ZERO, isr_divide_by_zero,
+                       Interrupts::PriviledgeLevel::KERNEL,
+                       Interrupts::GateSize::BITS32);
 }
 
 void Interrupts::register_task(Id id, PriviledgeLevel dpl) {
