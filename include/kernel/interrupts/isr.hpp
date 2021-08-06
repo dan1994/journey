@@ -9,3 +9,4 @@
  */
 
 extern "C" void isr_divide_by_zero(void *reserved) __attribute__((interrupt));
+extern "C" void isr_keyboard_press(void *reserved) __attribute__((interrupt));

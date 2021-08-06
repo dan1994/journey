@@ -39,6 +39,10 @@ void Interrupts::register_all() {
     register_interrupt(Id::DIVIDE_BY_ZERO, isr_divide_by_zero,
                        Interrupts::PriviledgeLevel::KERNEL,
                        Interrupts::GateSize::BITS32);
+
+    register_interrupt(Id::PIC_KEYBOARD, isr_keyboard_press,
+                       Interrupts::PriviledgeLevel::KERNEL,
+                       Interrupts::GateSize::BITS32);
 }
 
 void Interrupts::register_task(Id id, PriviledgeLevel dpl) {
