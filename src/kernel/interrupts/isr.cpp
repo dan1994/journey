@@ -5,12 +5,22 @@
 
 using namespace drivers;
 
-extern "C" void isr_divide_by_zero(void *reserved) {
-    Vga3::print("Divide by zero error!\n");
-}
+#define ISR_CALLBACK(NAME, BODY)                 \
+    extern "C" void isr_##NAME(void *reserved) { \
+        __asm__("cli;");                         \
+                                                 \
+        BODY;                                    \
+                                                 \
+        __asm__("sti;");                         \
+    }
 
-extern "C" void isr_keyboard_press(void *reserved) {
-    Vga3::print("Key was pressed!\n");
-    ProgrammableInterruptController::signal_end_of_interrupt(
-        Interrupts::Id::PIC_KEYBOARD);
-}
+#define PIC_ISR_CALLBACK(NAME, BODY, ID) \
+    ISR_CALLBACK(                        \
+        NAME, BODY;                      \
+        ProgrammableInterruptController::signal_end_of_interrupt(ID);)
+
+ISR_CALLBACK(divide_by_zero, { Vga3::print("Divide by zero error!\n"); })
+
+PIC_ISR_CALLBACK(
+    keyboard_press, { Vga3::print("Key was pressed!\n"); },
+    Interrupts::Id::PIC_KEYBOARD)
