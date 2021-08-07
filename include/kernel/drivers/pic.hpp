@@ -13,6 +13,8 @@
 // Forward declare to avoid circular header dependency
 enum class Interrupt : uint8_t;
 
+namespace drivers {
+
 class ProgrammableInterruptController final {
    public:
     // The offset in the IDT where we put Programmable Interrupt Controller
@@ -45,3 +47,5 @@ class ProgrammableInterruptController final {
 
     static uint8_t idt_offset;
 };
+
+}  // namespace drivers

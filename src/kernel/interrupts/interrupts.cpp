@@ -15,7 +15,7 @@ void Interrupts::init() {
 
     load_idt(&idtr);
 
-    ProgrammableInterruptController::init();
+    drivers::ProgrammableInterruptController::init();
 
     register_all();
 

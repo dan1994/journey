@@ -1,8 +1,8 @@
 #include "interrupts/isr.hpp"
 
+#include "drivers/pic.hpp"
 #include "drivers/vga3.hpp"
 #include "interrupts/interrupts.hpp"
-#include "interrupts/pic.hpp"
 
 using namespace drivers;
 

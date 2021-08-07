@@ -1,4 +1,4 @@
-#include "interrupts/pic.hpp"
+#include "drivers/pic.hpp"
 
 // These defines are from https://wiki.osdev.org/PIC
 #define ICW1_ICW4 0x01      /* ICW4 (not) needed */
@@ -12,6 +12,8 @@
 #define ICW4_BUF_SLAVE 0x08  /* Buffered mode/slave */
 #define ICW4_BUF_MASTER 0x0C /* Buffered mode/master */
 #define ICW4_SFNM 0x10       /* Special fully nested (not) */
+
+namespace drivers {
 
 void ProgrammableInterruptController::init() {
     remap_master();
@@ -81,3 +83,5 @@ ProgrammableInterruptController::get_controller(Interrupt interrupt) {
 
     return Id::NONE;
 }
+
+}  // namespace drivers
