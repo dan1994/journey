@@ -13,44 +13,71 @@
 #define ICW4_BUF_MASTER 0x0C /* Buffered mode/master */
 #define ICW4_SFNM 0x10       /* Special fully nested (not) */
 
-void ProgrammableInterruptController::remap(Id controller, uint8_t idt_offset) {
-    const Io::Port command_port = get_command_port(controller);
-    const Io::Port data_port = get_data_port(controller);
+void ProgrammableInterruptController::init() {
+    remap_master();
+    remap_slave();
+}
 
-    Io::write_byte(command_port, ICW1_INIT | ICW1_ICW4);
+void ProgrammableInterruptController::remap_master() {
+    constexpr uint8_t CASCADE_THROUGH_IRQ2 = 1 << 2;
+    remap(Io::Port::MASTER_PIC_COMMAND, Io::Port::MASTER_PIC_DATA,
+          MASTER_OFFSET, CASCADE_THROUGH_IRQ2);
+}
+
+void ProgrammableInterruptController::remap_slave() {
+    constexpr uint8_t CASCADE_IDENTITY = 2;
+    remap(Io::Port::SLAVE_PIC_COMMAND, Io::Port::SLAVE_PIC_DATA, SLAVE_OFFSET,
+          CASCADE_IDENTITY);
+}
+
+void ProgrammableInterruptController::remap(Io::Port command_port,
+                                            Io::Port data_port,
+                                            uint8_t idt_offset,
+                                            uint8_t connection_information) {
+    constexpr uint8_t INITIALIZATION_WORD = ICW1_INIT | ICW1_ICW4;
+    constexpr uint8_t EXTRA_INFORMATION = ICW4_8086;
+
+    const uint8_t saved_masks = Io::read_byte(data_port);
+
+    Io::write_byte(command_port, INITIALIZATION_WORD);
     Io::write_byte(data_port, idt_offset);
-    Io::write_byte(data_port, ICW4_8086);
+    Io::write_byte(data_port, connection_information);
+    Io::write_byte(data_port, EXTRA_INFORMATION);
 
-    ProgrammableInterruptController::idt_offset = idt_offset;
+    Io::write_byte(data_port, saved_masks);
 }
 
 void ProgrammableInterruptController::signal_end_of_interrupt(
-    Interrupts::Id interrupt) {
+    Interrupt interrupt) {
     constexpr uint8_t END_OF_INTERRUPT = 0x20;
 
-    const Io::Port port = get_command_port(get_controller(interrupt));
+    const Id controller = get_controller(interrupt);
+    if (controller == Id::NONE) {
+        return;
+    }
+
+    const Io::Port port = controller == Id::MASTER
+                              ? Io::Port::MASTER_PIC_COMMAND
+                              : Io::Port::SLAVE_PIC_COMMAND;
 
     Io::write_byte(port, END_OF_INTERRUPT);
 }
 
-Io::Port ProgrammableInterruptController::get_command_port(Id controller) {
-    return controller == Id::MASTER ? Io::Port::MASTER_PIC_COMMAND
-                                    : Io::Port::SLAVE_PIC_COMMAND;
-}
-
-Io::Port ProgrammableInterruptController::get_data_port(Id controller) {
-    return controller == Id::MASTER ? Io::Port::MASTER_PIC_DATA
-                                    : Io::Port::SLAVE_PIC_DATA;
-}
-
 ProgrammableInterruptController::Id
-ProgrammableInterruptController::get_controller(Interrupts::Id interrupt) {
-    constexpr uint8_t LAST_MASTER_PIC_INTERRUPT = 0x8;
+ProgrammableInterruptController::get_controller(Interrupt interrupt) {
+    constexpr uint8_t INTERRUPTS_PER_CONTROLLER = 8;
 
-    return static_cast<uint8_t>(interrupt) - idt_offset <=
-                   LAST_MASTER_PIC_INTERRUPT
-               ? Id::MASTER
-               : Id::SLAVE;
+    const uint8_t interrupt_number = static_cast<uint8_t>(interrupt);
+
+    if (interrupt_number >= MASTER_OFFSET &&
+        interrupt_number < MASTER_OFFSET + INTERRUPTS_PER_CONTROLLER) {
+        return Id::MASTER;
+    }
+
+    if (interrupt_number >= SLAVE_OFFSET &&
+        interrupt_number < SLAVE_OFFSET + INTERRUPTS_PER_CONTROLLER) {
+        return Id::SLAVE;
+    }
+
+    return Id::NONE;
 }
-
-uint8_t ProgrammableInterruptController::idt_offset = 0;

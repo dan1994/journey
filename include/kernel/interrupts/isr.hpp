@@ -9,4 +9,12 @@
  */
 
 extern "C" void isr_divide_by_zero(void *reserved) __attribute__((interrupt));
+
+// Programmable interrupt controller interrupts
+/**
+ * Empty handler for PIC interrupts.
+ */
+extern "C" void isr_acknowledge_interrupt(void *reserved)
+    __attribute__((interrupt));
+
 extern "C" void isr_keyboard_press(void *reserved) __attribute__((interrupt));

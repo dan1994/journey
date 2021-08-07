@@ -1,26 +1,27 @@
 #include "interrupts/isr.hpp"
 
 #include "drivers/vga3.hpp"
+#include "interrupts/interrupt_ids.hpp"
+#include "interrupts/interrupts.hpp"
 #include "interrupts/pic.hpp"
 
 using namespace drivers;
 
-#define ISR_CALLBACK(NAME, BODY)                 \
+#define ISR(NAME, BODY)                          \
     extern "C" void isr_##NAME(void *reserved) { \
-        __asm__("cli;");                         \
-                                                 \
+        Interrupts::disable();                   \
         BODY;                                    \
-                                                 \
-        __asm__("sti;");                         \
+        Interrupts::enable();                    \
     }
 
-#define PIC_ISR_CALLBACK(NAME, BODY, ID) \
-    ISR_CALLBACK(                        \
-        NAME, BODY;                      \
+#define PIC_ISR(NAME, BODY, ID) \
+    ISR(NAME, BODY;             \
         ProgrammableInterruptController::signal_end_of_interrupt(ID);)
 
-ISR_CALLBACK(divide_by_zero, { Vga3::print("Divide by zero error!\n"); })
+ISR(divide_by_zero, { Vga3::print("Divide by zero error!\n"); })
 
-PIC_ISR_CALLBACK(
+PIC_ISR(acknowledge_interrupt, {}, Interrupt::PIC_TIMER);
+
+PIC_ISR(
     keyboard_press, { Vga3::print("Key was pressed!\n"); },
-    Interrupts::Id::PIC_KEYBOARD)
+    Interrupt::PIC_KEYBOARD)
