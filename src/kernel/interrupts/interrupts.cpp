@@ -15,7 +15,7 @@ void Interrupts::init() {
 
     load_idt(&idtr);
 
-    drivers::ProgrammableInterruptController::init();
+    drivers::Pic8259::init();
 
     register_all();
 

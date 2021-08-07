@@ -14,8 +14,7 @@ using namespace drivers;
     }
 
 #define PIC_ISR(NAME, BODY, ID) \
-    ISR(NAME, BODY;             \
-        ProgrammableInterruptController::signal_end_of_interrupt(ID);)
+    ISR(NAME, BODY; Pic8259::signal_end_of_interrupt(ID);)
 
 ISR(divide_by_zero, { Vga3::print("Divide by zero error!\n"); })
 

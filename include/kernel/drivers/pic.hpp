@@ -5,8 +5,8 @@
 #include "io/io.hpp"
 
 /**
- * The PIC is responsible for handling interrupts from other hardware components
- * such as the keyboard, mouse, etc.
+ * The Programmable Interrupt Controller (PIC) is responsible for handling
+ * interrupts from other hardware components such as the keyboard, mouse, etc.
  * See https://wiki.osdev.org/PIC for more info.
  */
 
@@ -15,7 +15,7 @@ enum class Interrupt : uint8_t;
 
 namespace drivers {
 
-class ProgrammableInterruptController final {
+class Pic8259 final {
    public:
     // The offset in the IDT where we put Programmable Interrupt Controller
     // interrupts.
@@ -24,7 +24,7 @@ class ProgrammableInterruptController final {
 
     enum class Id { MASTER, SLAVE, NONE };
 
-    ProgrammableInterruptController() = delete;
+    Pic8259() = delete;
 
     /**
      * Initialize the controllers, and remap them to the correct offsets in IDT.

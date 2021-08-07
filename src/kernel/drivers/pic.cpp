@@ -15,27 +15,25 @@
 
 namespace drivers {
 
-void ProgrammableInterruptController::init() {
+void Pic8259::init() {
     remap_master();
     remap_slave();
 }
 
-void ProgrammableInterruptController::remap_master() {
+void Pic8259::remap_master() {
     constexpr uint8_t CASCADE_THROUGH_IRQ2 = 1 << 2;
     remap(Io::Port::MASTER_PIC_COMMAND, Io::Port::MASTER_PIC_DATA,
           MASTER_OFFSET, CASCADE_THROUGH_IRQ2);
 }
 
-void ProgrammableInterruptController::remap_slave() {
+void Pic8259::remap_slave() {
     constexpr uint8_t CASCADE_IDENTITY = 2;
     remap(Io::Port::SLAVE_PIC_COMMAND, Io::Port::SLAVE_PIC_DATA, SLAVE_OFFSET,
           CASCADE_IDENTITY);
 }
 
-void ProgrammableInterruptController::remap(Io::Port command_port,
-                                            Io::Port data_port,
-                                            uint8_t idt_offset,
-                                            uint8_t connection_information) {
+void Pic8259::remap(Io::Port command_port, Io::Port data_port,
+                    uint8_t idt_offset, uint8_t connection_information) {
     constexpr uint8_t INITIALIZATION_WORD = ICW1_INIT | ICW1_ICW4;
     constexpr uint8_t EXTRA_INFORMATION = ICW4_8086;
 
@@ -49,8 +47,7 @@ void ProgrammableInterruptController::remap(Io::Port command_port,
     Io::write_byte(data_port, saved_masks);
 }
 
-void ProgrammableInterruptController::signal_end_of_interrupt(
-    Interrupt interrupt) {
+void Pic8259::signal_end_of_interrupt(Interrupt interrupt) {
     constexpr uint8_t END_OF_INTERRUPT = 0x20;
 
     const Id controller = get_controller(interrupt);
@@ -65,8 +62,7 @@ void ProgrammableInterruptController::signal_end_of_interrupt(
     Io::write_byte(port, END_OF_INTERRUPT);
 }
 
-ProgrammableInterruptController::Id
-ProgrammableInterruptController::get_controller(Interrupt interrupt) {
+Pic8259::Id Pic8259::get_controller(Interrupt interrupt) {
     constexpr uint8_t INTERRUPTS_PER_CONTROLLER = 8;
 
     const uint8_t interrupt_number = static_cast<uint8_t>(interrupt);
