@@ -1,7 +1,6 @@
 #include "interrupts/isr.hpp"
 
 #include "drivers/vga3.hpp"
-#include "interrupts/interrupt_ids.hpp"
 #include "interrupts/interrupts.hpp"
 #include "interrupts/pic.hpp"
 

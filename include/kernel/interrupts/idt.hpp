@@ -26,3 +26,11 @@ typedef struct __attribute__((packed)) {
     uint16_t limit;  // The length of the IDT - 1 in bytes
     uint32_t base;   // The address of the IDT in memory
 } IdtRegister;
+
+/**
+ * Loads the IDT register.
+ *
+ * @param idtr Pointer to memory that contains the content to be loaded to the
+ * IDT register.
+ */
+extern "C" void load_idt(const IdtRegister *idtr);

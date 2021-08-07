@@ -2,12 +2,8 @@
 
 #include "drivers/vga3.hpp"
 #include "entrypoint/config.hpp"
-#include "interrupts/interrupt_ids.hpp"
 #include "interrupts/isr.hpp"
-#include "interrupts/pic.hpp"
 #include "std/type_traits.hpp"
-
-extern "C" void load_idt(const IdtRegister *idtr);
 
 IdtDescriptor Interrupts::interrupts[INTERRUPT_NUMBER] = {{0}};
 

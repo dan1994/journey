@@ -10,6 +10,7 @@
  * See https://wiki.osdev.org/PIC for more info.
  */
 
+// Forward declare to avoid circular header dependency
 enum class Interrupt : uint8_t;
 
 class ProgrammableInterruptController final {
