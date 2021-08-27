@@ -4,7 +4,7 @@
 
 using namespace drivers;
 
-extern "C" void kernel_main() {
+extern "C" void main() {
     Vga3::clear();
     Logger::set_log_level(Logger::Level::INFO);
 

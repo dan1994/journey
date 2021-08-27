@@ -4,7 +4,7 @@ section .start
 
 global _start
 extern initialize_global_variables
-extern kernel_main
+extern main
 extern finalize_global_variables
 
 CODE_SEGMENT equ 8h
@@ -29,7 +29,7 @@ _start:
 
 .switch_to_cpp:
     call initialize_global_variables
-    call kernel_main
+    call main
     call finalize_global_variables
 
 .infinite_loop:
