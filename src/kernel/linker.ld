@@ -15,4 +15,17 @@ SECTIONS {
     .data : ALIGN(4096) { *(.data) }
     .bss : ALIGN(4096) { *(COMMON) *(.bss) }
     .asm : ALIGN(4096) { *(.asm) } /* Avoid C code alignment issues by putting most assembly code down here */
+    /* These sections hold pointers to functions that construct and destruct global objects. */
+    .ctors : ALIGN(4096) {
+        PROVIDE_HIDDEN (__ctors_array_start = .);
+        KEEP (*(SORT(.ctors.*)))
+        KEEP (*(.ctors*))
+        PROVIDE_HIDDEN (__ctors_array_end = .);
+    }
+    .dtors : ALIGN(4096) {
+        PROVIDE_HIDDEN (__dtors_array_start = .);
+        KEEP (*(SORT(.dtors.*)))
+        KEEP (*(.dtors*))
+        PROVIDE_HIDDEN (__dtors_array_end = .);
+    }
 }
