@@ -1,6 +1,6 @@
 #include "drivers/vga3.hpp"
 
-#include "std/type_traits.hpp"
+#include <type_traits>
 
 using namespace drivers;
 
