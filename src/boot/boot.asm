@@ -79,26 +79,76 @@ gdt_descriptor:
     dw gdt_end - gdt_start - 1
     dd gdt_start
 
-[BITS 32] ; Code under here is 32 bits
+[BITS 32]
+
+; Load the kernel
 start32:
-.setup_segments_and_stack:
-    mov ax, DATA_SEGMENT
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
+    mov eax, 1 ; Sector 1
+    mov ecx, 100 ; 100 Sectors
+    mov edi, 100000h ; At address
+    call ata_lba_read
 
-    mov ebp, 0200000h
-    mov esp, ebp
+    jmp CODE_SEGMENT:100000h
 
-.enable_a20_line: ; Allows addressing more than 1 MB
-    in al, 0x92
-    or al, 2
-    out 0x92, al
+; Read from disk
+; ATA - the specification for disk interface (like in SATA)
+; LBA - Logical Block Addressing
+;
+; EAX - Sector offset (also referred to as LBA)
+; ECX - Sector amount
+; EDI - Load to
+ata_lba_read:
+    ; Override the uppermost nibble of the offset which is used to set LBA mode
+    ; and the drive number (0 in this case)
+    and eax, 0fffffffh
+    or eax, 0e0000000h
 
-.infinite_loop:
-    jmp $
+    mov ebx, eax ; Save the offset for later since eax is needed
+
+    ; Write the sector amount to IO address 0x1F2
+    mov dx, 1f2h
+    mov eax, ecx
+    out dx, al
+
+    mov eax, ebx ; Restore the offset to eax
+
+    ; Write the offset to 4 consecutive IO addresses
+.write_offset:
+    inc dx
+    out dx, al
+    shr eax, 8
+    cmp dx, 1f6h
+    jnz .write_offset
+
+    ; Set command to "Read with retry"
+    inc dx
+    mov al, 20h
+    out dx, al
+
+    ; Outer loop that counts sectors
+.read_sector:
+    push ecx ; Backup loop counter as it will be used in inner loop
+
+    ; Busy wait until data is available
+.wait_for_data:
+    mov dx, 1f7h
+    in al, dx
+    test al, 8
+    jz .wait_for_data
+
+    mov dx, 1f0h ; Setup IO register to where read data is stored
+
+    ; Inner loop that reads all bytes of the sector
+    ; These two instructions say repeat insw 256 times, where insw reads from
+    ; the IO port specifies in DX into DI and then increments DI
+    mov ecx, 256
+    rep insw
+
+    ; Restore the outer loop counter and repeat until it reaches 0
+    pop ecx
+    loop .read_sector
+
+    ret
 
 ; Sector Padding
 
