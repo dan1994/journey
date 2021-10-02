@@ -32,11 +32,11 @@ $(TARGET): $(BOOTLOADER) $(KERNEL)
 
 .PHONY: $(BOOTLOADER)
 $(BOOTLOADER):
-	make -C $(SRC_DIR)/boot
+	$(MAKE) -C $(SRC_DIR)/boot
 
 .PHONY: $(KERNEL)
 $(KERNEL):
-	make -C $(SRC_DIR)/kernel
+	$(MAKE) -C $(SRC_DIR)/kernel
 
 .PHONY: clean
 clean:

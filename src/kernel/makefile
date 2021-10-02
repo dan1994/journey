@@ -4,13 +4,14 @@ SRC_DIR=.
 BUILD_DIR=$(ROOT_DIR)/build/kernel
 BIN_DIR=$(ROOT_DIR)/bin/kernel
 
-SOURCES=$(shell find $(SRC_DIR) -type f -regextype posix-egrep -iregex '.*\.(asm|c)')
+SOURCES=$(shell find $(SRC_DIR) -type f -regextype posix-egrep -iregex '.*\.(asm|c(pp)?)')
 OBJECTS=$(SOURCES:%=$(BUILD_DIR)/%.o)
 TARGET_ELF=$(BUILD_DIR)/kernel.o
 TARGET=$(BIN_DIR)/kernel.bin
 
 TOOLCHAIN_PREFIX=/opt/cross/bin/i686-elf-
-GCC=$(TOOLCHAIN_PREFIX)gcc
+CC=$(TOOLCHAIN_PREFIX)gcc
+CXX=$(TOOLCHAIN_PREFIX)g++
 LD=$(TOOLCHAIN_PREFIX)ld
 
 # -ffreestanding - No supporting environment such as libc and program execution
@@ -19,12 +20,21 @@ LD=$(TOOLCHAIN_PREFIX)ld
 # -fno-builtin - Don't allow GCC to replace certain function calls with its
 # internal optimized version.
 
-CFLAGS_SYNTAX=-std=gnu99 -Werror -Wall -Wno-unused-function -Wno-unused-label -Wno-cpp -Wno-unused-parameter
-CFLAGS_ENV=-ffreestanding -nostdlib -nostartfiles -nodefaultlibs
-CFLAGS_OPTIMIZATION=-O0 -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -fno-builtin
+FLAGS_SYNTAX=-Werror -Wall -Wno-unused-function -Wno-unused-label -Wno-unused-parameter
+FLAGS_ENV=-ffreestanding -nostdlib -nostartfiles -nodefaultlibs
+FLAGS_OPTIMIZATION=-O0 -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -fno-builtin
+
+CFLAGS_SYNTAX=-std=gnu99 $(FLAGS_SYNTAX)
+CFLAGS_ENV=$(FLAGS_ENV)
+CFLAGS_OPTIMIZATION=$(FLAGS_OPTIMIZATION)
+
+CXXFLAGS_SYNTAX=-std=c++2a $(FLAGS_SYNTAX)
+CXXFLAGS_ENV=-fno-rtti -fno-exceptions $(FLAGS_ENV)
+CXXFLAGS_OPTIMIZATION=$(FLAGS_OPTIMIZATION)
 
 ASMFLAGS=-f elf -g
 CFLAGS=-I $(INCLUDE_DIR) -g $(CFLAGS_SYNTAX) $(CFLAGS_ENV) $(CFLAGS_OPTIMIZATION)
+CXXFLAGS=-I $(INCLUDE_DIR) -g $(CXXFLAGS_SYNTAX) $(CXXFLAGS_ENV) $(CXXFLAGS_OPTIMIZATION)
 LINKFLAGS=-g -relocatable
 BINFLAGS=$(CFLAGS)
 
@@ -39,15 +49,21 @@ view: compile
 compile: $(BUILD_DIR) $(BIN_DIR) $(TARGET)
 
 $(TARGET): $(TARGET_ELF) $(SRC_DIR)/linker.ld
-	$(GCC) $(BINFLAGS) -T $(SRC_DIR)/linker.ld $< -o $@
+	$(CC) $(BINFLAGS) -T $(SRC_DIR)/linker.ld $< -o $@
 
 $(TARGET_ELF): $(OBJECTS)
 	$(LD) $(LINKFLAGS) $^ -o $@
 
+$(BUILD_DIR)/%.cpp.o: %.cpp
+	mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
 $(BUILD_DIR)/%.c.o: %.c
-	$(GCC) $(CFLAGS) -c $< -o $@
+	mkdir -p $(@D)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.asm.o: %.asm
+	mkdir -p $(@D)
 	nasm $(ASMFLAGS) $< -o $@
 
 $(BUILD_DIR):
