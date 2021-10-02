@@ -10,7 +10,7 @@
 
 namespace drivers {
 
-class Vga3 {
+class Vga3 final {
    public:
     Vga3() = delete;
 

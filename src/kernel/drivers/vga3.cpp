@@ -1,4 +1,6 @@
-#include "kernel/drivers/vga3.hpp"
+#include "drivers/vga3.hpp"
+
+#include "std/type_traits.hpp"
 
 using namespace drivers;
 
@@ -69,7 +71,8 @@ size_t Vga3::character_offset(uint8_t row, uint8_t column) {
 }
 
 uint16_t Vga3::make_char(char character, Color foreground, Color background) {
-    const uint8_t colors = (static_cast<uint8_t>(background) << 4) |
-                           (static_cast<uint8_t>(foreground) & 0x0f);
+    const uint8_t colors =
+        (static_cast<std::underlying_type_t<Color>>(background) << 4) |
+        (static_cast<std::underlying_type_t<Color>>(foreground) & 0x0f);
     return (colors << 8) | character;
 }

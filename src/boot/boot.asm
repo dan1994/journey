@@ -18,8 +18,8 @@ bpb_trampoline:
 ; Entrypoint
 
 ; Calculate GDT segment descriptor offsets (for 32 bit mode)
-CODE_SEGMENT equ gdt_code - gdt_start
-DATA_SEGMENT equ gdt_data - gdt_start
+KERNEL_CODE_SELECTOR equ gdt_code - gdt_start
+KERNEL_DATA_SELECTOR equ gdt_data - gdt_start
 
 start:
 .setup_segments_and_stack:
@@ -46,7 +46,7 @@ start:
     or eax, 1h
     mov cr0, eax
 
-    jmp CODE_SEGMENT:start32 ; Jump to 32 bit code
+    jmp KERNEL_CODE_SELECTOR:start32 ; Jump to 32 bit code
 
 ; GDT
 
@@ -88,7 +88,7 @@ start32:
     mov edi, 100000h ; At address
     call ata_lba_read
 
-    jmp CODE_SEGMENT:100000h
+    jmp KERNEL_CODE_SELECTOR:100000h
 
 ; Read from disk
 ; ATA - the specification for disk interface (like in SATA)

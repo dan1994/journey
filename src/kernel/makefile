@@ -1,10 +1,11 @@
 ROOT_DIR=../..
-INCLUDE_DIR=$(ROOT_DIR)/include
+INCLUDE_DIR=$(ROOT_DIR)/include/kernel
 SRC_DIR=.
 BUILD_DIR=$(ROOT_DIR)/build/kernel
 BIN_DIR=$(ROOT_DIR)/bin/kernel
 
-SOURCES=$(shell find $(SRC_DIR) -type f -regextype posix-egrep -iregex '.*\.(asm|c(pp)?)')
+# Use cut to remove the ./ prefix printed by find
+SOURCES=$(shell find $(SRC_DIR) -type f -regextype posix-egrep -iregex '.*\.(asm|c(pp)?)' | cut -c 3-)
 OBJECTS=$(SOURCES:%=$(BUILD_DIR)/%.o)
 TARGET_ELF=$(BUILD_DIR)/kernel.o
 TARGET=$(BIN_DIR)/kernel.bin
@@ -53,6 +54,11 @@ $(TARGET): $(TARGET_ELF) $(SRC_DIR)/linker.ld
 
 $(TARGET_ELF): $(OBJECTS)
 	$(LD) $(LINKFLAGS) $^ -o $@
+
+# ISR methods require the `-mgeneral-regs-only` flag to be compiled correctly.
+$(BUILD_DIR)/interrupts/isr.cpp.o: interrupts/isr.cpp
+	mkdir -p $(@D)
+	$(CXX) -mgeneral-regs-only $(CXXFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	mkdir -p $(@D)
