@@ -1,0 +1,3 @@
+target remote | qemu-system-x86_64 -hda ../../bin/boot/boot.bin -S -gdb stdio
+layout asm
+focus cmd
