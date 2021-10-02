@@ -22,6 +22,10 @@ void *Heap::allocate(size_t bytes) {
 }
 
 void Heap::free(const void *address) {
+    if (address < memory_pool) {
+        return;
+    }
+
     const size_t block_offset =
         (static_cast<const std::byte *>(address) - memory_pool) / block_size;
 
