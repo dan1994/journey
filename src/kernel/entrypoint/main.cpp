@@ -1,12 +1,15 @@
 #include "drivers/vga3.hpp"
 #include "interrupts/interrupts.hpp"
+#include "logging/logger.hpp"
 
 using namespace drivers;
 
 extern "C" void kernel_main() {
     Vga3::clear();
-    Vga3::print("Initializing Journey...\n");
+    Logger::set_log_level(Logger::Level::INFO);
+
+    Logger::info("Initializing Journey...");
 
     Interrupts::init();
-    Vga3::print("Initialized interrupts...\n");
+    Logger::debug("Initialized interrupts...");
 }
