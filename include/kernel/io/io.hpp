@@ -9,7 +9,12 @@
 
 class Io final {
    public:
-    enum class Port : uint16_t {};
+    enum class Port : uint16_t {
+        MASTER_PIC_COMMAND = 0x20,
+        MASTER_PIC_DATA,
+        SLAVE_PIC_COMMAND = 0xa0,
+        SLAVE_PIC_DATA
+    };
 
     Io() = delete;
 

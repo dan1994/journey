@@ -6,13 +6,32 @@
  * See https://wiki.osdev.org/IDT for more info.
  */
 
+#include "drivers/pic.hpp"
 #include "interrupts/idt.hpp"
+
+// The number used with the int instruction
+enum class Interrupt : uint8_t {
+    DIVIDE_BY_ZERO,
+    PIC_TIMER = drivers::Pic8259::MASTER_OFFSET,
+    PIC_KEYBOARD,
+    PIC_CASCADE,
+    PIC_COM2,
+    PIC_COM1,
+    PIC_LPT2,
+    PIC_FLOPPY,
+    PIC_LPT1,
+    PIC_CMOS_RTC = drivers::Pic8259::SLAVE_OFFSET,
+    PIC_CGA,
+    PIC_UNUSED_0,
+    PIC_UNUSED_1,
+    PIC_PS2,
+    PIC_FPU,
+    PIC_HDD,
+    PIC_UNUSED_2,
+};
 
 class Interrupts final {
    public:
-    // The number used with the int instruction
-    enum class Id : uint8_t { DIVIDE_BY_ZERO };
-
     Interrupts() = delete;
 
     /**
@@ -21,18 +40,28 @@ class Interrupts final {
     static void init();
 
     /**
-     * Enable the entry specified by id.
-     *
-     * @param id The number used to activate the isr.
+     * Enable all interrupts.
      */
-    static void enable(Id id);
+    static void enable();
 
     /**
-     * Disable the entry specified by id.
-     *
-     * @param id The number used to activate the isr.
+     * Disable all interrupts.
      */
-    static void disable(Id id);
+    static void disable();
+
+    /**
+     * Enable the entry that corresponds to the interrupt.
+     *
+     * @param interrupt The number used to activate the isr.
+     */
+    static void enable(Interrupt interrupt);
+
+    /**
+     * Disable the entry that corresponds to the interrupt.
+     *
+     * @param interrupt The number used to activate the isr.
+     */
+    static void disable(Interrupt interrupt);
 
    private:
     // ISR = Interrupt Service Routine
@@ -52,45 +81,51 @@ class Interrupts final {
     };
 
     /**
+     * Registers all tasks, interrupts and traps.
+     */
+    static void register_all();
+
+    /**
      * Register a task on the given interrupt number.
      *
-     * @param id The number used to activate the task
+     * @param interrupt The number used to activate the task
      * @param dpl The ring from which the task can be invoked
      */
-    static void register_task(Id id, PriviledgeLevel dpl);
+    static void register_task(Interrupt interrupt, PriviledgeLevel dpl);
 
     /**
      * Registers an interrupt on the given interrupt number.
      *
-     * @param id The number used to activate the interrupt
+     * @param interrupt The number used to activate the interrupt
      * @param isr The routine that services this interrupt
      * @param dpl The ring from which the interrupt can be invoked
      * @param size Can be 16 or 32 bits
      */
-    static void register_interrupt(Id id, Isr isr, PriviledgeLevel dpl,
-                                   GateSize size);
+    static void register_interrupt(Interrupt interrupt, Isr isr,
+                                   PriviledgeLevel dpl, GateSize size);
 
     /**
      * Registers a trap on the given interrupt number.
      *
-     * @param id The number used to activate the trap
+     * @param interrupt The number used to activate the trap
      * @param isr The routine that services this trap
      * @param dpl The ring from which the trap can be invoked
      * @param size Can be 16 or 32 bits
      */
-    static void register_trap(Id id, Isr isr, PriviledgeLevel dpl,
+    static void register_trap(Interrupt interrupt, Isr isr, PriviledgeLevel dpl,
                               GateSize size);
 
     /**
      * Registers a task, interrupt or trap on the given interrupt number.
      *
-     * @param id The number used to activate the interrupt handler
+     * @param interrupt The number used to activate the interrupt handler
      * @param isr The address of the handler routine
      * @param dpl The ring from which the interrupt can be invoked
      * @param type The type of the interrupt
      */
-    static void register_internal(Id id, Isr isr, PriviledgeLevel dpl,
-                                  GateType type, GateSize size);
+    static void register_internal(Interrupt interrupt, Isr isr,
+                                  PriviledgeLevel dpl, GateType type,
+                                  GateSize size);
 
     // Maximum is 512, but since the int command can only get an 8 bit operand,
     // we can never invoke more than 256 interrupts.
