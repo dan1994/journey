@@ -56,7 +56,7 @@ view: compile
 compile: $(BUILD_DIR) $(BIN_DIR) $(TARGET)
 
 $(TARGET): $(TARGET_ELF) $(SRC_DIR)/linker.ld
-	$(CC) $(BINFLAGS) -T $(SRC_DIR)/linker.ld $< -o $@
+	$(CXX) $(BINFLAGS) -T $(SRC_DIR)/linker.ld $< -o $@
 
 $(TARGET_ELF): $(OBJECTS)
 	$(LD) $(LINKFLAGS) $^ -o $@

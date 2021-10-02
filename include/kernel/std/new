@@ -1,0 +1,8 @@
+#pragma once
+
+#include <stddef.h>
+
+void* operator new(size_t count);
+
+// NOTE: The second argument is required for successful compilation.
+void operator delete(void* ptr, size_t count);
