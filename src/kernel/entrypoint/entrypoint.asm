@@ -3,7 +3,9 @@
 section .start
 
 global _start
-extern kernel_main
+extern initialize_global_variables
+extern main
+extern finalize_global_variables
 
 CODE_SEGMENT equ 8h
 DATA_SEGMENT equ 10h
@@ -25,8 +27,10 @@ _start:
     or al, 2
     out 0x92, al
 
-.switch_to_c:
-    call kernel_main
+.switch_to_cpp:
+    call initialize_global_variables
+    call main
+    call finalize_global_variables
 
 .infinite_loop:
     jmp $

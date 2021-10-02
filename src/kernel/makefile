@@ -20,9 +20,12 @@ LD=$(TOOLCHAIN_PREFIX)ld
 # -fstrength-reduce - Somehow related to loop unrolling
 # -fno-builtin - Don't allow GCC to replace certain function calls with its
 # internal optimized version.
+# -fno-use-cxa-atexit - Disable the libc mechanism that automatically calls
+# destructors when exit is called. We call destructors ourselves. Leaving this
+# flag out causes linkage errors, as it searches for libc symbols.
 
 FLAGS_SYNTAX=-Werror -Wall -Wno-unused-function -Wno-unused-label -Wno-unused-parameter
-FLAGS_ENV=-ffreestanding -nostdlib -nostartfiles -nodefaultlibs
+FLAGS_ENV=-ffreestanding -nostdlib -nostartfiles -nodefaultlibs -fno-use-cxa-atexit
 FLAGS_OPTIMIZATION=-O0 -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -fno-builtin
 
 CFLAGS_SYNTAX=-std=gnu99 $(FLAGS_SYNTAX)
