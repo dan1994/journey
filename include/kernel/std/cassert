@@ -1,0 +1,25 @@
+#pragma once
+
+#include "drivers/vga3.hpp"
+
+extern char line_number_as_char_ptr[8];
+void line_number_to_char_ptr(size_t line_number);
+
+#ifdef _DEBUG
+#define assert(condition)                                                     \
+    if (!(condition)) {                                                       \
+        line_number_to_char_ptr(__LINE__);                                    \
+        drivers::Vga3::print("ASSERTION: ", drivers::Vga3::Color::LIGHT_RED); \
+        drivers::Vga3::print(__FILE__ ":");                                   \
+        drivers::Vga3::print(__PRETTY_FUNCTION__);                            \
+        drivers::Vga3::print(":");                                            \
+        drivers::Vga3::print(line_number_as_char_ptr);                        \
+        drivers::Vga3::print("\n");                                           \
+        while (true) {                                                        \
+        }                                                                     \
+    }
+#else
+#define assert(condition) \
+    do {                  \
+    } while (0)
+#endif
