@@ -1,5 +1,9 @@
 #include "memory/heap_entry_table.hpp"
 
+#include <cassert>
+
+#include "utilities/enum.hpp"
+
 namespace memory {
 
 HeapEntryTable::HeapEntryTable(std::byte *table_start, size_t total_entries)
@@ -17,13 +21,26 @@ size_t HeapEntryTable::allocate(size_t entry_amount, HeapStatus &status) {
     return entries - table_start;
 }
 
-void HeapEntryTable::free(size_t entry_offset) {
+void HeapEntryTable::free(size_t entry_offset, HeapStatus &status) {
     if (entry_offset > total_entries) {
+        assert(false);
+        status = HeapStatus::CANT_FREE_ADDRESS_OUT_OF_HEAP_RANGE;
         return;
     }
 
     Entry *entry = &table_start[entry_offset];
-    while (*entry != Entry::FREE && *entry != Entry::LAST) {
+
+    if ((*entry & Entry::FIRST) != Entry::FIRST) {
+        assert(false);
+        status = HeapStatus::CANT_FREE_FROM_THE_MIDDLE_OF_AN_ALLOCATION;
+        return;
+    }
+
+    while ((*entry & Entry::LAST) != Entry::LAST) {
+        if ((*entry & Entry::USED) != Entry::USED) {
+            assert(false);
+            status = HeapStatus::FREE_ENTRY_IN_THE_MIDDLE_OF_AN_ALLOCATION;
+        }
         *entry = Entry::FREE;
         entry++;
     }
@@ -50,13 +67,14 @@ HeapEntryTable::Entry *HeapEntryTable::get_available_entries(
         }
     }
 
+    assert(false);
     status = HeapStatus::NOT_ENOUGH_CONTIGUOUS_MEMORY;
     return nullptr;
 }
 
 void HeapEntryTable::mark_entries_as_used(Entry *entries, size_t entry_amount) {
     if (entry_amount == 1) {
-        *entries = Entry::FIRST_AND_LAST;
+        *entries = Entry::FIRST | Entry::LAST;
         return;
     }
 

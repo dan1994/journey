@@ -13,8 +13,8 @@ class Heap final {
     explicit Heap(std::byte *heap_start, size_t max_size, size_t block_size);
     ~Heap() = default;
 
-    void *allocate(size_t bytes);
-    void free(const void *address);
+    void *allocate(size_t bytes, HeapStatus &status);
+    void free(const void *address, HeapStatus &status);
 
     Heap(const Heap &) = delete;
     Heap(Heap &&) = delete;
@@ -26,12 +26,12 @@ class Heap final {
     std::byte *const memory_pool;
     HeapEntryTable entry_table;
 
+    static std::byte *round_up_to_nearest_block_size(std::byte *address,
+                                                     size_t block_size);
+
     static HeapEntryTable initialize_entry_table(std::byte *heap_start,
                                                  size_t max_size,
                                                  size_t block_size);
-
-    static std::byte *round_up_to_nearest_block_size(std::byte *address,
-                                                     size_t block_size);
 };
 
 }  // namespace memory

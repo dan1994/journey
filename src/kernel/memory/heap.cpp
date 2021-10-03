@@ -1,5 +1,7 @@
 #include "memory/heap.hpp"
 
+#include <cassert>
+
 namespace memory {
 
 Heap::Heap(std::byte *heap_start, size_t max_size, size_t block_size)
@@ -7,10 +9,9 @@ Heap::Heap(std::byte *heap_start, size_t max_size, size_t block_size)
       memory_pool(round_up_to_nearest_block_size(heap_start, block_size)),
       entry_table(initialize_entry_table(heap_start, max_size, block_size)) {}
 
-void *Heap::allocate(size_t bytes) {
+void *Heap::allocate(size_t bytes, HeapStatus &status) {
     const size_t blocks_to_allocate = (bytes + block_size - 1) / block_size;
 
-    HeapStatus status;
     const size_t block_offset =
         entry_table.allocate(blocks_to_allocate, status);
 
@@ -21,15 +22,24 @@ void *Heap::allocate(size_t bytes) {
     return memory_pool + (block_offset * block_size);
 }
 
-void Heap::free(const void *address) {
+void Heap::free(const void *address, HeapStatus &status) {
     if (address < memory_pool) {
+        assert(false);
+        status = HeapStatus::CANT_FREE_ADDRESS_OUT_OF_HEAP_RANGE;
         return;
     }
 
     const size_t block_offset =
         (static_cast<const std::byte *>(address) - memory_pool) / block_size;
 
-    entry_table.free(block_offset);
+    entry_table.free(block_offset, status);
+}
+
+std::byte *Heap::round_up_to_nearest_block_size(std::byte *address,
+                                                size_t block_size) {
+    return reinterpret_cast<std::byte *>(
+        ((reinterpret_cast<size_t>(address) + block_size - 1) / block_size) *
+        block_size);
 }
 
 HeapEntryTable Heap::initialize_entry_table(std::byte *heap_start,
@@ -47,13 +57,6 @@ HeapEntryTable Heap::initialize_entry_table(std::byte *heap_start,
         memory_pool + entry_amount * block_size;
 
     return HeapEntryTable(entry_table_start, entry_amount);
-}
-
-std::byte *Heap::round_up_to_nearest_block_size(std::byte *address,
-                                                size_t block_size) {
-    return reinterpret_cast<std::byte *>(
-        ((reinterpret_cast<size_t>(address) + block_size - 1) / block_size) *
-        block_size);
 }
 
 }  // namespace memory

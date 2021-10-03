@@ -17,9 +17,7 @@ class HeapEntryTable final {
     ~HeapEntryTable() = default;
 
     size_t allocate(size_t entry_amount, HeapStatus &status);
-    void free(size_t entry_offset);
-
-    size_t size() const;
+    void free(size_t entry_offset, HeapStatus &status);
 
     static constexpr size_t entry_size = sizeof(Entry);
 
@@ -34,7 +32,6 @@ class HeapEntryTable final {
         USED = 1,
         FIRST = 3,
         LAST = 5,
-        FIRST_AND_LAST = 7,
     };
 
     Entry *get_available_entries(size_t entry_amount, HeapStatus &status) const;
