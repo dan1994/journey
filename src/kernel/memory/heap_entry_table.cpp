@@ -1,5 +1,7 @@
 #include "memory/heap_entry_table.hpp"
 
+#include <string.h>
+
 #include <cassert>
 
 #include "utilities/enum.hpp"
@@ -8,7 +10,9 @@ namespace memory {
 
 HeapEntryTable::HeapEntryTable(std::byte *table_start, size_t total_entries)
     : table_start(reinterpret_cast<Entry *>(table_start)),
-      total_entries(total_entries) {}
+      total_entries(total_entries) {
+    memset(table_start, 0, total_entries * sizeof(Entry));
+}
 
 size_t HeapEntryTable::allocate(size_t entry_amount, HeapStatus &status) {
     Entry *const entries = get_available_entries(entry_amount, status);
