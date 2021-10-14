@@ -11,6 +11,8 @@ namespace memory {
 class Heap final {
    public:
     explicit Heap(std::byte *heap_start, size_t max_size, size_t block_size);
+    explicit Heap(std::byte *heap_start, std::byte *entry_table_start,
+                  size_t max_size, size_t block_size);
     ~Heap() = default;
 
     void *allocate(size_t bytes, HeapStatus &status);
@@ -29,9 +31,13 @@ class Heap final {
     static std::byte *round_up_to_nearest_block_size(std::byte *address,
                                                      size_t block_size);
 
-    static HeapEntryTable initialize_entry_table(std::byte *heap_start,
-                                                 size_t max_size,
-                                                 size_t block_size);
+    static HeapEntryTable initialize_internal_entry_table(std::byte *heap_start,
+                                                          size_t max_size,
+                                                          size_t block_size);
+
+    static HeapEntryTable initialize_external_entry_table(
+        std::byte *heap_start, std::byte *entry_table_start, size_t max_size,
+        size_t block_size);
 };
 
 }  // namespace memory
