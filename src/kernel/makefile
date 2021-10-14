@@ -23,10 +23,13 @@ LD=$(TOOLCHAIN_PREFIX)ld
 # -fno-use-cxa-atexit - Disable the libc mechanism that automatically calls
 # destructors when exit is called. We call destructors ourselves. Leaving this
 # flag out causes linkage errors, as it searches for libc symbols.
+# -fno-threadsafe-statics - Disable the libc mechanism that protects the
+# creation of local statics in a multi-threaded environment. This mechanism
+# calls __cxa_guard_acquire and __cxa_guard_release which are complex.
 
 FLAGS_SYNTAX=-Werror -Wall -Wno-unused-function -Wno-unused-label -Wno-unused-parameter
 FLAGS_ENV=-ffreestanding -nostdlib -nostartfiles -nodefaultlibs -fno-use-cxa-atexit
-FLAGS_OPTIMIZATION=-O0 -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -fno-builtin
+FLAGS_OPTIMIZATION=-O0 -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -fno-builtin -fno-threadsafe-statics
 
 CFLAGS_SYNTAX=-std=gnu99 $(FLAGS_SYNTAX)
 CFLAGS_ENV=$(FLAGS_ENV)
@@ -37,8 +40,8 @@ CXXFLAGS_ENV=-fno-rtti -fno-exceptions $(FLAGS_ENV)
 CXXFLAGS_OPTIMIZATION=$(FLAGS_OPTIMIZATION)
 
 ASMFLAGS=-f elf -g
-CFLAGS=-I $(INCLUDE_DIR) -g $(CFLAGS_SYNTAX) $(CFLAGS_ENV) $(CFLAGS_OPTIMIZATION)
-CXXFLAGS=-I $(INCLUDE_DIR) -g $(CXXFLAGS_SYNTAX) $(CXXFLAGS_ENV) $(CXXFLAGS_OPTIMIZATION)
+CFLAGS=-I $(INCLUDE_DIR) -I $(INCLUDE_DIR)/std -g $(CFLAGS_SYNTAX) $(CFLAGS_ENV) $(CFLAGS_OPTIMIZATION) -D_DEBUG
+CXXFLAGS=-I $(INCLUDE_DIR) -I $(INCLUDE_DIR)/std -g $(CXXFLAGS_SYNTAX) $(CXXFLAGS_ENV) $(CXXFLAGS_OPTIMIZATION) -D_DEBUG
 LINKFLAGS=-g -relocatable
 BINFLAGS=$(CFLAGS)
 
@@ -53,7 +56,7 @@ view: compile
 compile: $(BUILD_DIR) $(BIN_DIR) $(TARGET)
 
 $(TARGET): $(TARGET_ELF) $(SRC_DIR)/linker.ld
-	$(CC) $(BINFLAGS) -T $(SRC_DIR)/linker.ld $< -o $@
+	$(CXX) $(BINFLAGS) -T $(SRC_DIR)/linker.ld $< -o $@
 
 $(TARGET_ELF): $(OBJECTS)
 	$(LD) $(LINKFLAGS) $^ -o $@

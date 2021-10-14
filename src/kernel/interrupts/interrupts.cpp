@@ -1,9 +1,10 @@
 #include "interrupts/interrupts.hpp"
 
+#include <type_traits>
+
 #include "drivers/vga3.hpp"
 #include "entrypoint/config.hpp"
 #include "interrupts/isr.hpp"
-#include "std/type_traits.hpp"
 
 IdtDescriptor Interrupts::interrupts[INTERRUPT_NUMBER] = {{0}};
 

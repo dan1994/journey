@@ -1,6 +1,8 @@
 #include "drivers/vga3.hpp"
 
-#include "std/type_traits.hpp"
+#include <type_traits>
+
+#include "memory/layout.hpp"
 
 using namespace drivers;
 
@@ -8,7 +10,7 @@ size_t Vga3::row = 0;
 size_t Vga3::column = 0;
 
 volatile uint16_t *const Vga3::VIDEO_MEMORY =
-    reinterpret_cast<volatile uint16_t *const>(0xb8000);
+    reinterpret_cast<volatile uint16_t *const>(memory::Layout::VIDEO);
 
 void Vga3::print(const char *string, Color foreground, Color background) {
     while (*string) {
