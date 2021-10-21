@@ -2,9 +2,23 @@
 
 #include "drivers/vga3.hpp"
 
+// A global to hold the line number converted to string in a safe manner.
 extern char line_number_as_char_ptr[8];
+
+/**
+ * Converts the line number to a char array and stores it in a dedicated global.
+ *
+ * We use this approach here since we want to make sure that logic in assert can
+ * never fail, and thus avoid dynamic allocations.
+ *
+ * @param line_number The line number.
+ */
 void line_number_to_char_ptr(size_t line_number);
 
+/**
+ * In debug mode, if the condition is not met, assert prints a message
+ * indicating the location of assertion and then enters an infinite loop.
+ */
 #ifdef _DEBUG
 #define assert(condition)                                                     \
     if (!(condition)) {                                                       \
