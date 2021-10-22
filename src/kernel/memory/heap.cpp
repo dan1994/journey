@@ -32,7 +32,7 @@ void *Heap::allocate(size_t bytes, HeapStatus &status) {
 
 void Heap::free(const void *address, HeapStatus &status) {
     if (address < memory_pool) {
-        assert(false);
+        assertm(false, "Trying to free an address out of heap range.");
         status = HeapStatus::CANT_FREE_ADDRESS_OUT_OF_HEAP_RANGE;
         return;
     }

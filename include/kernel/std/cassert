@@ -19,8 +19,8 @@ void line_number_to_char_ptr(size_t line_number);
  * In debug mode, if the condition is not met, assert prints a message
  * indicating the location of assertion and then enters an infinite loop.
  */
-#ifdef _DEBUG
-#define assert(condition)                                                     \
+#ifndef NDEBUG
+#define assertm(condition, message)                                           \
     if (!(condition)) {                                                       \
         line_number_to_char_ptr(__LINE__);                                    \
         drivers::Vga3::print("ASSERTION: ", drivers::Vga3::Color::LIGHT_RED); \
@@ -28,12 +28,18 @@ void line_number_to_char_ptr(size_t line_number);
         drivers::Vga3::print(__PRETTY_FUNCTION__);                            \
         drivers::Vga3::print(":");                                            \
         drivers::Vga3::print(line_number_as_char_ptr);                        \
+        if (message && *message) {                                            \
+            drivers::Vga3::print(": ");                                       \
+            drivers::Vga3::print(message);                                    \
+        }                                                                     \
         drivers::Vga3::print("\n");                                           \
         while (true) {                                                        \
         }                                                                     \
     }
 #else
-#define assert(condition) \
-    do {                  \
+#define assertm(condition, message) \
+    do {                            \
     } while (0)
 #endif
+
+#define assert(condition) assertm(condition, "")
