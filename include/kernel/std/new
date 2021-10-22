@@ -2,7 +2,34 @@
 
 #include <stddef.h>
 
+/**
+ * Allocate space for an array of objects with given size.
+ *
+ * @param count The size of the entire array in bytes.
+ * @return Pointer to allocated space.
+ */
+void* operator new[](size_t count);
+
+/**
+ * Allocate space for an object with given size.
+ *
+ * @param count The size of the object in bytes.
+ * @return Pointer to allocated space.
+ */
 void* operator new(size_t count);
 
-// NOTE: The second argument is required for successful compilation.
+/**
+ * Frees a pointer allocated via a new[] call.
+ *
+ * @param ptr The pointer to free.
+ * @param count Unused. Required for compilation.
+ */
+void operator delete[](void* ptr, size_t count);
+
+/**
+ * Frees a pointer allocated via a new call.
+ *
+ * @param ptr The pointer to free.
+ * @param count Unused. Required for compilation.
+ */
 void operator delete(void* ptr, size_t count);

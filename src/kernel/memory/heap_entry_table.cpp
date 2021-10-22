@@ -27,7 +27,7 @@ size_t HeapEntryTable::allocate(size_t entry_amount, HeapStatus &status) {
 
 void HeapEntryTable::free(size_t entry_offset, HeapStatus &status) {
     if (entry_offset > total_entries) {
-        assert(false);
+        assertm(false, "Trying to free an address out of heap range.");
         status = HeapStatus::CANT_FREE_ADDRESS_OUT_OF_HEAP_RANGE;
         return;
     }
@@ -35,14 +35,16 @@ void HeapEntryTable::free(size_t entry_offset, HeapStatus &status) {
     Entry *entry = &table_start[entry_offset];
 
     if ((*entry & Entry::FIRST) != Entry::FIRST) {
-        assert(false);
+        assertm(false,
+                "First entry of allocation to free is not marked as first.");
         status = HeapStatus::CANT_FREE_FROM_THE_MIDDLE_OF_AN_ALLOCATION;
         return;
     }
 
     while ((*entry & Entry::LAST) != Entry::LAST) {
         if ((*entry & Entry::USED) != Entry::USED) {
-            assert(false);
+            assertm(false,
+                    "Encountered a free entry in the middle of an allocation.");
             status = HeapStatus::FREE_ENTRY_IN_THE_MIDDLE_OF_AN_ALLOCATION;
         }
         *entry = Entry::FREE;
@@ -71,7 +73,7 @@ HeapEntryTable::Entry *HeapEntryTable::get_available_entries(
         }
     }
 
-    assert(false);
+    assertm(false, "Out of memory.");
     status = HeapStatus::NOT_ENOUGH_CONTIGUOUS_MEMORY;
     return nullptr;
 }
