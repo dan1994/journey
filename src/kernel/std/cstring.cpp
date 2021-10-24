@@ -1,4 +1,6 @@
-#include <string.h>
+#include <cstring>
+
+namespace std {
 
 void *memset(void *destination, int value, size_t size) {
     char *const destination_char = static_cast<char *>(destination);
@@ -20,3 +22,13 @@ void *memcpy(void *destination, const void *source, size_t size) {
 
     return destination;
 }
+
+size_t strlen(const char *string) {
+    size_t length = 0;
+    while (*string++) {
+        length += 1;
+    }
+    return length;
+}
+
+}  // namespace std
