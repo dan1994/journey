@@ -9,9 +9,9 @@
 namespace memory {
 
 HeapEntryTable::HeapEntryTable(std::byte *table_start, size_t total_entries)
-    : table_start(reinterpret_cast<Entry *>(table_start)),
-      total_entries(total_entries) {
-    memset(table_start, 0, total_entries * sizeof(Entry));
+    : table_start_(reinterpret_cast<Entry *>(table_start)),
+      total_entries_(total_entries) {
+    memset(table_start_, 0, total_entries_ * sizeof(Entry));
 }
 
 size_t HeapEntryTable::allocate(size_t entry_amount, HeapStatus &status) {
@@ -22,17 +22,17 @@ size_t HeapEntryTable::allocate(size_t entry_amount, HeapStatus &status) {
 
     mark_entries_as_used(entries, entry_amount);
 
-    return entries - table_start;
+    return entries - table_start_;
 }
 
 void HeapEntryTable::free(size_t entry_offset, HeapStatus &status) {
-    if (entry_offset > total_entries) {
+    if (entry_offset > total_entries_) {
         assertm(false, "Trying to free an address out of heap range.");
         status = HeapStatus::CANT_FREE_ADDRESS_OUT_OF_HEAP_RANGE;
         return;
     }
 
-    Entry *entry = &table_start[entry_offset];
+    Entry *entry = &table_start_[entry_offset];
 
     if ((*entry & Entry::FIRST) != Entry::FIRST) {
         assertm(false,
@@ -65,7 +65,7 @@ HeapEntryTable::Entry *HeapEntryTable::get_available_entries(
 
     size_t contiguous_free_entries = 0;
 
-    for (Entry *entry = table_start; entry < table_start + total_entries;
+    for (Entry *entry = table_start_; entry < table_start_ + total_entries_;
          entry++) {
         if (*entry == Entry::FREE) {
             contiguous_free_entries++;

@@ -6,13 +6,13 @@
 #include "entrypoint/config.hpp"
 #include "interrupts/isr.hpp"
 
-IdtDescriptor Interrupts::interrupts[INTERRUPT_NUMBER] = {{0}};
+IdtDescriptor Interrupts::interrupts_[INTERRUPT_NUMBER] = {{0}};
 
 void Interrupts::init() {
     disable();
 
-    const IdtRegister idtr = {.limit = sizeof(interrupts) - 1,
-                              .base = reinterpret_cast<uint32_t>(interrupts)};
+    const IdtRegister idtr = {.limit = sizeof(interrupts_) - 1,
+                              .base = reinterpret_cast<uint32_t>(interrupts_)};
 
     load_idt(&idtr);
 
@@ -33,14 +33,14 @@ void Interrupts::disable() {
 
 void Interrupts::enable(Interrupt interrupt) {
     constexpr uint8_t ENABLE_PRESENT_BIT_MASK = 1 << 7;
-    interrupts[static_cast<std::underlying_type_t<Interrupt>>(interrupt)]
+    interrupts_[static_cast<std::underlying_type_t<Interrupt>>(interrupt)]
         .type_attribute |= ENABLE_PRESENT_BIT_MASK;
 }
 
 void Interrupts::disable(Interrupt interrupt) {
     constexpr uint8_t DISABLE_PRESENT_BIT_MASK =
         static_cast<uint8_t>(~(1 << 7));
-    interrupts[static_cast<std::underlying_type_t<Interrupt>>(interrupt)]
+    interrupts_[static_cast<std::underlying_type_t<Interrupt>>(interrupt)]
         .type_attribute &= DISABLE_PRESENT_BIT_MASK;
 }
 
@@ -87,7 +87,7 @@ void Interrupts::register_internal(Interrupt interrupt, Isr isr,
     constexpr uint8_t STORAGE_SEGMENT = 0;
 
     IdtDescriptor *const entry =
-        &interrupts[static_cast<std::underlying_type_t<Interrupt>>(interrupt)];
+        &interrupts_[static_cast<std::underlying_type_t<Interrupt>>(interrupt)];
 
     const uint32_t handler_address_uint32 = reinterpret_cast<uint32_t>(isr);
     entry->offset_lsb = handler_address_uint32 & 0xffff;

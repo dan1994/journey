@@ -61,10 +61,6 @@ class Heap final {
     Heap &operator=(Heap &&) = delete;
 
    private:
-    const size_t block_size;
-    std::byte *const memory_pool;
-    HeapEntryTable entry_table;
-
     /**
      * Rounds an address up to a multiple of block size.
      *
@@ -101,6 +97,10 @@ class Heap final {
     static HeapEntryTable initialize_external_entry_table(
         std::byte *heap_start, std::byte *entry_table_start, size_t max_size,
         size_t block_size);
+
+    const size_t block_size_;
+    std::byte *const memory_pool_;
+    HeapEntryTable entry_table_;
 };
 
 }  // namespace memory

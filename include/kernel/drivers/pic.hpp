@@ -44,8 +44,6 @@ class Pic8259 final {
     static void remap(Io::Port command_port, Io::Port data_port,
                       uint8_t idt_offest, uint8_t connection_information);
     [[nodiscard]] static Id get_controller(Interrupt interrupt);
-
-    static uint8_t idt_offset;
 };
 
 }  // namespace drivers
