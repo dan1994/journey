@@ -13,7 +13,11 @@ void* operator new(size_t count) {
 }
 
 void operator delete[](void* ptr) {
-    operator delete(ptr, 0);
+    operator delete(ptr, static_cast<size_t>(0));
+}
+
+void operator delete[](void* ptr, size_t count) {
+    operator delete(ptr, count);
 }
 
 void operator delete(void* ptr, size_t count) {
