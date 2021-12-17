@@ -58,6 +58,11 @@ HeapEntryTable::Entry *HeapEntryTable::get_available_entries(
     size_t entry_amount, HeapStatus &status) const {
     status = HeapStatus::SUCCESS;
 
+    if (entry_amount == 0) {
+        status = HeapStatus::CANT_ALLOCATE_ZERO_ENTRIES;
+        return nullptr;
+    }
+
     size_t contiguous_free_entries = 0;
 
     for (Entry *entry = table_start; entry < table_start + total_entries;
@@ -85,8 +90,9 @@ void HeapEntryTable::mark_entries_as_used(Entry *entries, size_t entry_amount) {
     }
 
     for (size_t i = 0; i < entry_amount; i++) {
-        entries[i] = i == 0 ? Entry::FIRST
-                            : i == entry_amount - 1 ? Entry::LAST : Entry::USED;
+        entries[i] = i == 0                  ? Entry::FIRST
+                     : i == entry_amount - 1 ? Entry::LAST
+                                             : Entry::USED;
     }
 }
 
