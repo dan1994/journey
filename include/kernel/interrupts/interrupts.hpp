@@ -132,5 +132,5 @@ class Interrupts final {
     constexpr static size_t INTERRUPT_NUMBER = 256;
 
     // The IDT itself
-    static IdtDescriptor interrupts[INTERRUPT_NUMBER];
+    static IdtDescriptor interrupts_[INTERRUPT_NUMBER];
 };

@@ -25,11 +25,11 @@ void Logger::fatal(const char *message) {
 }
 
 void Logger::set_log_level(Level new_log_level) {
-    current_level = new_log_level;
+    current_level_ = new_log_level;
 }
 
 void Logger::log(const char *message, Level log_level) {
-    if (log_level < current_level) {
+    if (log_level < current_level_) {
         return;
     }
 
@@ -70,4 +70,4 @@ void Logger::print_level(Level log_level) {
     Vga3::print(level_string, level_color);
 }
 
-Logger::Level Logger::current_level = Logger::Level::INFO;
+Logger::Level Logger::current_level_ = Logger::Level::INFO;

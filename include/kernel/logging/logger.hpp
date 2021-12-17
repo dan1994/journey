@@ -47,5 +47,5 @@ class Logger final {
     static void log(const char *message, Level log_level);
     static void print_level(Level log_level);
 
-    static Level current_level;
+    static Level current_level_;
 };

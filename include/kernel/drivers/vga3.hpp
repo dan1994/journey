@@ -104,8 +104,8 @@ class Vga3 final {
     static uint16_t make_char(char character, Color foreground,
                               Color background);
 
-    static size_t row;
-    static size_t column;
+    static size_t row_;
+    static size_t column_;
 
     static volatile uint16_t *const VIDEO_MEMORY;
 

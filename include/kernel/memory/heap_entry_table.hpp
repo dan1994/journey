@@ -43,7 +43,7 @@ class HeapEntryTable final {
      */
     void free(size_t entry_offset, HeapStatus &status);
 
-    static constexpr size_t entry_size = sizeof(Entry);
+    static constexpr size_t entry_size_ = sizeof(Entry);
 
     HeapEntryTable(const HeapEntryTable &) = delete;
     HeapEntryTable(HeapEntryTable &&) = delete;
@@ -79,8 +79,8 @@ class HeapEntryTable final {
      */
     void mark_entries_as_used(Entry *entry, size_t entry_amount);
 
-    Entry *const table_start;
-    const size_t total_entries;
+    Entry *const table_start_;
+    const size_t total_entries_;
 };
 
 }  // namespace memory

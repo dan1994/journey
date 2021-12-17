@@ -6,8 +6,8 @@
 
 using namespace drivers;
 
-size_t Vga3::row = 0;
-size_t Vga3::column = 0;
+size_t Vga3::row_ = 0;
+size_t Vga3::column_ = 0;
 
 volatile uint16_t *const Vga3::VIDEO_MEMORY =
     reinterpret_cast<volatile uint16_t *const>(memory::Layout::VIDEO);
@@ -20,45 +20,45 @@ void Vga3::print(const char *string, Color foreground, Color background) {
 
 void Vga3::print(char character, Color foreground, Color background) {
     if (character == '\n') {
-        row += 1;
-        column = 0;
+        row_ += 1;
+        column_ = 0;
     } else {
-        put_char(row, column, character, foreground, background);
-        column++;
+        put_char(row_, column_, character, foreground, background);
+        column_++;
     }
 
-    if (column >= SCREEN_WIDTH) {
-        column = 0;
-        row++;
+    if (column_ >= SCREEN_WIDTH) {
+        column_ = 0;
+        row_++;
     }
 
-    if (row >= SCREEN_HEIGHT) {
+    if (row_ >= SCREEN_HEIGHT) {
         scroll();
-        column = 0;
-        row = SCREEN_HEIGHT - 1;
+        column_ = 0;
+        row_ = SCREEN_HEIGHT - 1;
     }
 }
 
 void Vga3::clear() {
-    for (row = 0; row < SCREEN_HEIGHT; row++) {
-        for (column = 0; column < SCREEN_WIDTH; column++) {
-            put_char(row, column, ' ', Color::BLACK, Color::BLACK);
+    for (row_ = 0; row_ < SCREEN_HEIGHT; row_++) {
+        for (column_ = 0; column_ < SCREEN_WIDTH; column_++) {
+            put_char(row_, column_, ' ', Color::BLACK, Color::BLACK);
         }
     }
-    row = 0;
-    column = 0;
+    row_ = 0;
+    column_ = 0;
 }
 
 void Vga3::scroll() {
-    for (row = 0; row < SCREEN_HEIGHT - 1; row++) {
-        for (column = 0; column < SCREEN_WIDTH; column++) {
-            VIDEO_MEMORY[character_offset(row, column)] =
-                VIDEO_MEMORY[character_offset(row + 1, column)];
+    for (row_ = 0; row_ < SCREEN_HEIGHT - 1; row_++) {
+        for (column_ = 0; column_ < SCREEN_WIDTH; column_++) {
+            VIDEO_MEMORY[character_offset(row_, column_)] =
+                VIDEO_MEMORY[character_offset(row_ + 1, column_)];
         }
     }
 
-    for (column = 0; column < SCREEN_WIDTH; column++) {
-        put_char(row, column, ' ', Color::BLACK, Color::BLACK);
+    for (column_ = 0; column_ < SCREEN_WIDTH; column_++) {
+        put_char(row_, column_, ' ', Color::BLACK, Color::BLACK);
     }
 }
 
