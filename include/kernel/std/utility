@@ -10,7 +10,7 @@ constexpr std::remove_reference_t<T>&& move(T&& t);
 template <class T>
 constexpr typename remove_reference<T>::type&& move(T&& param) {
     using ReturnType = typename remove_reference<T>::type&&;
-    static_cast<ReturnType>(param);
+    return static_cast<ReturnType>(param);
 }
 
 }  // namespace std
