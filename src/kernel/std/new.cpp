@@ -12,8 +12,8 @@ void* operator new(size_t count) {
     return kernel_heap->allocate(count, status);
 }
 
-void operator delete[](void* ptr, size_t count) {
-    operator delete(ptr, count);
+void operator delete[](void* ptr) {
+    operator delete(ptr, 0);
 }
 
 void operator delete(void* ptr, size_t count) {

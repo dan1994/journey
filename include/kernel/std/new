@@ -22,9 +22,8 @@ void* operator new(size_t count);
  * Frees a pointer allocated via a new[] call.
  *
  * @param ptr The pointer to free.
- * @param count Unused. Required for compilation.
  */
-void operator delete[](void* ptr, size_t count);
+void operator delete[](void* ptr);
 
 /**
  * Frees a pointer allocated via a new call.
