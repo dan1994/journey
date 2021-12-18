@@ -19,6 +19,15 @@ void* operator new[](size_t count);
 void* operator new(size_t count);
 
 /**
+ * Placement new overload
+ *
+ * @param count The size of the object in bytes.
+ * @param ptr The pointer to the already allocated memory.
+ * @return ptr.
+ */
+void* operator new(size_t count, void* ptr);
+
+/**
  * Frees a pointer allocated via a new[] call.
  *
  * @param ptr The pointer to free.
