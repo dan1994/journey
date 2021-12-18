@@ -1,0 +1,14 @@
+#pragma once
+
+#include <type_traits>
+
+namespace std {
+
+template <class T, class U>
+concept same_as = is_same_v<T, U>;
+
+template <class From, class To>
+concept convertible_to = is_convertible_v<From, To> && requires {
+    static_cast<To>(declval<From>());
+};
+}  // namespace std
