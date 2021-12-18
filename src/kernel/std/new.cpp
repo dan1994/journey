@@ -12,6 +12,14 @@ void* operator new(size_t count) {
     return kernel_heap->allocate(count, status);
 }
 
+void* operator new(size_t count, void* ptr) {
+    return ptr;
+}
+
+void operator delete[](void* ptr) {
+    operator delete(ptr, static_cast<size_t>(0));
+}
+
 void operator delete[](void* ptr, size_t count) {
     operator delete(ptr, count);
 }
