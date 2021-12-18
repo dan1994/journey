@@ -1,0 +1,57 @@
+#pragma once
+
+#include <concepts>
+
+namespace std {
+
+template <typename T>
+concept Iterator = requires(T t1, T t2) {
+    t1.T(t2);
+    { t1++ } -> std::same_as<T>;
+    { ++t1 } -> std::same_as<T>;
+    { t1 = t2 } -> std::same_as<T&>;
+};
+
+template <typename T, typename U>
+concept InputIterator = Iterator<T> && requires(T t1, T t2) {
+    { t1 == t2 } -> std::same_as<bool>;
+    { t1 != t2 } -> std::same_as<bool>;
+    { *t1 } -> std::same_as<U>;
+};
+
+template <typename T, typename U>
+concept OutputIterator = Iterator<T> && requires(T t, U u) {
+    { *t = u } -> std::same_as<void>;
+    { *t++ = u } -> std::same_as<void>;
+};
+
+template <typename T, typename U>
+concept ForwardIterator = InputIterator<T, U> && OutputIterator<T, U> &&
+    requires(T t) {
+    t.T();
+};
+
+template <typename T, typename U>
+concept BidirectionalIterator = ForwardIterator<T, U> && requires(T t) {
+    { t-- } -> std::same_as<T>;
+    { --t } -> std::same_as<T>;
+    { *t-- } -> std::same_as<U>;
+};
+
+template <typename T, typename U>
+concept RandomAccessIterator = BidirectionalIterator<T, U> &&
+    requires(T t1, T t2, size_t n) {
+    { t1 + n } -> std::same_as<T>;
+    { n + t1 } -> std::same_as<T>;
+    { t1 - n } -> std::same_as<T>;
+    { n - t1 } -> std::same_as<T>;
+    { t1 < t2 } -> std::same_as<bool>;
+    { t1 > t2 } -> std::same_as<bool>;
+    { t1 <= t2 } -> std::same_as<bool>;
+    { t1 >= t2 } -> std::same_as<bool>;
+    { t1 += n } -> std::same_as<T>;
+    { t1 -= n } -> std::same_as<T>;
+    { t1[n] } -> std::same_as<U>;
+};
+
+}  // namespace std
