@@ -8,6 +8,9 @@ namespace std {
 
 class string final {
    public:
+    using iterator = char*;
+    using const_iterator = const char*;
+
     explicit string();
 
     explicit string(const string& other);
@@ -26,17 +29,34 @@ class string final {
     string& operator=(const string& other);
     string& operator=(string&& other);
 
-    size_t size() const;
-    size_t length() const;
-    size_t capacity() const;
-
-    const char* c_str() const;
-    char* data() const;
     char& operator[](size_t offset);
     const char& operator[](size_t offset) const;
     const char& at(size_t offset) const;
 
+    const char* c_str() const;
+    char* data();
+
+    iterator begin();
+    const_iterator cbegin() const;
+    iterator end();
+    const_iterator cend() const;
+
+    bool empty() const;
+    size_t size() const;
+    size_t length() const;
+    size_t capacity() const;
+
+    void reserve(size_t size);
+    void shrink_to_fit();
+
+    string& operator+=(const string& str);
+    string& operator+=(char ch);
+    string& operator+=(const char* str);
+    string& append(const char* str, size_t size);
+
    private:
+    void resize(size_t size);
+
     char* data_;
     size_t size_;
     size_t capacity_;

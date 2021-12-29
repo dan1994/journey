@@ -1,5 +1,7 @@
+#include <cassert>
 #include <cstring>
 #include <string>
+#include <utility>
 
 namespace std {
 
@@ -8,7 +10,9 @@ string::string() : string("") {}
 string::string(const string& other) : string(other, 0) {}
 
 string::string(string&& other)
-    : data_(other.data()), size_(other.size()), capacity_(other.capacity()) {
+    : data_(std::move(other.data_)),
+      size_(std::move(other.size_)),
+      capacity_(std::move(other.capacity_)) {
     other.data_ = nullptr;
     other.size_ = 0;
     other.capacity_ = 0;
@@ -46,12 +50,12 @@ string& string::operator=(const string& other) {
 
     delete[] data_;
 
-    const size_t byte_count_including_terminator = other.capacity() + 1;
+    const size_t byte_count_including_terminator = other.size_ + 1;
     data_ = new char[byte_count_including_terminator];
-    size_ = other.size();
-    capacity_ = other.capacity();
+    size_ = other.size_;
+    capacity_ = other.capacity_;
 
-    memcpy(data_, other.data(), byte_count_including_terminator);
+    memcpy(data_, other.data_, byte_count_including_terminator);
 
     return *this;
 }
@@ -61,15 +65,64 @@ string& string::operator=(string&& other) {
         return *this;
     }
 
-    data_ = other.data();
-    size_ = other.size();
-    capacity_ = other.capacity();
+    delete[] data_;
+
+    data_ = other.data_;
+    size_ = other.size_;
+    capacity_ = other.capacity_;
 
     other.data_ = nullptr;
     other.size_ = 0;
     other.capacity_ = 0;
 
     return *this;
+}
+
+char& string::operator[](size_t offset) {
+    return const_cast<char&>(
+        const_cast<const string*>(this)->operator[](offset));
+}
+
+const char& string::operator[](size_t offset) const {
+    return at(offset);
+}
+
+const char& string::at(size_t offset) const {
+    if (offset > size_) {
+        assertm(false, "Access to string element out of bounds");
+        placeholder_ = '\0';
+        return placeholder_;
+    }
+
+    return data_[offset];
+}
+
+const char* string::c_str() const {
+    return data_;
+}
+
+char* string::data() {
+    return data_;
+}
+
+string::iterator string::begin() {
+    return data_;
+}
+
+string::const_iterator string::cbegin() const {
+    return data_;
+}
+
+string::iterator string::end() {
+    return data_ + size_;
+}
+
+string::const_iterator string::cend() const {
+    return data_ + size_;
+}
+
+bool string::empty() const {
+    return size_ == 0;
 }
 
 size_t string::size() const {
@@ -84,30 +137,49 @@ size_t string::capacity() const {
     return capacity_;
 }
 
-const char* string::c_str() const {
-    return data_;
-}
-
-char* string::data() const {
-    return data_;
-}
-
-char& string::operator[](size_t offset) {
-    return const_cast<char&>(
-        const_cast<const string*>(this)->operator[](offset));
-}
-
-const char& string::operator[](size_t offset) const {
-    return at(offset);
-}
-
-const char& string::at(size_t offset) const {
-    if (offset > size_) {
-        placeholder_ = '\0';
-        return placeholder_;
+void string::reserve(size_t size) {
+    if (capacity_ >= size) {
+        return;
     }
 
-    return data_[offset];
+    resize(size);
+}
+
+void string::shrink_to_fit() {
+    if (size_ == capacity_) {
+        return;
+    }
+
+    resize(size_);
+}
+
+string& string::operator+=(const string& str) {
+    return append(str.c_str(), str.size());
+}
+
+string& string::operator+=(char ch) {
+    return append(&ch, 1);
+}
+
+string& string::operator+=(const char* str) {
+    return append(str, strlen(str));
+}
+
+string& string::append(const char* str, size_t size) {
+    reserve(size_ + size);
+    memcpy(data_ + size_, str, size);
+    size_ += size;
+    return *this;
+}
+
+void string::resize(size_t size) {
+    char* new_data = new char[size + 1];
+    memcpy(new_data, data_, size_ + 1);
+
+    delete[] data_;
+    data_ = new_data;
+
+    capacity_ = size;
 }
 
 char string::placeholder_ = '\0';
