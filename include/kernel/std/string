@@ -10,11 +10,12 @@ class string final {
    public:
     using iterator = char*;
     using const_iterator = const char*;
+    constexpr static size_t npos = -1;
 
     explicit string();
 
-    explicit string(const string& other);
-    explicit string(string&& other);
+    string(const string& other);
+    string(string&& other);
 
     explicit string(size_t size, char character);
     explicit string(const string& other, size_t position);
@@ -54,6 +55,11 @@ class string final {
     string& operator+=(const char* str);
     string& append(const char* str, size_t size);
 
+    int compare(const string& str) const;
+    int compare(const char* str) const;
+
+    string substr(size_t pos = 0, size_t count = npos) const;
+
    private:
     void resize(size_t size);
 
@@ -83,5 +89,43 @@ string::string(CharInputIterator first, CharInputIterator last) {
     }
     data_[i] = '\0';
 }
+
+bool operator==(const string& lhs, const string& rhs);
+bool operator==(const string& lhs, const char* rhs);
+bool operator==(const char* lhs, const string& rhs);
+
+bool operator!=(const string& lhs, const string& rhs);
+bool operator!=(const string& lhs, const char* rhs);
+bool operator!=(const char* lhs, const string& rhs);
+
+bool operator<(const string& lhs, const string& rhs);
+bool operator<(const string& lhs, const char* rhs);
+bool operator<(const char* lhs, const string& rhs);
+
+bool operator<=(const string& lhs, const string& rhs);
+bool operator<=(const string& lhs, const char* rhs);
+bool operator<=(const char* lhs, const string& rhs);
+
+bool operator>(const string& lhs, const string& rhs);
+bool operator>(const string& lhs, const char* rhs);
+bool operator>(const char* lhs, const string& rhs);
+
+bool operator>=(const string& lhs, const string& rhs);
+bool operator>=(const string& lhs, const char* rhs);
+bool operator>=(const char* lhs, const string& rhs);
+
+string to_string(int number);
+string to_string(long number);
+string to_string(unsigned int number);
+string to_string(unsigned long number);
+
+namespace internal {
+
+size_t get_digit_number(unsigned long number);
+void number_to_characters(char* buffer, unsigned long number, size_t digit_num);
+
+}  // namespace internal
+
+string operator+(const char* string1, const string& string2);
 
 }  // namespace std

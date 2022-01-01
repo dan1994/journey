@@ -172,6 +172,36 @@ string& string::append(const char* str, size_t size) {
     return *this;
 }
 
+int string::compare(const string& str) const {
+    return compare(str.c_str());
+}
+
+int string::compare(const char* str) const {
+    const size_t length = strlen(str);
+    for (size_t i = 0; i < length && i < size_; i++) {
+        if (data_[i] < str[i]) {
+            return -1;
+        } else if (data_[i] > str[i]) {
+            return 1;
+        }
+    }
+
+    const int length_diff = size_ - length;
+    return length_diff < 0 ? -1 : (length_diff > 0 ? 1 : 0);
+}
+
+string string::substr(size_t pos, size_t count) const {
+    if (pos >= size_) {
+        return "";
+    }
+
+    if (count >= size_ - pos) {
+        return string(data_ + pos);
+    }
+
+    return string(data_ + pos, count);
+}
+
 void string::resize(size_t size) {
     char* new_data = new char[size + 1];
     memcpy(new_data, data_, size_ + 1);
@@ -183,5 +213,138 @@ void string::resize(size_t size) {
 }
 
 char string::placeholder_ = '\0';
+
+bool operator==(const string& lhs, const string& rhs) {
+    return lhs.compare(rhs) == 0;
+}
+
+bool operator==(const string& lhs, const char* rhs) {
+    return lhs.compare(rhs) == 0;
+}
+
+bool operator==(const char* lhs, const string& rhs) {
+    return rhs.compare(lhs) == 0;
+}
+
+bool operator!=(const string& lhs, const string& rhs) {
+    return lhs.compare(rhs) != 0;
+}
+
+bool operator!=(const string& lhs, const char* rhs) {
+    return lhs.compare(rhs) != 0;
+}
+
+bool operator!=(const char* lhs, const string& rhs) {
+    return rhs.compare(lhs) != 0;
+}
+
+bool operator<(const string& lhs, const string& rhs) {
+    return lhs.compare(rhs) < 0;
+}
+
+bool operator<(const string& lhs, const char* rhs) {
+    return lhs.compare(rhs) < 0;
+}
+
+bool operator<(const char* lhs, const string& rhs) {
+    return rhs.compare(lhs) > 0;
+}
+
+bool operator<=(const string& lhs, const string& rhs) {
+    return lhs.compare(rhs) <= 0;
+}
+
+bool operator<=(const string& lhs, const char* rhs) {
+    return lhs.compare(rhs) <= 0;
+}
+
+bool operator<=(const char* lhs, const string& rhs) {
+    return rhs.compare(lhs) >= 0;
+}
+
+bool operator>(const string& lhs, const string& rhs) {
+    return lhs.compare(rhs) > 0;
+}
+
+bool operator>(const string& lhs, const char* rhs) {
+    return lhs.compare(rhs) > 0;
+}
+
+bool operator>(const char* lhs, const string& rhs) {
+    return rhs.compare(lhs) < 0;
+}
+
+bool operator>=(const string& lhs, const string& rhs) {
+    return lhs.compare(rhs) >= 0;
+}
+
+bool operator>=(const string& lhs, const char* rhs) {
+    return lhs.compare(rhs) >= 0;
+}
+
+bool operator>=(const char* lhs, const string& rhs) {
+    return rhs.compare(lhs) <= 0;
+}
+
+string to_string(int number) {
+    return to_string(static_cast<long>(number));
+}
+
+string to_string(long number) {
+    if (number >= 0) {
+        return to_string(static_cast<unsigned long>(number));
+    }
+
+    const size_t digit_number = internal::get_digit_number(-number);
+    string result(digit_number + 1, 0);
+
+    result[0] = '-';
+    internal::number_to_characters(result.data() + 1, -number, digit_number);
+
+    return result;
+}
+
+string to_string(unsigned int number) {
+    return to_string(static_cast<unsigned long>(number));
+}
+
+string to_string(unsigned long number) {
+    const size_t digit_number = internal::get_digit_number(number);
+    string result(digit_number, 0);
+
+    internal::number_to_characters(result.data(), number, digit_number);
+
+    return result;
+}
+
+namespace internal {
+
+size_t get_digit_number(unsigned long number) {
+    if (number == 0) {
+        return 1;
+    }
+
+    size_t digit_number = 0;
+
+    for (; number > 0; number /= 10) {
+        digit_number++;
+    }
+
+    return digit_number;
+}
+
+void number_to_characters(char* buffer, unsigned long number,
+                          size_t digit_num) {
+    buffer[digit_num] = 0;
+    for (; digit_num > 0; number /= 10, digit_num--) {
+        buffer[digit_num - 1] = number % 10 + '0';
+    }
+}
+
+}  // namespace internal
+
+string operator+(const char* string1, const string& string2) {
+    return string(string1) += string2;
+}
 
 }  // namespace std
