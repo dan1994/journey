@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 class Logger final {
    public:
     enum class Level { DEBUG, INFO, WARN, ERROR, FATAL };
@@ -10,30 +12,35 @@ class Logger final {
      * Log a message with debug level.
      * @param message The message to log.
      */
+    static void debug(const std::string &message);
     static void debug(const char *message);
 
     /**
      * Log a message with info level.
      * @param message The message to log.
      */
+    static void info(const std::string &message);
     static void info(const char *message);
 
     /**
      * Log a message with warn level.
      * @param message The message to log.
      */
+    static void warn(const std::string &message);
     static void warn(const char *message);
 
     /**
      * Log a message with error level.
      * @param message The message to log.
      */
+    static void error(const std::string &message);
     static void error(const char *message);
 
     /**
      * Log a message with fatal level.
      * @param message The message to log.
      */
+    static void fatal(const std::string &message);
     static void fatal(const char *message);
 
     /**

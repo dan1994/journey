@@ -4,20 +4,40 @@
 
 using namespace drivers;
 
+void Logger::debug(const std::string &message) {
+    debug(message.c_str());
+}
+
 void Logger::debug(const char *message) {
     log(message, Level::DEBUG);
+}
+
+void Logger::info(const std::string &message) {
+    info(message.c_str());
 }
 
 void Logger::info(const char *message) {
     log(message, Level::INFO);
 }
 
+void Logger::warn(const std::string &message) {
+    warn(message.c_str());
+}
+
 void Logger::warn(const char *message) {
     log(message, Level::WARN);
 }
 
+void Logger::error(const std::string &message) {
+    error(message.c_str());
+}
+
 void Logger::error(const char *message) {
     log(message, Level::ERROR);
+}
+
+void Logger::fatal(const std::string &message) {
+    fatal(message.c_str());
 }
 
 void Logger::fatal(const char *message) {
