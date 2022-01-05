@@ -12,6 +12,11 @@ size_t Vga3::column_ = 0;
 volatile uint16_t *const Vga3::VIDEO_MEMORY =
     reinterpret_cast<volatile uint16_t *const>(memory::Layout::VIDEO);
 
+void Vga3::print(const std::string &string, Color foreground,
+                 Color background) {
+    print(string.c_str(), foreground, background);
+}
+
 void Vga3::print(const char *string, Color foreground, Color background) {
     while (*string) {
         print(*(string++), foreground, background);

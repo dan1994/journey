@@ -8,6 +8,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <string>
+
 namespace drivers {
 
 class Vga3 final {
@@ -40,6 +42,9 @@ class Vga3 final {
      * @param foreground The text color
      * @param background The background color
      */
+    static void print(const std::string &string,
+                      Color foreground = Color::LIGHT_GRAY,
+                      Color background = Color::BLACK);
     static void print(const char *string, Color foreground = Color::LIGHT_GRAY,
                       Color background = Color::BLACK);
 
