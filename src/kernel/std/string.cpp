@@ -28,7 +28,9 @@ string::string(const string& other, size_t position)
     : string(other, position, other.size()) {}
 
 string::string(const string& other, size_t position, size_t count)
-    : string(&other.at(position), count) {}
+    : string(&other.at(position), count) {
+    assertm(position < other.size_, "Position is out of string range");
+}
 
 string::string(const char* character_array)
     : string(character_array, strlen(character_array)) {}
@@ -343,8 +345,8 @@ void number_to_characters(char* buffer, unsigned long number,
 
 }  // namespace internal
 
-string operator+(const char* string1, const string& string2) {
-    return string(string1) += string2;
+string operator+(const char* lhs, const string& rhs) {
+    return string(lhs) += rhs;
 }
 
 }  // namespace std

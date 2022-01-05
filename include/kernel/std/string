@@ -12,52 +12,235 @@ class string final {
     using const_iterator = const char*;
     constexpr static size_t npos = -1;
 
+    /**
+     * Create an empty string.
+     */
     explicit string();
 
+    /**
+     * Copy another string.
+     * @param other The string to copy.
+     */
     string(const string& other);
+
+    /**
+     * Move from another string.
+     * @param other The string to move from.
+     */
     string(string&& other);
 
+    /**
+     * Create a string which consists of a repeating single character.
+     * @param size The amount of repetition.
+     * @param character The character to repeat.
+     */
     explicit string(size_t size, char character);
+
+    /**
+     * Copy another string from a given offset.
+     * @param other The string to copy.
+     * @param position The offset to start copying from.
+     */
     explicit string(const string& other, size_t position);
+
+    /**
+     * Copy a given amount of characters from another string from a given
+     * offset.
+     * @param other The string to copy.
+     * @param position The offset to start copying from.
+     * @param count The amount of characters to copy.
+     */
     explicit string(const string& other, size_t position, size_t count);
+
+    /**
+     * Create a string from a character array. Stop at a null terminator.
+     * @param character_array The character array.
+     */
     string(const char* character_array);
+
+    /**
+     * Create a string from a character array with given size. May include null
+     * terminators in the string.
+     * @param character_array The character array.
+     * @param count The size of the string in bytes.
+     */
     explicit string(const char* character_array, size_t count);
+
+    /**
+     * Create a string from a pair of iterators.
+     * @param first The iterator to start from.
+     * @param last The iterator to stop at.
+     */
     template <InputIterator<char> CharInputIterator>
     explicit string(CharInputIterator first, CharInputIterator last);
 
+    /**
+     * Destructor.
+     */
     ~string();
 
+    /**
+     * Copy a string into self.
+     * @param other The string to copy.
+     * @return A reference to self.
+     */
     string& operator=(const string& other);
+
+    /**
+     * Move from a string into self.
+     * @param other The string to move from.
+     * @return A reference to self.
+     */
     string& operator=(string&& other);
 
+    /**
+     * Get a reference to a character of the string.
+     * Panic if offset is bigger than size.
+     * @param offset The offset of the character to retrieve.
+     * @return A reference to the character.
+     */
     char& operator[](size_t offset);
+
+    /**
+     * Get a const reference to a character of the string.
+     * Panic if offset is bigger than size.
+     * @param offset The offset of the character to retrieve.
+     * @return A reference to the character.
+     */
     const char& operator[](size_t offset) const;
+
+    /**
+     * Get a const reference to a character of the string.
+     * Panic if offset is bigger than size.
+     * @param offset The offset of the character to retrieve.
+     * @return A reference to the character.
+     */
     const char& at(size_t offset) const;
 
+    /**
+     * Get a const pointer to the beginning of the string.
+     * @return A const pointer to the beginning of the string.
+     */
     const char* c_str() const;
+
+    /**
+     * Get a pointer to the beginning of the string.
+     * @return A pointer to the beginning of the string.
+     */
     char* data();
 
+    /**
+     * Get an iterator to the beginning of the string.
+     * @return An iterator to the beginning of the string.
+     */
     iterator begin();
+
+    /**
+     * Get a const iterator to the beginning of the string.
+     * @return A const iterator to the beginning of the string.
+     */
     const_iterator cbegin() const;
+
+    /**
+     * Get an iterator to the end of the string.
+     * @return An iterator to the end of the string.
+     */
     iterator end();
+
+    /**
+     * Get a const iterator to the end of the string.
+     * @return A const iterator to the end of the string.
+     */
     const_iterator cend() const;
 
+    /**
+     * Check if the string is empty.
+     * @return true iff the size of the string is zero.
+     */
     bool empty() const;
+
+    /**
+     * Get the size of the string.
+     * @return The size of the string.
+     */
     size_t size() const;
+
+    /**
+     * Get the size of the string.
+     * @return The size of the string.
+     */
     size_t length() const;
+
+    /**
+     * Get the amount of bytes currently allocated to the string.
+     * This is the amount the string can grow to without reallocating memory.
+     * @return The capacity of the string.
+     */
     size_t capacity() const;
 
+    /**
+     * Increase the capacity to the given size.
+     * Has no effect if size is less than the current capacity.
+     * @param size The new capacity.
+     */
     void reserve(size_t size);
+
+    /**
+     * Reduce the memory allocated to the string to its size.
+     */
     void shrink_to_fit();
 
+    /**
+     * Concatenate a string to the end of self.
+     * @param str The string to concatenate.
+     * @return A reference to self.
+     */
     string& operator+=(const string& str);
+
+    /**
+     * Concatenate a character to the end of self.
+     * @param ch The character to concatenate.
+     * @return A reference to self.
+     */
     string& operator+=(char ch);
+
+    /**
+     * Concatenate a character array to the end of self.
+     * @param str The character array to concatenate.
+     * @return A reference to self.
+     */
     string& operator+=(const char* str);
+
+    /**
+     * Concatenate a character array with given size to the end of self.
+     * @param str The character array to concatenate.
+     * @param size The size of the array.
+     * @return A reference to self.
+     */
     string& append(const char* str, size_t size);
 
+    /**
+     * Compare self to another string.
+     * Comparison is done legicographically and then by length.
+     * @param str The string to compare to.
+     * @return -1 if self is smaller, 0 if equal, 1 if self is larger.
+     */
     int compare(const string& str) const;
+
+    /**
+     * Compare self to a character array.
+     * Comparison is done legicographically and then by length.
+     * @param str The character array to compare to.
+     * @return -1 if self is smaller, 0 if equal, 1 if self is larger.
+     */
     int compare(const char* str) const;
 
+    /**
+     * Create a substring of the current string.
+     * @param pos The position to start from.
+     * @param count The amount of characters to take.
+     * @return The substring.
+     */
     string substr(size_t pos = 0, size_t count = npos) const;
 
    private:
@@ -90,33 +273,188 @@ string::string(CharInputIterator first, CharInputIterator last) {
     data_[i] = '\0';
 }
 
+/**
+ * Check if two strings are equal.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return True iff the strings are equal.
+ */
 bool operator==(const string& lhs, const string& rhs);
+
+/**
+ * Check if two strings are equal.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return True iff the strings are equal.
+ */
 bool operator==(const string& lhs, const char* rhs);
+
+/**
+ * Check if two strings are equal.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return True iff the strings are equal.
+ */
 bool operator==(const char* lhs, const string& rhs);
 
+/**
+ * Check if two strings are not equal.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return True iff the strings are not equal.
+ */
 bool operator!=(const string& lhs, const string& rhs);
+
+/**
+ * Check if two strings are not equal.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return True iff the strings are not equal.
+ */
 bool operator!=(const string& lhs, const char* rhs);
+
+/**
+ * Check if two strings are not equal.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return True iff the strings are not equal.
+ */
 bool operator!=(const char* lhs, const string& rhs);
 
+/**
+ * Check if a string is smaller than another.
+ * Strings are compared lexicographically and then by length.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return True iff the first string is smaller than the other.
+ */
 bool operator<(const string& lhs, const string& rhs);
+
+/**
+ * Check if a string is smaller than another.
+ * Strings are compared lexicographically and then by length.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return True iff the first string is smaller than the other.
+ */
 bool operator<(const string& lhs, const char* rhs);
+
+/**
+ * Check if a string is smaller than another.
+ * Strings are compared lexicographically and then by length.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return True iff the first string is smaller than the other.
+ */
 bool operator<(const char* lhs, const string& rhs);
 
+/**
+ * Check if a string is smaller or equal to another.
+ * Strings are compared lexicographically and then by length.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return True iff the first string is smaller or equal to the other.
+ */
 bool operator<=(const string& lhs, const string& rhs);
+
+/**
+ * Check if a string is smaller or equal to another.
+ * Strings are compared lexicographically and then by length.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return True iff the first string is smaller or equal to the other.
+ */
 bool operator<=(const string& lhs, const char* rhs);
+
+/**
+ * Check if a string is smaller or equal to another.
+ * Strings are compared lexicographically and then by length.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return True iff the first string is smaller or equal to the other.
+ */
 bool operator<=(const char* lhs, const string& rhs);
 
+/**
+ * Check if a string is larger than another.
+ * Strings are compared lexicographically and then by length.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return True iff the first string is larger than the other.
+ */
 bool operator>(const string& lhs, const string& rhs);
+
+/**
+ * Check if a string is larger than another.
+ * Strings are compared lexicographically and then by length.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return True iff the first string is larger than the other.
+ */
 bool operator>(const string& lhs, const char* rhs);
+
+/**
+ * Check if a string is larger than another.
+ * Strings are compared lexicographically and then by length.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return True iff the first string is larger than the other.
+ */
 bool operator>(const char* lhs, const string& rhs);
 
+/**
+ * Check if a string is larger or equal to another.
+ * Strings are compared lexicographically and then by length.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return True iff the first string is larger or equal to the other.
+ */
 bool operator>=(const string& lhs, const string& rhs);
+
+/**
+ * Check if a string is larger or equal to another.
+ * Strings are compared lexicographically and then by length.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return True iff the first string is larger or equal to the other.
+ */
 bool operator>=(const string& lhs, const char* rhs);
+
+/**
+ * Check if a string is larger or equal to another.
+ * Strings are compared lexicographically and then by length.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return True iff the first string is larger or equal to the other.
+ */
 bool operator>=(const char* lhs, const string& rhs);
 
+/**
+ * Convert a number to string.
+ * @param number The number to convert.
+ * @return A string representing the number.
+ */
 string to_string(int number);
+
+/**
+ * Convert a number to string.
+ * @param number The number to convert.
+ * @return A string representing the number.
+ */
 string to_string(long number);
+
+/**
+ * Convert an unsigned number to string.
+ * @param number The number to convert.
+ * @return A string representing the number.
+ */
 string to_string(unsigned int number);
+
+/**
+ * Convert an unsigned number to string.
+ * @param number The number to convert.
+ * @return A string representing the number.
+ */
 string to_string(unsigned long number);
 
 namespace internal {
@@ -126,6 +464,13 @@ void number_to_characters(char* buffer, unsigned long number, size_t digit_num);
 
 }  // namespace internal
 
-string operator+(const char* string1, const string& string2);
+/**
+ * Concatenate a character array and a string where the character array is on
+ * the left.
+ * @param lhs The character array.
+ * @param rhs The string.
+ * @return A new string which contains the concatenation of lhs and rhs.
+ */
+string operator+(const char* lhs, const string& rhs);
 
 }  // namespace std
