@@ -1,6 +1,6 @@
 #pragma once
 
-#include <type_traits_internal/integral_constant.hpp>
+#include <internal/type_traits/integral_constant.hpp>
 
 namespace std {
 
