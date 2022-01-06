@@ -1,7 +1,7 @@
 #pragma once
 
-#include <type_traits_internal/integral_constant.hpp>
-#include <type_traits_internal/type_manipulation.hpp>
+#include <internal/type_traits/integral_constant.hpp>
+#include <internal/type_traits/type_manipulation.hpp>
 
 namespace std {
 
