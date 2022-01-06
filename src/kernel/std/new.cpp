@@ -1,15 +1,15 @@
 #include "std/new"
 
-#include "memory/heap_status.hpp"
-#include "memory/kernel_heap.hpp"
+#include "memory/heap/heap_status.hpp"
+#include "memory/heap/kernel_heap.hpp"
 
 void* operator new[](size_t count) {
     return operator new(count);
 }
 
 void* operator new(size_t count) {
-    memory::HeapStatus status;
-    return kernel_heap->allocate(count, status);
+    memory::heap::HeapStatus status;
+    return memory::heap::kernel_heap->allocate(count, status);
 }
 
 void* operator new(size_t count, void* ptr) {
@@ -25,6 +25,6 @@ void operator delete[](void* ptr, size_t count) {
 }
 
 void operator delete(void* ptr, size_t count) {
-    memory::HeapStatus status;
-    kernel_heap->free(ptr, status);
+    memory::heap::HeapStatus status;
+    memory::heap::kernel_heap->free(ptr, status);
 }

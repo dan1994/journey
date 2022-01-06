@@ -1,11 +1,11 @@
-#include "memory/heap_entry_table.hpp"
+#include "memory/heap/heap_entry_table.hpp"
 
 #include <cassert>
 #include <cstring>
 
 #include "utilities/enum.hpp"
 
-namespace memory {
+namespace memory::heap {
 
 HeapEntryTable::HeapEntryTable(std::byte *table_start, size_t total_entries)
     : table_start_(reinterpret_cast<Entry *>(table_start)),
@@ -95,4 +95,4 @@ void HeapEntryTable::mark_entries_as_used(Entry *entries, size_t entry_amount) {
     }
 }
 
-}  // namespace memory
+}  // namespace memory::heap
