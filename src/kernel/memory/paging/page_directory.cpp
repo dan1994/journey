@@ -8,6 +8,9 @@
 
 namespace memory::paging {
 
+constexpr PageDirectoryEntry::Flags DEFAULT_FLAGS = {
+    PriviledgeLevel::KERNEL, AccessType::READ_ONLY, Present::FALSE};
+
 constexpr size_t PAGE_TABLE_ADDRESS_MSB = 31;
 constexpr size_t PAGE_TABLE_ADDRESS_LSB = 12;
 constexpr size_t PAGE_SIZE_FLAG_OFFSET = 7;
@@ -19,13 +22,10 @@ constexpr size_t ACCESS_TYPE_FLAG_OFFSET = 1;
 constexpr size_t PRESENT_FLAG_OFFSET = 0;
 
 PageDirectoryEntry::PageDirectoryEntry()
-    : PageDirectoryEntry(0, PriviledgeLevel::KERNEL, AccessType::READ_ONLY,
-                         Present::FALSE) {}
+    : PageDirectoryEntry(0, DEFAULT_FLAGS) {}
 
 PageDirectoryEntry::PageDirectoryEntry(const PageTable* page_table_address,
-                                       PriviledgeLevel priviledge_level,
-                                       AccessType access_type,
-                                       Present present) {
+                                       const Flags& flags) {
     constexpr bool PAGE_SIZE_4KB = 0;
     constexpr bool WASNT_ACCESSED = 0;
     constexpr bool CACHE_DISABLED = 1;
@@ -39,11 +39,12 @@ PageDirectoryEntry::PageDirectoryEntry(const PageTable* page_table_address,
              WASNT_ACCESSED << ACCESSED_FLAG_OFFSET |
              CACHE_DISABLED << CACHE_DISABLE_FLAG_OFFSET |
              WRITE_THROUGH << CACHE_WRITE_MODE_FLAG_OFFSET |
-             std::underlying_type_t<PriviledgeLevel>(priviledge_level)
+             std::underlying_type_t<PriviledgeLevel>(flags.priviledge_level)
                  << PRIVILEDGE_LEVEL_FLAG_OFFSET |
-             std::underlying_type_t<AccessType>(access_type)
+             std::underlying_type_t<AccessType>(flags.access_type)
                  << ACCESS_TYPE_FLAG_OFFSET |
-             std::underlying_type_t<Present>(present) << PRESENT_FLAG_OFFSET;
+             std::underlying_type_t<Present>(flags.present)
+                 << PRESENT_FLAG_OFFSET;
 }
 
 PageTable* PageDirectoryEntry::get_page_table_address() const {
@@ -104,6 +105,13 @@ void PageDirectoryEntry::mark_present() {
 
 void PageDirectoryEntry::mark_not_present() {
     value_ = utilities::clear_flag(value_, PRESENT_FLAG_OFFSET);
+}
+
+PageDirectory::PageDirectory(const PageDirectoryEntry::Flags& flags,
+                             const PageTable* first_page_table) {
+    for (size_t i = 0; i < NUMBER_OF_ENTRIES; i++) {
+        entries_[i] = PageDirectoryEntry{first_page_table + i, flags};
+    }
 }
 
 const PageDirectoryEntry* PageDirectory::entries() const {

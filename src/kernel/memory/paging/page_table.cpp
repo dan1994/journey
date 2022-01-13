@@ -8,6 +8,9 @@
 
 namespace memory::paging {
 
+constexpr PageTableEntry::Flags DEFAULT_FLAGS = {
+    PriviledgeLevel::KERNEL, AccessType::READ_ONLY, Present::FALSE};
+
 constexpr size_t PAGE_ADDRESS_MSB = 31;
 constexpr size_t PAGE_ADDRESS_LSB = 12;
 constexpr size_t GLOBAL_FLAG_OFFSET = 8;
@@ -20,13 +23,10 @@ constexpr size_t PRIVILEDGE_LEVEL_FLAG_OFFSET = 2;
 constexpr size_t ACCESS_TYPE_FLAG_OFFSET = 1;
 constexpr size_t PRESENT_FLAG_OFFSET = 0;
 
-PageTableEntry::PageTableEntry()
-    : PageTableEntry(0, PriviledgeLevel::KERNEL, AccessType::READ_ONLY,
-                     Present::FALSE) {}
+PageTableEntry::PageTableEntry() : PageTableEntry(0, DEFAULT_FLAGS) {}
 
 PageTableEntry::PageTableEntry(const std::byte* page_address,
-                               PriviledgeLevel priviledge_level,
-                               AccessType access_type, Present present) {
+                               const Flags& flags) {
     constexpr bool NOT_GLOBAL = false;
     constexpr bool PAT_DISABLED = 0;
     constexpr bool NOT_DIRTY = 0;
@@ -43,11 +43,12 @@ PageTableEntry::PageTableEntry(const std::byte* page_address,
              WASNT_ACCESSED << ACCESSED_FLAG_OFFSET |
              CACHE_DISABLED << CACHE_DISABLE_FLAG_OFFSET |
              WRITE_THROUGH << CACHE_WRITE_MODE_FLAG_OFFSET |
-             std::underlying_type_t<PriviledgeLevel>(priviledge_level)
+             std::underlying_type_t<PriviledgeLevel>(flags.priviledge_level)
                  << PRIVILEDGE_LEVEL_FLAG_OFFSET |
-             std::underlying_type_t<AccessType>(access_type)
+             std::underlying_type_t<AccessType>(flags.access_type)
                  << ACCESS_TYPE_FLAG_OFFSET |
-             std::underlying_type_t<Present>(present) << PRESENT_FLAG_OFFSET;
+             std::underlying_type_t<Present>(flags.present)
+                 << PRESENT_FLAG_OFFSET;
 }
 
 std::byte* PageTableEntry::get_page_address() const {
@@ -111,6 +112,18 @@ void PageTableEntry::mark_present() {
 
 void PageTableEntry::mark_not_present() {
     value_ = utilities::clear_flag(value_, PRESENT_FLAG_OFFSET);
+}
+
+PageTable::PageTable(const PageTableEntry::Flags& flags,
+                     InitializationMode initialization_mode, size_t offset) {
+    for (size_t i = 0; i < NUMBER_OF_ENTRIES; i++) {
+        const std::byte* const address =
+            initialization_mode == InitializationMode::ZEROED
+                ? 0
+                : reinterpret_cast<std::byte*>(PAGE_SIZE_IN_BYTES * i + offset);
+
+        entries_[i] = PageTableEntry{address, flags};
+    }
 }
 
 const PageTableEntry* PageTable::entries() const {

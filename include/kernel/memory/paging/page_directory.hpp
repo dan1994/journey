@@ -5,30 +5,32 @@
 
 #include <cstddef>
 
-#include "memory/paging/common_flags.hpp"
+#include "memory/paging/constants.hpp"
 #include "memory/paging/page_table.hpp"
 
 namespace memory::paging {
 
 class PageDirectoryEntry final {
    public:
+    struct Flags {
+        PriviledgeLevel priviledge_level;
+        AccessType access_type;
+        Present present;
+    };
+
     /**
      * Create an entry that points to page table 0, accessible by the kernel
      * only, read only and not present in memory.
      */
-    explicit PageDirectoryEntry() = default;
+    explicit PageDirectoryEntry();
 
     /**
      * Create an entry with the given parameters.
      * @param page_table_address The page table to point to.
-     * @param priviledge_level Whether the user can access the page or only the
-     * kernel.
-     * @param access_type Whether the page is writeable or only readable.
-     * @param present Wether the page is present in memory or not.
+     * @param flags The flags to apply to the page table.
      */
     explicit PageDirectoryEntry(const PageTable* page_table_address,
-                                PriviledgeLevel priviledge_level,
-                                AccessType access_type, Present present);
+                                const Flags& flags);
 
     PageDirectoryEntry(const PageDirectoryEntry&) = default;
     PageDirectoryEntry(PageDirectoryEntry&&) = default;
@@ -116,7 +118,17 @@ class PageDirectory final {
     /**
      * Create a page directory with all entries set to default configuration.
      */
-    explicit PageDirectory();
+    explicit PageDirectory() = default;
+
+    /**
+     * Create a page directory with all entries set to given configuration.
+     * Assumes the page tables are contiguous in memory.
+     * @param flags The flags to apply to each entry.
+     * @param first_page_table A pointer to the page table to be pointed by
+     * entry 0.
+     */
+    explicit PageDirectory(const PageDirectoryEntry::Flags& flags,
+                           const PageTable* first_page_table);
 
     ~PageDirectory() = default;
 
@@ -145,8 +157,9 @@ class PageDirectory final {
     PageDirectory& operator=(const PageDirectory&) = delete;
     PageDirectory& operator=(PageDirectory&&) = delete;
 
-   private:
     static constexpr size_t NUMBER_OF_ENTRIES = 1024;
+
+   private:
     PageDirectoryEntry entries_[NUMBER_OF_ENTRIES];
 } __attribute__((packed));
 

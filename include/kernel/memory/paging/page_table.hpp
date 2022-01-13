@@ -5,30 +5,31 @@
 
 #include <cstddef>
 
-#include "memory/paging/common_flags.hpp"
+#include "memory/paging/constants.hpp"
 
 namespace memory::paging {
 
 class PageTableEntry final {
    public:
+    struct Flags {
+        PriviledgeLevel priviledge_level;
+        AccessType access_type;
+        Present present;
+    };
+
     /**
      * Create an entry that points to page 0, accessible by the kernel only,
      * read only and not present in memory.
      */
-    PageTableEntry();
+    explicit PageTableEntry();
 
     /**
      * Create an entry with the given parameters.
      * @param page_address The page to point to. The address is rounded down to
      * a multiple of page size.
-     * @param priviledge_level Whether the user can access the page or only the
-     * kernel.
-     * @param access_type Whether the page is writeable or only readable.
-     * @param present Wether the page is present in memory or not.
+     * @param flags The flags to apply to the page.
      */
-    explicit PageTableEntry(const std::byte* page_address,
-                            PriviledgeLevel priviledge_level,
-                            AccessType access_type, Present present);
+    explicit PageTableEntry(const std::byte* page_address, const Flags& flags);
 
     PageTableEntry(const PageTableEntry&) = default;
     PageTableEntry(PageTableEntry&&) = default;
@@ -120,10 +121,26 @@ class PageTableEntry final {
 
 class PageTable final {
    public:
+    // Whether to initialize the table with addresses zeroed out or rising
+    // linearly.
+    enum class InitializationMode { ZEROED, LINEAR };
+
     /**
      * Create a page table with all entries set to default configuration.
      */
     explicit PageTable() = default;
+
+    /**
+     * Create a page table with all entries set to given configuration.
+     * @param flags The flags to apply to all entries.
+     * @param initialization_mode How to initialize the page addresses.
+     * Supported modes are zeroed and linear initialization.
+     * @param offset The address to start from in linear initialization mode.
+     */
+    explicit PageTable(
+        const PageTableEntry::Flags& flags,
+        InitializationMode initialization_mode = InitializationMode::ZEROED,
+        size_t offset = 0);
 
     ~PageTable() = default;
 
@@ -152,8 +169,9 @@ class PageTable final {
     PageTable& operator=(const PageTable&) = delete;
     PageTable& operator=(PageTable&&) = delete;
 
-   private:
     static constexpr size_t NUMBER_OF_ENTRIES = 1024;
+
+   private:
     PageTableEntry entries_[NUMBER_OF_ENTRIES];
 } __attribute__((packed));
 
