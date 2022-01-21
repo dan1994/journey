@@ -126,11 +126,6 @@ class PageTable final {
     enum class InitializationMode { ZEROED, LINEAR };
 
     /**
-     * Create a page table with all entries set to default configuration.
-     */
-    explicit PageTable() = default;
-
-    /**
      * Create a page table with all entries set to given configuration.
      * @param flags The flags to apply to all entries.
      * @param initialization_mode How to initialize the page addresses.
@@ -142,7 +137,7 @@ class PageTable final {
         InitializationMode initialization_mode = InitializationMode::ZEROED,
         size_t offset = 0);
 
-    ~PageTable() = default;
+    ~PageTable();
 
     /**
      * Get a pointer to the start of the table.
@@ -172,7 +167,7 @@ class PageTable final {
     static constexpr size_t NUMBER_OF_ENTRIES = 1024;
 
    private:
-    PageTableEntry entries_[NUMBER_OF_ENTRIES];
-} __attribute__((packed));
+    PageTableEntry* entries_;
+};
 
 }  // namespace memory::paging

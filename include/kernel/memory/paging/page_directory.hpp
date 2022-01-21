@@ -19,17 +19,11 @@ class PageDirectoryEntry final {
     };
 
     /**
-     * Create an entry that points to page table 0, accessible by the kernel
-     * only, read only and not present in memory.
-     */
-    explicit PageDirectoryEntry();
-
-    /**
      * Create an entry with the given parameters.
-     * @param page_table_address The page table to point to.
+     * @param page_table The page table to point to.
      * @param flags The flags to apply to the page table.
      */
-    explicit PageDirectoryEntry(const PageTable* page_table_address,
+    explicit PageDirectoryEntry(const PageTable& page_table,
                                 const Flags& flags);
 
     PageDirectoryEntry(const PageDirectoryEntry&) = default;
@@ -116,21 +110,15 @@ class PageDirectoryEntry final {
 class PageDirectory final {
    public:
     /**
-     * Create a page directory with all entries set to default configuration.
-     */
-    explicit PageDirectory() = default;
-
-    /**
      * Create a page directory with all entries set to given configuration.
      * Assumes the page tables are contiguous in memory.
      * @param flags The flags to apply to each entry.
-     * @param first_page_table A pointer to the page table to be pointed by
-     * entry 0.
+     * @param page_tables A pointer to the an array of page tables.
      */
     explicit PageDirectory(const PageDirectoryEntry::Flags& flags,
-                           const PageTable* first_page_table);
+                           const PageTable* page_tables);
 
-    ~PageDirectory() = default;
+    ~PageDirectory();
 
     /**
      * Get a pointer to the start of the table.
@@ -160,7 +148,7 @@ class PageDirectory final {
     static constexpr size_t NUMBER_OF_ENTRIES = 1024;
 
    private:
-    PageDirectoryEntry entries_[NUMBER_OF_ENTRIES];
-} __attribute__((packed));
+    PageDirectoryEntry* entries_;
+};
 
 }  // namespace memory::paging

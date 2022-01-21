@@ -2,9 +2,11 @@
 
 #include <cassert>
 #include <cstring>
+#include <new>
 #include <type_traits>
 
 #include "utilities/bitranges.hpp"
+#include "utilities/memory.hpp"
 
 namespace memory::paging {
 
@@ -115,15 +117,21 @@ void PageTableEntry::mark_not_present() {
 }
 
 PageTable::PageTable(const PageTableEntry::Flags& flags,
-                     InitializationMode initialization_mode, size_t offset) {
+                     InitializationMode initialization_mode, size_t offset)
+    : entries_(utilities::uninitialized_array_of<PageTableEntry>(
+          NUMBER_OF_ENTRIES)) {
     for (size_t i = 0; i < NUMBER_OF_ENTRIES; i++) {
         const std::byte* const address =
             initialization_mode == InitializationMode::ZEROED
                 ? 0
                 : reinterpret_cast<std::byte*>(PAGE_SIZE_IN_BYTES * i + offset);
 
-        entries_[i] = PageTableEntry{address, flags};
+        new (entries_ + i) PageTableEntry{address, flags};
     }
+}
+
+PageTable::~PageTable() {
+    delete[] entries_;
 }
 
 const PageTableEntry* PageTable::entries() const {

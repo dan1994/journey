@@ -2,14 +2,13 @@
 
 #include <cassert>
 #include <cstring>
+#include <new>
 #include <type_traits>
 
 #include "utilities/bitranges.hpp"
+#include "utilities/memory.hpp"
 
 namespace memory::paging {
-
-constexpr PageDirectoryEntry::Flags DEFAULT_FLAGS = {
-    PriviledgeLevel::KERNEL, AccessType::READ_ONLY, Present::FALSE};
 
 constexpr size_t PAGE_TABLE_ADDRESS_MSB = 31;
 constexpr size_t PAGE_TABLE_ADDRESS_LSB = 12;
@@ -21,10 +20,7 @@ constexpr size_t PRIVILEDGE_LEVEL_FLAG_OFFSET = 2;
 constexpr size_t ACCESS_TYPE_FLAG_OFFSET = 1;
 constexpr size_t PRESENT_FLAG_OFFSET = 0;
 
-PageDirectoryEntry::PageDirectoryEntry()
-    : PageDirectoryEntry(0, DEFAULT_FLAGS) {}
-
-PageDirectoryEntry::PageDirectoryEntry(const PageTable* page_table_address,
+PageDirectoryEntry::PageDirectoryEntry(const PageTable& page_table,
                                        const Flags& flags) {
     constexpr bool PAGE_SIZE_4KB = 0;
     constexpr bool WASNT_ACCESSED = 0;
@@ -32,7 +28,7 @@ PageDirectoryEntry::PageDirectoryEntry(const PageTable* page_table_address,
     constexpr bool WRITE_THROUGH = 1;
 
     const uint32_t page_table_address_field =
-        utilities::get_field(reinterpret_cast<uint32_t>(page_table_address),
+        utilities::get_field(reinterpret_cast<uint32_t>(page_table.entries()),
                              PAGE_TABLE_ADDRESS_MSB, PAGE_TABLE_ADDRESS_LSB);
 
     value_ = page_table_address_field | PAGE_SIZE_4KB << PAGE_SIZE_FLAG_OFFSET |
@@ -108,10 +104,16 @@ void PageDirectoryEntry::mark_not_present() {
 }
 
 PageDirectory::PageDirectory(const PageDirectoryEntry::Flags& flags,
-                             const PageTable* first_page_table) {
+                             const PageTable* page_tables)
+    : entries_(utilities::uninitialized_array_of<PageDirectoryEntry>(
+          PageDirectory::NUMBER_OF_ENTRIES)) {
     for (size_t i = 0; i < NUMBER_OF_ENTRIES; i++) {
-        entries_[i] = PageDirectoryEntry{first_page_table + i, flags};
+        new (entries_ + i) PageDirectoryEntry{page_tables[i], flags};
     }
+}
+
+PageDirectory::~PageDirectory() {
+    delete[] entries_;
 }
 
 const PageDirectoryEntry* PageDirectory::entries() const {
