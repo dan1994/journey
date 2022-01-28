@@ -31,7 +31,8 @@ PageDirectoryEntry::PageDirectoryEntry(const PageTable& page_table,
         utilities::get_field(reinterpret_cast<uint32_t>(page_table.entries()),
                              PAGE_TABLE_ADDRESS_MSB, PAGE_TABLE_ADDRESS_LSB);
 
-    value_ = page_table_address_field | PAGE_SIZE_4KB << PAGE_SIZE_FLAG_OFFSET |
+    value_ = page_table_address_field << PAGE_TABLE_ADDRESS_LSB |
+             PAGE_SIZE_4KB << PAGE_SIZE_FLAG_OFFSET |
              WASNT_ACCESSED << ACCESSED_FLAG_OFFSET |
              CACHE_DISABLED << CACHE_DISABLE_FLAG_OFFSET |
              WRITE_THROUGH << CACHE_WRITE_MODE_FLAG_OFFSET |

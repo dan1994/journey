@@ -40,7 +40,8 @@ PageTableEntry::PageTableEntry(const std::byte* page_address,
         utilities::get_field(reinterpret_cast<uint32_t>(page_address),
                              PAGE_ADDRESS_MSB, PAGE_ADDRESS_LSB);
 
-    value_ = page_address_field | NOT_GLOBAL << GLOBAL_FLAG_OFFSET |
+    value_ = page_address_field << PAGE_ADDRESS_LSB |
+             NOT_GLOBAL << GLOBAL_FLAG_OFFSET |
              PAT_DISABLED << PAT_FLAG_OFFSET | NOT_DIRTY << DIRTY_FLAG_OFFSET |
              WASNT_ACCESSED << ACCESSED_FLAG_OFFSET |
              CACHE_DISABLED << CACHE_DISABLE_FLAG_OFFSET |

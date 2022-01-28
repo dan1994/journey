@@ -2,7 +2,7 @@
 
 section .asm
 
-global paging_load_directory
+global load_page_directory
 
 ; Load a new page directory. Set CR3 to the address of the page directory.
 ;

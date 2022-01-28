@@ -17,6 +17,10 @@ class PagingInstance final {
     void load();
 
    private:
+    static PageTable* initialize_page_tables(
+        const PageTableEntry::Flags& flags,
+        PageTable::InitializationMode initialization_mode);
+
     PageTable* tables_;
     PageDirectory directory_;
 };
