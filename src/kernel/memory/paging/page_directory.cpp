@@ -31,6 +31,10 @@ PageDirectoryEntry::PageDirectoryEntry(const PageTable& page_table,
         utilities::get_field(reinterpret_cast<uint32_t>(page_table.entries()),
                              PAGE_TABLE_ADDRESS_MSB, PAGE_TABLE_ADDRESS_LSB);
 
+    assertm(page_table_address_field << PAGE_TABLE_ADDRESS_LSB ==
+                reinterpret_cast<uint32_t>(page_table.entries()),
+            "Page table address is not properly aligned");
+
     value_ = page_table_address_field << PAGE_TABLE_ADDRESS_LSB |
              PAGE_SIZE_4KB << PAGE_SIZE_FLAG_OFFSET |
              WASNT_ACCESSED << ACCESSED_FLAG_OFFSET |
