@@ -1,9 +1,20 @@
 #pragma once
 
-#include "memory/paging/page_directory.hpp"
+#include "memory/paging/paging_instance.hpp"
 
-extern "C" void enable_paging();
+namespace memory::paging {
 
-extern "C" void load_page_directory(const void* page_directory);
+/**
+ * Enable paging in the processor.
+ * WARNING: A page directory must be loaded before enabling paging. Otherwise
+ * the system will panic.
+ */
+void enable_paging();
 
-namespace memory::paging {}  // namespace memory::paging
+/**
+ * Make the paging mechanism use the given paging instance.
+ * @param instance The paging instance to use.
+ */
+void load(const PagingInstance& instance);
+
+}  // namespace memory::paging

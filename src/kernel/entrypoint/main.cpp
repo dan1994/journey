@@ -2,12 +2,9 @@
 #include "interrupts/interrupts.hpp"
 #include "logging/logger.hpp"
 #include "memory/paging/paging.hpp"
-#include "memory/paging/paging_instance.hpp"
-
-using namespace drivers;
 
 extern "C" void main() {
-    Vga3::clear();
+    drivers::Vga3::clear();
 
     Logger::info("Initializing Journey...");
 
@@ -27,9 +24,9 @@ extern "C" void main() {
         },
         memory::paging::PageTable::InitializationMode::LINEAR);
 
-    kernel_paging.load();
-    enable_paging();
+    memory::paging::load(kernel_paging);
+    memory::paging::enable_paging();
     Logger::debug("Initialized paging...");
 
-    Logger::info("Kernel finished running. Going into infinite loop...");
+    Logger::warn("Kernel finished running. Going into infinite loop...");
 }

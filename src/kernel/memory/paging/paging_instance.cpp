@@ -17,8 +17,8 @@ PagingInstance::~PagingInstance() {
     delete[] tables_;
 }
 
-void PagingInstance::load() {
-    load_page_directory(directory_.entries());
+const PageDirectory& PagingInstance::get_directory() const {
+    return directory_;
 }
 
 PageTable* PagingInstance::initialize_page_tables(

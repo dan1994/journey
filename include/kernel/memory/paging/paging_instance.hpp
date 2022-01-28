@@ -14,7 +14,7 @@ class PagingInstance final {
 
     ~PagingInstance();
 
-    void load();
+    const PageDirectory& get_directory() const;
 
    private:
     static PageTable* initialize_page_tables(
