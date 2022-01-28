@@ -319,6 +319,10 @@ string to_string(unsigned long number) {
     return result;
 }
 
+string to_string(const void* ptr) {
+    return to_string(reinterpret_cast<unsigned int>(ptr));
+}
+
 namespace internal {
 
 size_t get_digit_number(unsigned long number) {
@@ -345,8 +349,24 @@ void number_to_characters(char* buffer, unsigned long number,
 
 }  // namespace internal
 
+string operator+(const string& lhs, const string& rhs) {
+    string s;
+    s.reserve(lhs.size() + rhs.size());
+    return (s += lhs) += rhs;
+}
+
 string operator+(const char* lhs, const string& rhs) {
-    return string(lhs) += rhs;
+    string s;
+    const size_t lhs_size = strlen(lhs);
+    s.reserve(lhs_size + rhs.size());
+    return s.append(lhs, lhs_size) += rhs;
+}
+
+string operator+(const string& lhs, const char* rhs) {
+    string s;
+    const size_t rhs_size = strlen(rhs);
+    s.reserve(lhs.size() + rhs_size);
+    return (s += lhs).append(rhs, rhs_size);
 }
 
 }  // namespace std
