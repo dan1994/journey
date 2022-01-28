@@ -90,6 +90,7 @@ class PageDirectoryEntry final {
 
     /**
      * Check whether the page table is present in memory.
+     * @return True iff the page table is present in memory.
      */
     bool is_present() const;
 
@@ -148,7 +149,7 @@ class PageDirectory final {
     static constexpr size_t NUMBER_OF_ENTRIES = 1024;
 
    private:
-    PageDirectoryEntry* entries_;
+    PageDirectoryEntry* const entries_;
 };
 
 }  // namespace memory::paging

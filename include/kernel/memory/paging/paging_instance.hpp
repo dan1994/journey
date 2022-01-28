@@ -21,7 +21,7 @@ class PagingInstance final {
         const PageTableEntry::Flags& flags,
         PageTable::InitializationMode initialization_mode);
 
-    PageTable* tables_;
+    PageTable* const tables_;
     PageDirectory directory_;
 };
 

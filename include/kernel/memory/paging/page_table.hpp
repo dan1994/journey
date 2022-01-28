@@ -102,6 +102,7 @@ class PageTableEntry final {
 
     /**
      * Check whether the page is present in memory.
+     * @return True iff the page is present in memory.
      */
     bool is_present() const;
 
@@ -167,7 +168,7 @@ class PageTable final {
     static constexpr size_t NUMBER_OF_ENTRIES = 1024;
 
    private:
-    PageTableEntry* entries_;
+    PageTableEntry* const entries_;
 };
 
 }  // namespace memory::paging
