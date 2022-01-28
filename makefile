@@ -1,3 +1,5 @@
+include base.mk
+
 SRC_DIR=src
 BUILD_DIR=build
 BIN_DIR=bin
@@ -11,33 +13,38 @@ all: compile
 
 .PHONY: gdb
 gdb: compile
-	gdb
+	@gdb
 
 .PHONY: run
 run: compile
-	qemu-system-x86_64 -hda $(TARGET)
+	$(call log_run,Qemu $(patsubst ../../%,%,${TARGET}))
+	${Q}qemu-system-x86_64 -hda $(TARGET) 2> /dev/null
 
 .PHONY: view
 view: compile
-	ndisasm $(TARGET) | less
+	@ndisasm $(TARGET) | less
 
 .PHONY: compile
 compile: $(TARGET)
 
 $(TARGET): $(BOOTLOADER) $(KERNEL)
-	rm -f $@
-	dd if=$(BOOTLOADER) >> $@
-	dd if=$(KERNEL) >> $@
-	dd if=/dev/zero bs=512 count=100 >> $@
+	$(call log_message,Creating Kernel Image)
+	$(call log_image,$@)
+	${Q}rm -f $@
+	${Q}dd if=$(BOOTLOADER) >> $@ 2> /dev/null
+	${Q}dd if=$(KERNEL) >> $@ 2> /dev/null
+	${Q}dd if=/dev/zero bs=512 count=100 >> $@ 2> /dev/null
+	$(call log_message,Image Created)
 
 .PHONY: $(BOOTLOADER)
 $(BOOTLOADER):
-	$(MAKE) -C $(SRC_DIR)/boot
+	${Q}$(MAKE) -C $(SRC_DIR)/boot ${NO_PRINT_DIRECTORY}
 
 .PHONY: $(KERNEL)
 $(KERNEL):
-	$(MAKE) -C $(SRC_DIR)/kernel
+	${Q}$(MAKE) -C $(SRC_DIR)/kernel ${NO_PRINT_DIRECTORY}
 
 .PHONY: clean
 clean:
-	rm -rf $(BUILD_DIR) $(BIN_DIR)
+	$(call log_clean)
+	${Q}rm -rf $(BUILD_DIR) $(BIN_DIR)

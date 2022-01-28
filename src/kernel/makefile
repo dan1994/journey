@@ -1,4 +1,7 @@
 ROOT_DIR=../..
+
+include ${ROOT_DIR}/base.mk
+
 INCLUDE_DIR=$(ROOT_DIR)/include/kernel
 SRC_DIR=.
 BUILD_DIR=$(ROOT_DIR)/build/kernel
@@ -50,40 +53,52 @@ all: compile
 
 .PHONY: view
 view: compile
-	ndisasm $(TARGET) | less
+	@ndisasm $(TARGET) | less
 
 .PHONY: compile
-compile: $(BUILD_DIR) $(BIN_DIR) $(TARGET)
+compile: message $(BUILD_DIR) $(BIN_DIR) $(TARGET)
+	$(call log_message,Kernel Build Complete)
 
 $(TARGET): $(TARGET_ELF) $(SRC_DIR)/linker.ld
-	$(CXX) $(BINFLAGS) -T $(SRC_DIR)/linker.ld $< -o $@
+	$(call log_link,$(patsubst ../../%,%,$@))
+	${Q}$(CXX) $(BINFLAGS) -T $(SRC_DIR)/linker.ld $< -o $@
 
 $(TARGET_ELF): $(OBJECTS)
-	$(LD) $(LINKFLAGS) $^ -o $@
+	$(call log_link,$(patsubst ../../%,%,$@))
+	${Q}$(LD) $(LINKFLAGS) $^ -o $@
 
 # ISR methods require the `-mgeneral-regs-only` flag to be compiled correctly.
 $(BUILD_DIR)/interrupts/isr.cpp.o: interrupts/isr.cpp
-	mkdir -p $(@D)
-	$(CXX) -mgeneral-regs-only $(CXXFLAGS) -c $< -o $@
+	@mkdir -p $(@D)
+	$(call log_compile,src/kernel/$<)
+	${Q}$(CXX) -mgeneral-regs-only $(CXXFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.cpp.o: %.cpp
-	mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	@mkdir -p $(@D)
+	$(call log_compile,src/kernel/$<)
+	${Q}$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.c.o: %.c
-	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c $< -o $@
+	@mkdir -p $(@D)
+	$(call log_compile,src/kernel/$<)
+	${Q}$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.asm.o: %.asm
-	mkdir -p $(@D)
-	nasm $(ASMFLAGS) $< -o $@
+	@mkdir -p $(@D)
+	$(call log_compile,src/kernel/$<)
+	${Q}nasm $(ASMFLAGS) $< -o $@
 
 $(BUILD_DIR):
-	mkdir -p $@
+	@mkdir -p $@
 
 $(BIN_DIR):
-	mkdir -p $@
+	@mkdir -p $@
+
+.PHONY: message
+message:
+	$(call log_message,Kernel Build Start)
 
 .PHONY: clean
 clean:
-	rm -rf $(BUILD_DIR) $(BIN_DIR)
+	$(call log_clean)
+	${Q}rm -rf $(BUILD_DIR) $(BIN_DIR)

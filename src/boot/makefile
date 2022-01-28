@@ -1,3 +1,7 @@
+ROOT_DIR=../..
+
+include ${ROOT_DIR}/base.mk
+
 SRC_DIR=.
 BIN_DIR=../../bin/boot
 SOURCES=$(SRC_DIR)/boot.asm
@@ -8,25 +12,33 @@ all: compile
 
 .PHONY: gdb
 gdb: compile
-	gdb
+	@gdb
 
 .PHONY: run
 run: compile
-	qemu-system-x86_64 -hda $(TARGET)
+	$(call log_run,Qemu $(patsubst ../../%,%,${TARGET}))
+	${Q}qemu-system-x86_64 -hda $(TARGET) 2> /dev/null
 
 .PHONY: view
 view: compile
-	ndisasm $(TARGET) | less
+	@ndisasm $(TARGET) | less
 
 .PHONY: compile
-compile: $(BIN_DIR) $(TARGET)
+compile: message $(BIN_DIR) $(TARGET)
+	$(call log_message,Bootloader Build Complete)
 
 $(TARGET): $(SOURCES)
-	nasm -f bin $< -o $@
+	$(call log_compile,src/boot/$<)
+	${Q}nasm -f bin $< -o $@
 
 $(BIN_DIR):
-	mkdir -p $@
+	@mkdir -p $@
+
+.PHONY: message
+message:
+	$(call log_message,Bootloader Build Start)
 
 .PHONY: clean
 clean:
-	rm -rf $(BIN_DIR)
+	$(call log_clean)
+	${Q}rm -rf $(BIN_DIR)
