@@ -457,12 +457,27 @@ string to_string(unsigned int number);
  */
 string to_string(unsigned long number);
 
+/**
+ * Convert a pointer to string.
+ * @param pter The pointer to convert.
+ * @return A string representing the pointer.
+ */
+string to_string(const void* ptr);
+
 namespace internal {
 
 size_t get_digit_number(unsigned long number);
 void number_to_characters(char* buffer, unsigned long number, size_t digit_num);
 
 }  // namespace internal
+
+/**
+ * Concatenate two strings.
+ * @param lhs The first string.
+ * @param rhs The second string.
+ * @return A new string which contains the concatenation of lhs and rhs.
+ */
+string operator+(const string& lhs, const string& rhs);
 
 /**
  * Concatenate a character array and a string where the character array is on
@@ -472,5 +487,14 @@ void number_to_characters(char* buffer, unsigned long number, size_t digit_num);
  * @return A new string which contains the concatenation of lhs and rhs.
  */
 string operator+(const char* lhs, const string& rhs);
+
+/**
+ * Concatenate a string and a character array where the character array is on
+ * the right.
+ * @param lhs The string.
+ * @param rhs The character array.
+ * @return A new string which contains the concatenation of lhs and rhs.
+ */
+string operator+(const string& lhs, const char* rhs);
 
 }  // namespace std
