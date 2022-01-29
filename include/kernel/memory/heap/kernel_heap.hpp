@@ -1,9 +1,11 @@
 #pragma once
 
-#include "memory/heap.hpp"
+#include "memory/heap/heap.hpp"
+
+namespace memory::heap {
 
 // This is the global heap used by the kernel.
-extern memory::Heap* kernel_heap;
+extern Heap* kernel_heap;
 
 /**
  * Initializes the kernel heap before any other global.
@@ -23,4 +25,6 @@ extern memory::Heap* kernel_heap;
  * initialize the global variable during the standard globals initialization
  * phase.
  */
-extern "C" memory::Heap& get_kernel_heap();
+extern "C" Heap& get_kernel_heap();
+
+}  // namespace memory::heap

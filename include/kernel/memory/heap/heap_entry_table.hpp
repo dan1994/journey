@@ -4,14 +4,14 @@
 
 #include <cstddef>
 
-#include "memory/heap_status.hpp"
+#include "memory/heap/heap_status.hpp"
 
 /**
  * The heap entry table marks which blocks have been allocated and which are
  * free. Each entry table is relevant to a single heap.
  */
 
-namespace memory {
+namespace memory::heap {
 
 class HeapEntryTable final {
    private:
@@ -83,4 +83,4 @@ class HeapEntryTable final {
     const size_t total_entries_;
 };
 
-}  // namespace memory
+}  // namespace memory::heap

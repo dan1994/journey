@@ -1,8 +1,8 @@
-#include "memory/heap.hpp"
+#include "memory/heap/heap.hpp"
 
 #include <cassert>
 
-namespace memory {
+namespace memory::heap {
 
 Heap::Heap(std::byte *heap_start, size_t max_size, size_t block_size)
     : block_size_(block_size),
@@ -80,4 +80,4 @@ HeapEntryTable Heap::initialize_external_entry_table(
     return HeapEntryTable(entry_table_start, entry_amount);
 }
 
-}  // namespace memory
+}  // namespace memory::heap

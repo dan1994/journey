@@ -1,6 +1,6 @@
 #pragma once
 
-namespace memory {
+namespace memory::heap {
 
 enum class HeapStatus {
     SUCCESS,
@@ -10,4 +10,5 @@ enum class HeapStatus {
     FREE_ENTRY_IN_THE_MIDDLE_OF_AN_ALLOCATION,
     CANT_ALLOCATE_ZERO_ENTRIES,
 };
-}
+
+}  // namespace memory::heap

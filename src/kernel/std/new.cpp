@@ -1,15 +1,17 @@
 #include "std/new"
 
-#include "memory/heap_status.hpp"
-#include "memory/kernel_heap.hpp"
+#include "memory/heap/heap_status.hpp"
+#include "memory/heap/kernel_heap.hpp"
+
+void* fix_array_offset(const void* ptr);
 
 void* operator new[](size_t count) {
     return operator new(count);
 }
 
 void* operator new(size_t count) {
-    memory::HeapStatus status;
-    return kernel_heap->allocate(count, status);
+    memory::heap::HeapStatus status;
+    return memory::heap::kernel_heap->allocate(count, status);
 }
 
 void* operator new(size_t count, void* ptr) {
@@ -17,14 +19,20 @@ void* operator new(size_t count, void* ptr) {
 }
 
 void operator delete[](void* ptr) {
-    operator delete(ptr, static_cast<size_t>(0));
+    operator delete(fix_array_offset(ptr), static_cast<size_t>(0));
 }
 
 void operator delete[](void* ptr, size_t count) {
-    operator delete(ptr, count);
+    operator delete(fix_array_offset(ptr), count);
 }
 
 void operator delete(void* ptr, size_t count) {
-    memory::HeapStatus status;
-    kernel_heap->free(ptr, status);
+    memory::heap::HeapStatus status;
+    memory::heap::kernel_heap->free(ptr, status);
+}
+
+void* fix_array_offset(const void* ptr) {
+    constexpr size_t ARRAY_DELETE_OFFSET = 4;
+    return reinterpret_cast<void*>(reinterpret_cast<unsigned int>(ptr) +
+                                   ARRAY_DELETE_OFFSET);
 }

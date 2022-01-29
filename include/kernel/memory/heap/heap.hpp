@@ -4,14 +4,14 @@
 
 #include <cstddef>
 
-#include "memory/heap_entry_table.hpp"
+#include "memory/heap/heap_entry_table.hpp"
 
 /**
  * A block based heap implementation. The heap is broken into contiguous blocks,
  * and allocation can only be done on entire blocks.
  */
 
-namespace memory {
+namespace memory::heap {
 
 class Heap final {
    public:
@@ -103,4 +103,4 @@ class Heap final {
     HeapEntryTable entry_table_;
 };
 
-}  // namespace memory
+}  // namespace memory::heap
