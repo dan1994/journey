@@ -13,12 +13,12 @@ all: compile
 
 .PHONY: gdb
 gdb: compile
-	@gdb
+	@gdb -q 2> /dev/null
 
 .PHONY: run
 run: compile
 	$(call log_run,Qemu $(patsubst ../../%,%,${TARGET}))
-	${Q}qemu-system-x86_64 -hda $(TARGET) 2> /dev/null
+	${Q}qemu-system-x86_64 -hda $(TARGET) 2> /dev/null 2>&1
 
 .PHONY: view
 view: compile
