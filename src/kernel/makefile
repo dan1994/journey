@@ -31,7 +31,7 @@ LD=$(TOOLCHAIN_PREFIX)ld
 # calls __cxa_guard_acquire and __cxa_guard_release which are complex.
 
 FLAGS_SYNTAX=-Werror -Wall -Wno-unused-function -Wno-unused-label -Wno-unused-parameter
-FLAGS_ENV=-ffreestanding -nostdlib -nostartfiles -nodefaultlibs -fno-use-cxa-atexit
+FLAGS_ENV=-ffreestanding -nostdlib -nostartfiles -nodefaultlibs -fno-use-cxa-atexit -m32
 FLAGS_OPTIMIZATION=-O0 -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -fno-builtin -fno-threadsafe-statics
 
 CFLAGS_SYNTAX=-std=gnu99 $(FLAGS_SYNTAX)
