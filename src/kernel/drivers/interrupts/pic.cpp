@@ -1,4 +1,4 @@
-#include "drivers/pic.hpp"
+#include "drivers/interrupts/pic.hpp"
 
 // These defines are from https://wiki.osdev.org/PIC
 #define ICW1_ICW4 0x01      /* ICW4 (not) needed */
@@ -13,7 +13,9 @@
 #define ICW4_BUF_MASTER 0x0C /* Buffered mode/master */
 #define ICW4_SFNM 0x10       /* Special fully nested (not) */
 
-namespace drivers {
+namespace io = drivers::io;
+
+namespace drivers::interrupts {
 
 void Pic8259::init() {
     remap_master();
@@ -22,29 +24,29 @@ void Pic8259::init() {
 
 void Pic8259::remap_master() {
     constexpr uint8_t CASCADE_THROUGH_IRQ2 = 1 << 2;
-    remap(Io::Port::MASTER_PIC_COMMAND, Io::Port::MASTER_PIC_DATA,
+    remap(io::Port::MASTER_PIC_COMMAND, io::Port::MASTER_PIC_DATA,
           MASTER_OFFSET, CASCADE_THROUGH_IRQ2);
 }
 
 void Pic8259::remap_slave() {
     constexpr uint8_t CASCADE_IDENTITY = 2;
-    remap(Io::Port::SLAVE_PIC_COMMAND, Io::Port::SLAVE_PIC_DATA, SLAVE_OFFSET,
+    remap(io::Port::SLAVE_PIC_COMMAND, io::Port::SLAVE_PIC_DATA, SLAVE_OFFSET,
           CASCADE_IDENTITY);
 }
 
-void Pic8259::remap(Io::Port command_port, Io::Port data_port,
+void Pic8259::remap(io::Port command_port, io::Port data_port,
                     uint8_t idt_offset, uint8_t connection_information) {
     constexpr uint8_t INITIALIZATION_WORD = ICW1_INIT | ICW1_ICW4;
     constexpr uint8_t EXTRA_INFORMATION = ICW4_8086;
 
-    const uint8_t saved_masks = Io::read_byte(data_port);
+    const uint8_t saved_masks = io::read_byte(data_port);
 
-    Io::write_byte(command_port, INITIALIZATION_WORD);
-    Io::write_byte(data_port, idt_offset);
-    Io::write_byte(data_port, connection_information);
-    Io::write_byte(data_port, EXTRA_INFORMATION);
+    io::write_byte(command_port, INITIALIZATION_WORD);
+    io::write_byte(data_port, idt_offset);
+    io::write_byte(data_port, connection_information);
+    io::write_byte(data_port, EXTRA_INFORMATION);
 
-    Io::write_byte(data_port, saved_masks);
+    io::write_byte(data_port, saved_masks);
 }
 
 void Pic8259::signal_end_of_interrupt(Interrupt interrupt) {
@@ -55,11 +57,11 @@ void Pic8259::signal_end_of_interrupt(Interrupt interrupt) {
         return;
     }
 
-    const Io::Port port = controller == Id::MASTER
-                              ? Io::Port::MASTER_PIC_COMMAND
-                              : Io::Port::SLAVE_PIC_COMMAND;
+    const io::Port port = controller == Id::MASTER
+                              ? io::Port::MASTER_PIC_COMMAND
+                              : io::Port::SLAVE_PIC_COMMAND;
 
-    Io::write_byte(port, END_OF_INTERRUPT);
+    io::write_byte(port, END_OF_INTERRUPT);
 }
 
 Pic8259::Id Pic8259::get_controller(Interrupt interrupt) {
@@ -80,4 +82,4 @@ Pic8259::Id Pic8259::get_controller(Interrupt interrupt) {
     return Id::NONE;
 }
 
-}  // namespace drivers
+}  // namespace drivers::interrupts

@@ -1,8 +1,8 @@
 #include "interrupts/interrupts.hpp"
 
+#include <cassert>
 #include <type_traits>
 
-#include "drivers/vga3.hpp"
 #include "entrypoint/config.hpp"
 #include "interrupts/isr.hpp"
 
@@ -16,7 +16,7 @@ void Interrupts::init() {
 
     load_idt(&idtr);
 
-    drivers::Pic8259::init();
+    drivers::interrupts::Pic8259::init();
 
     register_all();
 
@@ -45,9 +45,9 @@ void Interrupts::disable(Interrupt interrupt) {
 }
 
 void Interrupts::register_all() {
-    register_interrupt(static_cast<Interrupt>(0x20), isr_acknowledge_interrupt,
+    register_interrupt(Interrupt::PIC_TIMER, isr_acknowledge_interrupt,
                        PriviledgeLevel::KERNEL, GateSize::BITS32);
-    register_interrupt(static_cast<Interrupt>(0x76), isr_acknowledge_interrupt,
+    register_interrupt(Interrupt::PIC_HDD, isr_acknowledge_interrupt,
                        PriviledgeLevel::KERNEL, GateSize::BITS32);
 
     register_interrupt(Interrupt::DIVIDE_BY_ZERO, isr_divide_by_zero,
@@ -58,8 +58,7 @@ void Interrupts::register_all() {
 }
 
 void Interrupts::register_task(Interrupt interrupt, PriviledgeLevel dpl) {
-    drivers::Vga3::print(
-        "TSS selector not yet implemented, task will not be registered.\n");
+    assertm(false, "TSS selector not yet implemented.");
 
     // constexpr Isr no_isr = nullptr;
     // register_internal(interrupt, no_isr, dpl, GateType::TASK,

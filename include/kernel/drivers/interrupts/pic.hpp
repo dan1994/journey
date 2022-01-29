@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include "io/io.hpp"
+#include "drivers/io/ports.hpp"
 
 /**
  * The Programmable Interrupt Controller (PIC) is responsible for handling
@@ -13,7 +13,7 @@
 // Forward declare to avoid circular header dependency
 enum class Interrupt : uint8_t;
 
-namespace drivers {
+namespace drivers::interrupts {
 
 class Pic8259 final {
    public:
@@ -41,9 +41,10 @@ class Pic8259 final {
    private:
     static void remap_master();
     static void remap_slave();
-    static void remap(Io::Port command_port, Io::Port data_port,
-                      uint8_t idt_offest, uint8_t connection_information);
+    static void remap(drivers::io::Port command_port,
+                      drivers::io::Port data_port, uint8_t idt_offest,
+                      uint8_t connection_information);
     [[nodiscard]] static Id get_controller(Interrupt interrupt);
 };
 
-}  // namespace drivers
+}  // namespace drivers::interrupts

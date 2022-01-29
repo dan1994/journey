@@ -6,13 +6,13 @@
  * See https://wiki.osdev.org/IDT for more info.
  */
 
-#include "drivers/pic.hpp"
+#include "drivers/interrupts/pic.hpp"
 #include "interrupts/idt.hpp"
 
 // The number used with the int instruction
 enum class Interrupt : uint8_t {
     DIVIDE_BY_ZERO,
-    PIC_TIMER = drivers::Pic8259::MASTER_OFFSET,
+    PIC_TIMER = drivers::interrupts::Pic8259::MASTER_OFFSET,
     PIC_KEYBOARD,
     PIC_CASCADE,
     PIC_COM2,
@@ -20,7 +20,7 @@ enum class Interrupt : uint8_t {
     PIC_LPT2,
     PIC_FLOPPY,
     PIC_LPT1,
-    PIC_CMOS_RTC = drivers::Pic8259::SLAVE_OFFSET,
+    PIC_CMOS_RTC = drivers::interrupts::Pic8259::SLAVE_OFFSET,
     PIC_CGA,
     PIC_UNUSED_0,
     PIC_UNUSED_1,

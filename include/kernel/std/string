@@ -459,7 +459,7 @@ string to_string(unsigned long number);
 
 /**
  * Convert a pointer to string.
- * @param pter The pointer to convert.
+ * @param ptr The pointer to convert.
  * @return A string representing the pointer.
  */
 string to_string(const void* ptr);
