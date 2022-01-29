@@ -4,9 +4,9 @@
 
 namespace memory::heap {
 
-Heap* kernel_heap = &get_kernel_heap();
+Heap* kernel_heap = get_kernel_heap();
 
-Heap& get_kernel_heap() {
+Heap* get_kernel_heap() {
     std::byte* heap_address =
         reinterpret_cast<std::byte*>(memory::Layout::KERNEL_HEAP);
     std::byte* entry_table_address =
@@ -18,7 +18,7 @@ Heap& get_kernel_heap() {
                                      MAX_SIZE, BLOCK_SIZE);
     kernel_heap = &internal_kernel_heap;
 
-    return internal_kernel_heap;
+    return kernel_heap;
 }
 
 }  // namespace memory::heap
