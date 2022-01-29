@@ -48,12 +48,14 @@ PageDirectoryEntry::PageDirectoryEntry(const PageTable& page_table,
                  << PRESENT_FLAG_OFFSET;
 }
 
-PageTable* PageDirectoryEntry::get_page_table_address() const {
+PageTable PageDirectoryEntry::get_page_table() const {
     const uint32_t address_in_tables = utilities::get_field(
         value_, PAGE_TABLE_ADDRESS_MSB, PAGE_TABLE_ADDRESS_LSB);
 
-    return reinterpret_cast<PageTable*>(address_in_tables
-                                        << PAGE_TABLE_ADDRESS_LSB);
+    PageTableEntry* entries = reinterpret_cast<PageTableEntry*>(
+        address_in_tables << PAGE_TABLE_ADDRESS_LSB);
+
+    return PageTable(entries);
 }
 
 void PageDirectoryEntry::set_page_table_address(const PageTable* address) {

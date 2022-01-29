@@ -119,8 +119,9 @@ void PageTableEntry::mark_not_present() {
 
 PageTable::PageTable(const PageTableEntry::Flags& flags,
                      InitializationMode initialization_mode, size_t offset)
-    : entries_(utilities::uninitialized_array_of<PageTableEntry>(
-          NUMBER_OF_ENTRIES)) {
+    : entries_(
+          utilities::uninitialized_array_of<PageTableEntry>(NUMBER_OF_ENTRIES)),
+      owns_memory_(true) {
     for (size_t i = 0; i < NUMBER_OF_ENTRIES; i++) {
         const std::byte* const address =
             initialization_mode == InitializationMode::ZEROED
@@ -131,8 +132,13 @@ PageTable::PageTable(const PageTableEntry::Flags& flags,
     }
 }
 
+PageTable::PageTable(PageTableEntry* entries)
+    : entries_(entries), owns_memory_(false) {}
+
 PageTable::~PageTable() {
-    delete[] entries_;
+    if (owns_memory_) {
+        delete[] entries_;
+    }
 }
 
 const PageTableEntry* PageTable::entries() const {

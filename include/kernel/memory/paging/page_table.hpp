@@ -138,6 +138,14 @@ class PageTable final {
         InitializationMode initialization_mode = InitializationMode::ZEROED,
         size_t offset = 0);
 
+    /**
+     * Wrap an existing PTE array with the PageTable construct. Doesn't assume
+     * ownership over array memory, so it will not be deleted when destructor is
+     * called.
+     * @param entries The PTE array.
+     */
+    explicit PageTable(PageTableEntry* entries);
+
     ~PageTable();
 
     /**
@@ -169,6 +177,7 @@ class PageTable final {
 
    private:
     PageTableEntry* const entries_;
+    const bool owns_memory_;
 };
 
 }  // namespace memory::paging

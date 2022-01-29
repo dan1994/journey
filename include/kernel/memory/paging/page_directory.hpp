@@ -34,10 +34,10 @@ class PageDirectoryEntry final {
     ~PageDirectoryEntry() = default;
 
     /**
-     * Get the address of the page table pointed to by this entry.
-     * @return The address of the page table.
+     * Get the page table pointed to by this entry.
+     * @return The page table.
      */
-    PageTable* get_page_table_address() const;
+    PageTable get_page_table() const;
 
     /**
      * Set the address of the page table pointed to by this entry.
