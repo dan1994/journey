@@ -1,0 +1,122 @@
+#pragma once
+
+#include <cstring>
+#include <string>
+#include <type_traits>
+
+namespace std {
+
+template <typename T>
+concept StdStringable = requires(T t) {
+    { std::to_string(t) } -> std::same_as<std::string>;
+};
+
+template <typename T>
+concept Stringable = requires(const T &t) {
+    { t.to_string() } -> std::convertible_to<std::string>;
+};
+
+template <typename... Args>
+std::string format(const char *fmt, Args &&...args);
+
+namespace internal {
+
+template <typename T, typename... Args>
+void format(const char *fmt, std::string &result, size_t offset,
+            T next_argument, Args &&...args);
+
+template <typename T>
+void format(const char *fmt, std::string &result, size_t offset,
+            T last_argument);
+
+template <typename T>
+size_t format_helper(const char *fmt, std::string &result, size_t offset,
+                     T argument);
+
+template <StdStringable T>
+std::string to_string(const T &value);
+
+template <Stringable T>
+std::string to_string(const T &value);
+
+std::string to_string(const char *value);
+
+// std::string to_string(const std::string &value);
+
+}  // namespace internal
+
+template <typename... Args>
+std::string format(const char *fmt, Args &&...args) {
+    std::string result;
+    result.reserve(strlen(fmt));
+    internal::format(fmt, result, 0, args...);
+    return result;
+}
+
+namespace internal {
+
+template <typename T, typename... Args>
+void format(const char *fmt, std::string &result, size_t offset,
+            T next_argument, Args &&...args) {
+    if (!fmt[offset]) {
+        return;
+    }
+
+    const size_t next_offset =
+        format_helper(fmt, result, offset, next_argument);
+
+    if (!fmt[next_offset + 1]) {
+        return;
+    }
+
+    format(fmt, result, next_offset + 2, args...);
+}
+
+template <typename T>
+void format(const char *fmt, std::string &result, size_t offset,
+            T last_argument) {
+    if (!fmt[offset]) {
+        return;
+    }
+
+    const size_t next_offset =
+        format_helper(fmt, result, offset, last_argument);
+
+    if (!fmt[next_offset + 1]) {
+        return;
+    }
+
+    result += (fmt + next_offset + 2);
+}
+
+template <typename T>
+size_t format_helper(const char *fmt, std::string &result, size_t offset,
+                     T argument) {
+    size_t next_offset = offset;
+    for (; fmt[next_offset] && fmt[next_offset] != '{'; next_offset++) {
+    }
+
+    result.append(fmt + offset, next_offset - offset);
+
+    if (!fmt[next_offset]) {
+        return next_offset;
+    }
+
+    result += to_string(argument);
+
+    return next_offset;
+}
+
+template <StdStringable T>
+std::string to_string(const T &value) {
+    return std::to_string(value);
+}
+
+template <Stringable T>
+std::string to_string(const T &value) {
+    return value.to_string();
+}
+
+}  // namespace internal
+
+}  // namespace std
