@@ -1,8 +1,8 @@
 #include "logging/logger.hpp"
 
-#include "drivers/vga3.hpp"
+#include "drivers/display/vga3.hpp"
 
-using namespace drivers;
+using namespace drivers::display;
 
 void Logger::debug(const std::string &message) {
     debug(message.c_str());

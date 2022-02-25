@@ -1,6 +1,8 @@
 #pragma once
 
-#include "drivers/vga3.hpp"
+#include "drivers/display/vga3.hpp"
+
+using namespace drivers::display;
 
 // A global to hold the line number converted to string in a safe manner.
 extern char line_number_as_char_ptr[8];
@@ -20,21 +22,21 @@ void line_number_to_char_ptr(size_t line_number);
  * indicating the location of assertion and then enters an infinite loop.
  */
 #ifndef NDEBUG
-#define assertm(condition, message)                                           \
-    if (!(condition)) {                                                       \
-        line_number_to_char_ptr(__LINE__);                                    \
-        drivers::Vga3::print("ASSERTION: ", drivers::Vga3::Color::LIGHT_RED); \
-        drivers::Vga3::print(__FILE__ ":");                                   \
-        drivers::Vga3::print(__PRETTY_FUNCTION__);                            \
-        drivers::Vga3::print(":");                                            \
-        drivers::Vga3::print(line_number_as_char_ptr);                        \
-        if (message && *message) {                                            \
-            drivers::Vga3::print(": ");                                       \
-            drivers::Vga3::print(message);                                    \
-        }                                                                     \
-        drivers::Vga3::print("\n");                                           \
-        while (true) {                                                        \
-        }                                                                     \
+#define assertm(condition, message)                         \
+    if (!(condition)) {                                     \
+        line_number_to_char_ptr(__LINE__);                  \
+        Vga3::print("ASSERTION: ", Vga3::Color::LIGHT_RED); \
+        Vga3::print(__FILE__ ":");                          \
+        Vga3::print(__PRETTY_FUNCTION__);                   \
+        Vga3::print(":");                                   \
+        Vga3::print(line_number_as_char_ptr);               \
+        if (message && *message) {                          \
+            Vga3::print(": ");                              \
+            Vga3::print(message);                           \
+        }                                                   \
+        Vga3::print("\n");                                  \
+        while (true) {                                      \
+        }                                                   \
     }
 #else
 #define assertm(condition, message) \

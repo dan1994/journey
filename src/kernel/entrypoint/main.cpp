@@ -1,10 +1,10 @@
-#include "drivers/vga3.hpp"
+#include "drivers/display/vga3.hpp"
 #include "interrupts/interrupts.hpp"
 #include "logging/logger.hpp"
 #include "memory/paging/paging.hpp"
 
 extern "C" void main() {
-    drivers::Vga3::clear();
+    drivers::display::Vga3::clear();
 
     Logger::info("Initializing Journey...");
 

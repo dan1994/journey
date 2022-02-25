@@ -10,7 +10,7 @@
 
 #include <string>
 
-namespace drivers {
+namespace drivers::display {
 
 class Vga3 final {
    public:
@@ -119,4 +119,4 @@ class Vga3 final {
     constexpr static size_t SCREEN_HEIGHT = 25;
 };
 
-}  // namespace drivers
+}  // namespace drivers::display

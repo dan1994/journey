@@ -1,10 +1,10 @@
-#include "drivers/vga3.hpp"
+#include "drivers/display/vga3.hpp"
 
 #include <type_traits>
 
 #include "memory/layout.hpp"
 
-using namespace drivers;
+using namespace drivers::display;
 
 size_t Vga3::row_ = 0;
 size_t Vga3::column_ = 0;
