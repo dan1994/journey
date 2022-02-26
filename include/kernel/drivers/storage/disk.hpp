@@ -9,7 +9,7 @@ class Disk {
     /**
      * Ctor.
      */
-    Disk() = default;
+    explicit Disk() = default;
 
     /**
      * Dtor.
