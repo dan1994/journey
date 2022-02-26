@@ -86,6 +86,17 @@ class unique_ptr {
      */
     T* operator->() const;
 
+    /**
+     * Implicit conversion of a unique pointer to derived class to a unique
+     * pointer to a base class.
+     *
+     * @return A unique pointer to the base class that points to the same
+     * object.
+     */
+    template <typename Base>
+    requires std::derived_from<T, Base>
+    operator unique_ptr<Base>();
+
    private:
     T* ptr_;
 };
@@ -160,6 +171,14 @@ template <typename T>
 T* unique_ptr<T>::operator->() const {
     assertm(ptr_ != nullptr, "Tried to dereference a null pointer");
     return ptr_;
+}
+
+template <typename T>
+template <typename Base>
+requires std::derived_from<T, Base> unique_ptr<T>::operator unique_ptr<Base>() {
+    Base* const new_ptr = reinterpret_cast<Base*>(ptr_);
+    ptr_ = nullptr;
+    return unique_ptr<Base>(new_ptr);
 }
 
 /**

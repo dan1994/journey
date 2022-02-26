@@ -2,5 +2,6 @@
 
 #include <internal/type_traits/concepts.hpp>
 #include <internal/type_traits/enums.hpp>
+#include <internal/type_traits/inheritance.hpp>
 #include <internal/type_traits/integral_constant.hpp>
 #include <internal/type_traits/type_manipulation.hpp>
