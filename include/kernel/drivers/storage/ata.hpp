@@ -42,12 +42,12 @@ class Ata {
     /**
      * Read a given amount of sectors into memory.
      *
+     * TODO: [32] Replace with
+     * `std::vector<byte> read(size_t offset, size_t amount)`.
+     *
      * @param buffer The buffer to read data into.
      * @param offset The sector to start reading from.
      * @param amount The amount of sectors to read.
-     *
-     * TODO [32]: Replace with
-     * `std::vector<byte> read(size_t offset, size_t amount)`
      */
     virtual void read_sectors(std::byte* buffer, size_t offset,
                               size_t amount) = 0;
