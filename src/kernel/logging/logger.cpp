@@ -5,7 +5,7 @@
 using namespace drivers::display;
 
 void Logger::debug(const std::string &message) {
-    debug(message.c_str());
+    log(message, Level::DEBUG);
 }
 
 void Logger::debug(const char *message) {
@@ -13,7 +13,7 @@ void Logger::debug(const char *message) {
 }
 
 void Logger::info(const std::string &message) {
-    info(message.c_str());
+    log(message, Level::INFO);
 }
 
 void Logger::info(const char *message) {
@@ -21,7 +21,7 @@ void Logger::info(const char *message) {
 }
 
 void Logger::warn(const std::string &message) {
-    warn(message.c_str());
+    log(message, Level::WARN);
 }
 
 void Logger::warn(const char *message) {
@@ -29,7 +29,7 @@ void Logger::warn(const char *message) {
 }
 
 void Logger::error(const std::string &message) {
-    error(message.c_str());
+    log(message, Level::ERROR);
 }
 
 void Logger::error(const char *message) {
@@ -37,7 +37,7 @@ void Logger::error(const char *message) {
 }
 
 void Logger::fatal(const std::string &message) {
-    fatal(message.c_str());
+    log(message, Level::FATAL);
 }
 
 void Logger::fatal(const char *message) {
@@ -46,6 +46,16 @@ void Logger::fatal(const char *message) {
 
 void Logger::set_log_level(Level new_log_level) {
     current_level_ = new_log_level;
+}
+
+void Logger::log(const std::string &message, Level log_level) {
+    if (log_level < current_level_) {
+        return;
+    }
+
+    print_level(log_level);
+    Vga3::print(message);
+    Vga3::print("\n");
 }
 
 void Logger::log(const char *message, Level log_level) {

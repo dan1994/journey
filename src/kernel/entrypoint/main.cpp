@@ -1,4 +1,5 @@
 #include "drivers/display/vga3.hpp"
+#include "drivers/storage/disk.hpp"
 #include "interrupts/interrupts.hpp"
 #include "logging/logger.hpp"
 #include "memory/paging/paging.hpp"
@@ -7,6 +8,10 @@ extern "C" void main() {
     drivers::display::Vga3::clear();
 
     Logger::info("Initializing Journey...");
+
+    std::unique_ptr<drivers::storage::Disk> disks[1];
+    drivers::storage::discover_disks(disks, 1);
+    Logger::debug("Discovered disks...");
 
     Interrupts::init();
     Logger::debug("Initialized interrupts...");
