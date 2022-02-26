@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include <cstddef>
+#include <memory>
 
 namespace drivers::storage {
 
@@ -11,7 +12,7 @@ namespace drivers::storage {
  * Support operations on ATA drives.
  */
 
-class Ata final {
+class Ata {
    public:
     // ATA usually supports two separate buses that are controlled by a
     // different set of registers. See
@@ -34,10 +35,10 @@ class Ata final {
      *
      * @param bus The bus to communicate on.
      * @param port The port to communicate on.
-     * @param mode How to talk to the ATA drive.
      */
-    Ata(Bus bus = Bus::PRIMARY, Port port = Port::MASTER,
-        Mode mode = Mode::PIO);
+    Ata(Bus bus = Bus::PRIMARY, Port port = Port::MASTER);
+
+    virtual ~Ata() = default;
 
     /**
      * Read a given amount of sectors into memory.
@@ -49,19 +50,22 @@ class Ata final {
      * TODO [32]: Replace with
      * `std::vector<byte> read(size_t offset, size_t amount)`
      */
-    void read_sectors(std::byte* buffer, size_t offset, size_t amount);
+    virtual void read_sectors(std::byte* buffer, size_t offset,
+                              size_t amount) = 0;
 
-   private:
-    enum class Command { READ = 0x20 };
+    // Default copy and move.
+    Ata(const Ata& other) = default;
+    Ata(Ata&& other) = default;
 
-    void send_amount(size_t amount);
-    void send_sector_offset(size_t offset);
-    void send_command(Command command);
-    void wait_for_buffer_to_be_ready();
-    bool is_buffer_ready() const;
-    void read_sector(std::byte* buffer);
+    // Deleted assignments (because of const members).
+    Ata& operator=(const Ata& other) = delete;
+    Ata& operator=(Ata&& other) = delete;
 
+   protected:
     const Port port_;
 };
+
+std::unique_ptr<Ata> get_ata(Ata::Mode mode, Ata::Bus bus = Ata::Bus::PRIMARY,
+                             Ata::Port port = Ata::Port::MASTER);
 
 }  // namespace drivers::storage
