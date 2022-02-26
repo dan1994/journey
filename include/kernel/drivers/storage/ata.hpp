@@ -17,8 +17,7 @@ class Ata {
     // ATA usually supports two separate buses that are controlled by a
     // different set of registers. See
     // https://wiki.osdev.org/ATA_PIO_Mode#Registers.
-    // TODO: support secondary port.
-    enum class Bus { PRIMARY, /*SECONDARY*/ };
+    enum class Bus { PRIMARY, SECONDARY };
 
     // Each ATA bus supports two ports. The first part of the LBA address
     // specifies which port will be accessed.
