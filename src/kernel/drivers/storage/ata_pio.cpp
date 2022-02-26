@@ -31,6 +31,8 @@ void AtaPio::send_sector_offset(size_t offset) {
     io::write_byte(registers_.selector_number_or_lba_low, offset);
     io::write_byte(registers_.cylinder_low_or_lba_mid, offset >> 8);
     io::write_byte(registers_.cylinder_high_or_lba_high, offset >> 16);
+    io::write_byte(registers_.drive_or_head,
+                   offset >> 24 | std::underlying_type_t<Port>(port_));
 }
 
 void AtaPio::send_command(Command command) {
