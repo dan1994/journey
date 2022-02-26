@@ -13,8 +13,8 @@ class DiskAta final : public Disk {
      * @param bus The bus to communicate on.
      * @param port The port to communicate on.
      */
-    DiskAta(Ata::Bus bus = Ata::Bus::PRIMARY,
-            Ata::Port port = Ata::Port::MASTER);
+    explicit DiskAta(Ata::Bus bus = Ata::Bus::PRIMARY,
+                     Ata::Port port = Ata::Port::MASTER);
 
     /**
      * Read a given amount of sectors into memory.

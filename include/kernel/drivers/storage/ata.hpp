@@ -32,7 +32,7 @@ class Ata {
     /**
      * Ctor.
      */
-    Ata() = default;
+    explicit Ata() = default;
 
     /**
      * Dtor.

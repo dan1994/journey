@@ -17,7 +17,7 @@ class AtaPio final : public Ata {
      * @param bus The bus to communicate on.
      * @param port The port to communicate on.
      */
-    AtaPio(Bus bus = Bus::PRIMARY, Port port = Port::MASTER);
+    explicit AtaPio(Bus bus = Bus::PRIMARY, Port port = Port::MASTER);
 
     /**
      * Read a given amount of sectors into memory.
