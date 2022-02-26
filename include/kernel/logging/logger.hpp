@@ -51,6 +51,7 @@ class Logger final {
     static void set_log_level(Level new_log_level);
 
    private:
+    static void log(const std::string &message, Level log_level);
     static void log(const char *message, Level log_level);
     static void print_level(Level log_level);
 

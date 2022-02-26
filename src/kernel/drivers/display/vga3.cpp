@@ -14,7 +14,9 @@ volatile uint16_t *const Vga3::VIDEO_MEMORY =
 
 void Vga3::print(const std::string &string, Color foreground,
                  Color background) {
-    print(string.c_str(), foreground, background);
+    for (size_t i = 0; i < string.size(); i++) {
+        print(string[i], foreground, background);
+    }
 }
 
 void Vga3::print(const char *string, Color foreground, Color background) {
@@ -24,6 +26,10 @@ void Vga3::print(const char *string, Color foreground, Color background) {
 }
 
 void Vga3::print(char character, Color foreground, Color background) {
+    if (is_non_printable(character)) {
+        character = ' ';
+    }
+
     if (character == '\n') {
         row_ += 1;
         column_ = 0;
@@ -52,6 +58,11 @@ void Vga3::clear() {
     }
     row_ = 0;
     column_ = 0;
+}
+
+bool Vga3::is_non_printable(char character) {
+    constexpr char LAST_NON_PRINTABLE_CHARACTER = 31;
+    return character <= LAST_NON_PRINTABLE_CHARACTER && character != '\n';
 }
 
 void Vga3::scroll() {

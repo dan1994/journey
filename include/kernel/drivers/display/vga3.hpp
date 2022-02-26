@@ -68,6 +68,14 @@ class Vga3 final {
 
    private:
     /**
+     * Check if a character is printable ASCII.
+     *
+     * @param character The character to check.
+     * @return True iff the character is printable ASCII.
+     */
+    static bool is_non_printable(char character);
+
+    /**
      * Scroll one line down.
      *
      * This is done by copying the data of each row to the previous row and
