@@ -10,7 +10,7 @@ namespace drivers::storage {
 namespace io = drivers::io;
 
 AtaPio::AtaPio(Bus bus, Port port)
-    : Ata(bus, port), registers_(get_registers_by_bus(bus)) {}
+    : registers_(get_registers_by_bus(bus)), port_(port) {}
 
 void AtaPio::read_sectors(std::byte* buffer, size_t offset, size_t amount) {
     send_amount(amount);

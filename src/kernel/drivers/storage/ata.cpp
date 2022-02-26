@@ -7,10 +7,6 @@
 
 namespace drivers::storage {
 
-namespace io = drivers::io;
-
-Ata::Ata(Bus bus, Port port) : port_(port) {}
-
 std::unique_ptr<Ata> get_ata(Ata::Mode mode, Ata::Bus bus, Ata::Port port) {
     switch (mode) {
         case Ata::Mode::PIO:

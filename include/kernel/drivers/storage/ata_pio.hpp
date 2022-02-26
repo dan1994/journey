@@ -54,6 +54,7 @@ class AtaPio final : public Ata {
     static Registers get_registers_by_bus(Bus bus);
 
     const Registers registers_;
+    const Port port_;
 };
 
 }  // namespace drivers::storage

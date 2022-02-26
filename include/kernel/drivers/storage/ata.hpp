@@ -31,12 +31,12 @@ class Ata {
 
     /**
      * Ctor.
-     *
-     * @param bus The bus to communicate on.
-     * @param port The port to communicate on.
      */
-    Ata(Bus bus = Bus::PRIMARY, Port port = Port::MASTER);
+    Ata() = default;
 
+    /**
+     * Dtor.
+     */
     virtual ~Ata() = default;
 
     /**
@@ -52,16 +52,11 @@ class Ata {
     virtual void read_sectors(std::byte* buffer, size_t offset,
                               size_t amount) = 0;
 
-    // Default copy and move.
-    Ata(const Ata& other) = default;
-    Ata(Ata&& other) = default;
-
-    // Deleted assignments (because of const members).
+    // Deleted methods
+    Ata(const Ata& other) = delete;
+    Ata(Ata&& other) = delete;
     Ata& operator=(const Ata& other) = delete;
     Ata& operator=(Ata&& other) = delete;
-
-   protected:
-    const Port port_;
 };
 
 std::unique_ptr<Ata> get_ata(Ata::Mode mode, Ata::Bus bus = Ata::Bus::PRIMARY,
