@@ -1,0 +1,28 @@
+#pragma once
+
+namespace std {
+
+template <typename T1, typename T2>
+class pair final {
+   public:
+    /**
+     * Initialize a pair with the given objects.
+     * @param first The first object.
+     * @param second The second object.
+     */
+    explicit pair(const T1& first, const T2& second);
+
+    pair(const pair<T1, T2>&) = default;
+    pair(pair<T1, T2>&&) = default;
+    pair& operator=(const pair<T1, T2>&) = default;
+    pair& operator=(pair<T1, T2>&&) = default;
+
+    T1 first;
+    T2 second;
+};
+
+template <typename T1, typename T2>
+pair<T1, T2>::pair(const T1& first, const T2& second)
+    : first(first), second(second) {}
+
+}  // namespace std
