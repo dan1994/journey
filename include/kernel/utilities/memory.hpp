@@ -5,7 +5,7 @@
 namespace utilities {
 
 template <typename T>
-T* uninitialized_array_of(size_t size) {
+[[nodiscard]] T* uninitialized_array_of(size_t size) {
     return reinterpret_cast<T*>(new unsigned char[sizeof(T) * size]);
 }
 

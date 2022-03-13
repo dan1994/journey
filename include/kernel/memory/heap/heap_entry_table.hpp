@@ -33,7 +33,7 @@ class HeapEntryTable final {
      * @param status [OUT] Whether the operation succeeded or failed and why.
      * @return The offset of the first block in the allocation.
      */
-    size_t allocate(size_t entry_amount, HeapStatus &status);
+    [[nodiscard]] size_t allocate(size_t entry_amount, HeapStatus &status);
 
     /**
      * Frees the blocks starting from a given offset.
@@ -41,7 +41,7 @@ class HeapEntryTable final {
      * @param entry_offset The offset of the first block in the allocation.
      * @param status [OUT] Whether the operation succeeded or failed and why.
      */
-    void free(size_t entry_offset, HeapStatus &status);
+    [[nodiscard]] void free(size_t entry_offset, HeapStatus &status);
 
     static constexpr size_t entry_size_ = sizeof(Entry);
 
@@ -68,7 +68,8 @@ class HeapEntryTable final {
      * @param status [OUT] Whether the operation succeeded or failed and why.
      * @return The offset of the first block in the allocation.
      */
-    Entry *get_available_entries(size_t entry_amount, HeapStatus &status) const;
+    [[nodiscard]] Entry *get_available_entries(size_t entry_amount,
+                                               HeapStatus &status) const;
 
     /**
      * Marks entries as allocated. The first entry is marked as FIRST, the last

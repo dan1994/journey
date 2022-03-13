@@ -73,7 +73,7 @@ class Vga3 final {
      * @param character The character to check.
      * @return True iff the character is printable ASCII.
      */
-    static bool is_non_printable(char character);
+    [[nodiscard]] static bool is_non_printable(char character);
 
     /**
      * Scroll one line down.
@@ -102,7 +102,7 @@ class Vga3 final {
      * @param column The column
      * @return The linear offset matching the row and column
      */
-    static size_t character_offset(uint8_t row, uint8_t column);
+    [[nodiscard]] static size_t character_offset(uint8_t row, uint8_t column);
 
     /**
      * Create the binary representation of a character with a specific
@@ -114,8 +114,8 @@ class Vga3 final {
      * @return The reperesentation in memory of the character with the given
      * colors
      */
-    static uint16_t make_char(char character, Color foreground,
-                              Color background);
+    [[nodiscard]] static uint16_t make_char(char character, Color foreground,
+                                            Color background);
 
     static size_t row_;
     static size_t column_;

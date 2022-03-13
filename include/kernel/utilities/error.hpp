@@ -17,21 +17,21 @@ class Error final {
      *
      * @return True iff the message is not empty.
      */
-    operator bool() const;
+    [[nodiscard]] operator bool() const;
 
     /**
      * Get the message as a char array.
      *
      * @return The message.
      */
-    const char* message() const;
+    [[nodiscard]] const char* message() const;
 
     /**
      * Get the message as a std::string.
      *
      * @return The message.
      */
-    std::string to_string() const;
+    [[nodiscard]] std::string to_string() const;
 
    private:
     const char* message_;

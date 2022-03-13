@@ -67,14 +67,14 @@ enum class Port : uint16_t {
  * @param port The port to read from.
  * @return The value read from the port.
  */
-uint8_t read_byte(Port port);
+[[nodiscard]] uint8_t read_byte(Port port);
 
 /**
  * Read a word (2 bytes) from the given port.
  * @param port The port to read from.
  * @return The value read from the port.
  */
-uint16_t read_word(Port port);
+[[nodiscard]] uint16_t read_word(Port port);
 
 /**
  * Write a single byte to the given port.

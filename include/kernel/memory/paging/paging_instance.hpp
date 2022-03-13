@@ -40,14 +40,16 @@ class PagingInstance final {
      * @param physical_address The physical address to map to.
      * @param flags Flags to set for the page.
      */
-    void map(const void* virtual_address, const void* physical_address,
-             const Flags& flags);
+    [[nodiscard]] void map(const void* virtual_address,
+                           const void* physical_address, const Flags& flags);
 
    private:
-    PageDirectoryEntry& get_page_directory_entry(const void* virtual_address);
-    PageTableEntry& get_page_table_entry(const void* virtual_address);
+    [[nodiscard]] PageDirectoryEntry& get_page_directory_entry(
+        const void* virtual_address);
+    [[nodiscard]] PageTableEntry& get_page_table_entry(
+        const void* virtual_address);
 
-    static PageTable* initialize_page_tables(
+    [[nodiscard]] static PageTable* initialize_page_tables(
         const PageTableEntry::Flags& flags,
         PageTable::InitializationMode initialization_mode);
 

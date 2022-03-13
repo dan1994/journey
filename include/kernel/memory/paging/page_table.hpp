@@ -6,6 +6,7 @@
 #include <cstddef>
 
 #include "memory/paging/constants.hpp"
+#include "utilities/error.hpp"
 
 namespace memory::paging {
 
@@ -42,7 +43,7 @@ class PageTableEntry final {
      * Get the address of the page pointed to by this entry.
      * @return The address of the page.
      */
-    std::byte* get_page_address() const;
+    [[nodiscard]] std::byte* get_page_address() const;
 
     /**
      * Set the address of the page pointed to by this entry.
@@ -55,13 +56,13 @@ class PageTableEntry final {
      * Check whether the page was written to.
      * @return True iff the page was written to.
      */
-    bool is_dirty() const;
+    [[nodiscard]] bool is_dirty() const;
 
     /**
      * Check whether the page was accessed.
      * @return True iff the page was accessed.
      */
-    bool was_accessed() const;
+    [[nodiscard]] bool was_accessed() const;
 
     /**
      * Reset the page to seem it was not accessed.
@@ -72,7 +73,7 @@ class PageTableEntry final {
      * Check whether the page can be accessed by the user.
      * @return True iff the user can access the page.
      */
-    bool can_user_access() const;
+    [[nodiscard]] bool can_user_access() const;
 
     /**
      * Allow usermode to access the page.
@@ -88,7 +89,7 @@ class PageTableEntry final {
      * Check if the page is writeable.
      * @return True iff the page is writeable.
      */
-    bool is_writeable() const;
+    [[nodiscard]] bool is_writeable() const;
 
     /**
      * Make the page writeable.
@@ -104,7 +105,7 @@ class PageTableEntry final {
      * Check whether the page is present in memory.
      * @return True iff the page is present in memory.
      */
-    bool is_present() const;
+    [[nodiscard]] bool is_present() const;
 
     /**
      * Mark the page as present in memory.
@@ -152,21 +153,21 @@ class PageTable final {
      * Get a pointer to the start of the table.
      * @return Pointer to the start of the table.
      */
-    const PageTableEntry* entries() const;
+    [[nodiscard]] const PageTableEntry* entries() const;
 
     /**
      * Get a specific entry in the table.
      * @param offset The offset of the entry to get.
      * @return A reference to the entry.
      */
-    const PageTableEntry& operator[](size_t offset) const;
+    [[nodiscard]] const PageTableEntry& operator[](size_t offset) const;
 
     /**
      * Get a specific entry in the table.
      * @param offset The offset of the entry to get.
      * @return A reference to the entry.
      */
-    PageTableEntry& operator[](size_t offset);
+    [[nodiscard]] PageTableEntry& operator[](size_t offset);
 
     PageTable(const PageTable&) = delete;
     PageTable(PageTable&&) = delete;

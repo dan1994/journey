@@ -37,7 +37,7 @@ class PageDirectoryEntry final {
      * Get the page table pointed to by this entry.
      * @return The page table.
      */
-    PageTable get_page_table() const;
+    [[nodiscard]] PageTable get_page_table() const;
 
     /**
      * Set the address of the page table pointed to by this entry.
@@ -49,7 +49,7 @@ class PageDirectoryEntry final {
      * Check whether the page table was accessed.
      * @return True iff the page table was accessed.
      */
-    bool was_accessed() const;
+    [[nodiscard]] bool was_accessed() const;
 
     /**
      * Reset the page table to seem it was not accessed.
@@ -60,7 +60,7 @@ class PageDirectoryEntry final {
      * Check whether the page table can be accessed by the user.
      * @return True iff the user can access the page table.
      */
-    bool can_user_access() const;
+    [[nodiscard]] bool can_user_access() const;
 
     /**
      * Allow usermode to access the page table.
@@ -76,7 +76,7 @@ class PageDirectoryEntry final {
      * Check if the page table is writeable.
      * @return True iff the page table is writeable.
      */
-    bool is_writeable() const;
+    [[nodiscard]] bool is_writeable() const;
 
     /**
      * Make the page table writeable.
@@ -92,7 +92,7 @@ class PageDirectoryEntry final {
      * Check whether the page table is present in memory.
      * @return True iff the page table is present in memory.
      */
-    bool is_present() const;
+    [[nodiscard]] bool is_present() const;
 
     /**
      * Mark the page table as present in memory.
@@ -125,21 +125,21 @@ class PageDirectory final {
      * Get a pointer to the start of the table.
      * @return Pointer to the start of the table.
      */
-    const PageDirectoryEntry* entries() const;
+    [[nodiscard]] const PageDirectoryEntry* entries() const;
 
     /**
      * Get a specific entry in the table.
      * @param offset The offset of the entry to get.
      * @return A reference to the entry.
      */
-    const PageDirectoryEntry& operator[](size_t offset) const;
+    [[nodiscard]] const PageDirectoryEntry& operator[](size_t offset) const;
 
     /**
      * Get a specific entry in the table.
      * @param offset The offset of the entry to get.
      * @return A reference to the entry.
      */
-    PageDirectoryEntry& operator[](size_t offset);
+    [[nodiscard]] PageDirectoryEntry& operator[](size_t offset);
 
     PageDirectory(const PageDirectory&) = delete;
     PageDirectory(PageDirectory&&) = delete;

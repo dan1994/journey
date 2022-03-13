@@ -45,7 +45,7 @@ class Ata {
      * TODO: [32] Replace with
      * `std::vector<byte> read(size_t offset, size_t amount)`.
      *
-     * @param buffer The buffer to read data into.
+     * @param buffer [OUT] The buffer to read data into.
      * @param offset The sector to start reading from.
      * @param amount The amount of sectors to read.
      */
@@ -59,7 +59,8 @@ class Ata {
     Ata& operator=(Ata&& other) = delete;
 };
 
-std::unique_ptr<Ata> get_ata(Ata::Mode mode, Ata::Bus bus = Ata::Bus::PRIMARY,
-                             Ata::Port port = Ata::Port::MASTER);
+[[nodiscard]] std::unique_ptr<Ata> get_ata(Ata::Mode mode,
+                                           Ata::Bus bus = Ata::Bus::PRIMARY,
+                                           Ata::Port port = Ata::Port::MASTER);
 
 }  // namespace drivers::storage

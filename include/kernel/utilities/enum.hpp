@@ -14,7 +14,7 @@ concept Enum = std::is_enum_v<T>;
  * type.
  */
 template <Enum E>
-E operator|(E a, E b) {
+[[nodiscard]] E operator|(E a, E b) {
     return static_cast<E>(static_cast<std::underlying_type_t<E>>(a) |
                           static_cast<std::underlying_type_t<E>>(b));
 }
@@ -28,7 +28,7 @@ E operator|(E a, E b) {
  * type.
  */
 template <Enum E>
-E operator&(E a, E b) {
+[[nodiscard]] E operator&(E a, E b) {
     return static_cast<E>(static_cast<std::underlying_type_t<E>>(a) &
                           static_cast<std::underlying_type_t<E>>(b));
 }

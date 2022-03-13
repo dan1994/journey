@@ -22,7 +22,7 @@ class Disk {
      * TODO: [32] Replace with
      * `std::vector<byte> read(size_t offset, size_t amount)`.
      *
-     * @param buffer The buffer to read data into.
+     * @param buffer [OUT] The buffer to read data into.
      * @param offset The sector to start reading from.
      * @param amount The amount of sectors to read.
      */
