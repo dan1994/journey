@@ -1,4 +1,4 @@
-#include <std/byte.hpp>
+#include <internal/cstddef/byte.hpp>
 
 namespace std {
 

@@ -1,6 +1,5 @@
 #include "memory/paging/page_table.hpp"
 
-#include <cassert>
 #include <cstring>
 #include <new>
 #include <type_traits>
@@ -145,16 +144,22 @@ const PageTableEntry* PageTable::entries() const {
     return entries_;
 }
 
-const PageTableEntry& PageTable::operator[](size_t offset) const {
-    assertm(offset < NUMBER_OF_ENTRIES,
-            "Attempt to access PageTableEntry out of range");
-    return entries_[offset];
+WithError<const PageTableEntry&> PageTable::operator[](size_t offset) const {
+    if (offset < NUMBER_OF_ENTRIES) {
+        return {entries_[0],
+                WITH_LOCATION("Attempt to access PageTableEntry out of range")};
+    }
+
+    return {entries_[offset], nullptr};
 }
 
-PageTableEntry& PageTable::operator[](size_t offset) {
-    assertm(offset < NUMBER_OF_ENTRIES,
-            "Attempt to access PageTableEntry out of range");
-    return entries_[offset];
+WithError<PageTableEntry&> PageTable::operator[](size_t offset) {
+    if (offset < NUMBER_OF_ENTRIES) {
+        return {entries_[0],
+                WITH_LOCATION("Attempt to access PageTableEntry out of range")};
+    }
+
+    return {entries_[offset], nullptr};
 }
 
 }  // namespace memory::paging

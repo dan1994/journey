@@ -22,7 +22,7 @@ class AtaPio final : public Ata {
     /**
      * Read a given amount of sectors into memory.
      *
-     * @param buffer The buffer to read data into.
+     * @param buffer [OUT] The buffer to read data into.
      * @param offset The sector to start reading from.
      * @param amount The amount of sectors to read.
      */
@@ -48,10 +48,10 @@ class AtaPio final : public Ata {
     void send_sector_offset(size_t offset);
     void send_command(Command command);
     void wait_for_buffer_to_be_ready();
-    bool is_buffer_ready() const;
+    [[nodiscard]] bool is_buffer_ready() const;
     void read_sector(std::byte* buffer);
 
-    static Registers get_registers_by_bus(Bus bus);
+    [[nodiscard]] static Registers get_registers_by_bus(Bus bus);
 
     const Registers registers_;
     const Port port_;

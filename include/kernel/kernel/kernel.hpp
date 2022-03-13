@@ -8,7 +8,7 @@ class Kernel final {
     /**
      * Get the kernel singleton.
      */
-    static Kernel& get_kernel();
+    [[nodiscard]] static Kernel& get_kernel();
 
     /**
      * Dtor.
@@ -30,7 +30,8 @@ class Kernel final {
     // The kernel singleton.
     static std::unique_ptr<Kernel> kernel_;
 
-    static memory::paging::PagingInstance initialize_kernel_paging();
+    [[nodiscard]] static memory::paging::PagingInstance
+    initialize_kernel_paging();
 
     constexpr static size_t MAX_NUMBER_OF_DISKS = 4;
 

@@ -1,6 +1,5 @@
 #include "memory/heap/heap_entry_table.hpp"
 
-#include <cassert>
 #include <cstring>
 
 #include "utilities/enum.hpp"
@@ -13,53 +12,49 @@ HeapEntryTable::HeapEntryTable(std::byte *table_start, size_t total_entries)
     std::memset(table_start_, 0, total_entries_ * sizeof(Entry));
 }
 
-size_t HeapEntryTable::allocate(size_t entry_amount, HeapStatus &status) {
-    Entry *const entries = get_available_entries(entry_amount, status);
-    if (status != HeapStatus::SUCCESS) {
-        return 0;
+WithError<size_t> HeapEntryTable::allocate(size_t entry_amount) {
+    const auto [entries, error] = get_available_entries(entry_amount);
+    if (error) {
+        return {0, error};
     }
 
     mark_entries_as_used(entries, entry_amount);
 
-    return entries - table_start_;
+    const size_t offset = entries - table_start_;
+
+    return {offset, nullptr};
 }
 
-void HeapEntryTable::free(size_t entry_offset, HeapStatus &status) {
+Error HeapEntryTable::free(size_t entry_offset) {
     if (entry_offset > total_entries_) {
-        assertm(false, "Trying to free an address out of heap range.");
-        status = HeapStatus::CANT_FREE_ADDRESS_OUT_OF_HEAP_RANGE;
-        return;
+        return WITH_LOCATION("Trying to free an address out of heap range.");
     }
 
     Entry *entry = &table_start_[entry_offset];
 
     if ((*entry & Entry::FIRST) != Entry::FIRST) {
-        assertm(false,
-                "First entry of allocation to free is not marked as first.");
-        status = HeapStatus::CANT_FREE_FROM_THE_MIDDLE_OF_AN_ALLOCATION;
-        return;
+        return WITH_LOCATION(
+            "First entry of allocation to free is not marked as first.");
     }
 
     while ((*entry & Entry::LAST) != Entry::LAST) {
         if ((*entry & Entry::USED) != Entry::USED) {
-            assertm(false,
-                    "Encountered a free entry in the middle of an allocation.");
-            status = HeapStatus::FREE_ENTRY_IN_THE_MIDDLE_OF_AN_ALLOCATION;
+            return WITH_LOCATION(
+                "Encountered a free entry in the middle of an allocation.");
         }
         *entry = Entry::FREE;
         entry++;
     }
 
     *entry = Entry::FREE;
+
+    return nullptr;
 }
 
-HeapEntryTable::Entry *HeapEntryTable::get_available_entries(
-    size_t entry_amount, HeapStatus &status) const {
-    status = HeapStatus::SUCCESS;
-
+WithError<HeapEntryTable::Entry *> HeapEntryTable::get_available_entries(
+    size_t entry_amount) const {
     if (entry_amount == 0) {
-        status = HeapStatus::CANT_ALLOCATE_ZERO_ENTRIES;
-        return nullptr;
+        return {nullptr, WITH_LOCATION("Can't allocate zero entries")};
     }
 
     size_t contiguous_free_entries = 0;
@@ -73,13 +68,11 @@ HeapEntryTable::Entry *HeapEntryTable::get_available_entries(
         }
 
         if (contiguous_free_entries == entry_amount) {
-            return entry - (entry_amount - 1);
+            return {entry - (entry_amount - 1), nullptr};
         }
     }
 
-    assertm(false, "Out of memory.");
-    status = HeapStatus::NOT_ENOUGH_CONTIGUOUS_MEMORY;
-    return nullptr;
+    return {nullptr, WITH_LOCATION("Out of memory")};
 }
 
 void HeapEntryTable::mark_entries_as_used(Entry *entries, size_t entry_amount) {

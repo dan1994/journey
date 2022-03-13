@@ -1,7 +1,5 @@
 #include "memory/heap/heap.hpp"
 
-#include <cassert>
-
 namespace memory::heap {
 
 Heap::Heap(std::byte *heap_start, size_t max_size, size_t block_size)
@@ -17,30 +15,27 @@ Heap::Heap(std::byte *heap_start, std::byte *entry_table_start, size_t max_size,
       entry_table_(initialize_external_entry_table(
           heap_start, entry_table_start, max_size, block_size)) {}
 
-void *Heap::allocate(size_t bytes, HeapStatus &status) {
+WithError<void *> Heap::allocate(size_t bytes) {
     const size_t blocks_to_allocate = (bytes + block_size_ - 1) / block_size_;
 
-    const size_t block_offset =
-        entry_table_.allocate(blocks_to_allocate, status);
-
-    if (status != HeapStatus::SUCCESS) {
-        return nullptr;
+    const auto [block_offset, error] =
+        entry_table_.allocate(blocks_to_allocate);
+    if (error) {
+        return {nullptr, error};
     }
 
-    return memory_pool_ + (block_offset * block_size_);
+    return {memory_pool_ + (block_offset * block_size_), nullptr};
 }
 
-void Heap::free(const void *address, HeapStatus &status) {
+Error Heap::free(const void *address) {
     if (address < memory_pool_) {
-        assertm(false, "Trying to free an address out of heap range.");
-        status = HeapStatus::CANT_FREE_ADDRESS_OUT_OF_HEAP_RANGE;
-        return;
+        return WITH_LOCATION("Trying to free an address out of heap range.");
     }
 
     const size_t block_offset =
         (static_cast<const std::byte *>(address) - memory_pool_) / block_size_;
 
-    entry_table_.free(block_offset, status);
+    return entry_table_.free(block_offset);
 }
 
 std::byte *Heap::round_up_to_nearest_block_size(std::byte *address,

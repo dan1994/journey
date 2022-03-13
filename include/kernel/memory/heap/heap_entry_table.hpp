@@ -4,7 +4,7 @@
 
 #include <cstddef>
 
-#include "memory/heap/heap_status.hpp"
+#include "utilities/error.hpp"
 
 /**
  * The heap entry table marks which blocks have been allocated and which are
@@ -30,18 +30,17 @@ class HeapEntryTable final {
      * Allocates a given amount of free contiguous blocks.
      *
      * @param entry_amount The amount of entries to allocate.
-     * @param status [OUT] Whether the operation succeeded or failed and why.
      * @return The offset of the first block in the allocation.
      */
-    size_t allocate(size_t entry_amount, HeapStatus &status);
+    [[nodiscard]] WithError<size_t> allocate(size_t entry_amount);
 
     /**
      * Frees the blocks starting from a given offset.
      *
      * @param entry_offset The offset of the first block in the allocation.
-     * @param status [OUT] Whether the operation succeeded or failed and why.
+     * @return An error if occured.
      */
-    void free(size_t entry_offset, HeapStatus &status);
+    [[nodiscard]] Error free(size_t entry_offset);
 
     static constexpr size_t entry_size_ = sizeof(Entry);
 
@@ -65,10 +64,10 @@ class HeapEntryTable final {
      * Finds a contiguous block of free entries.
      *
      * @param entry_amount The amount of entries to allocate.
-     * @param status [OUT] Whether the operation succeeded or failed and why.
      * @return The offset of the first block in the allocation.
      */
-    Entry *get_available_entries(size_t entry_amount, HeapStatus &status) const;
+    [[nodiscard]] WithError<Entry *> get_available_entries(
+        size_t entry_amount) const;
 
     /**
      * Marks entries as allocated. The first entry is marked as FIRST, the last

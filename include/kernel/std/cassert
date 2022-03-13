@@ -1,21 +1,9 @@
 #pragma once
 
 #include "drivers/display/vga3.hpp"
+#include "utilities/macros.hpp"
 
 using namespace drivers::display;
-
-// A global to hold the line number converted to string in a safe manner.
-extern char line_number_as_char_ptr[8];
-
-/**
- * Converts the line number to a char array and stores it in a dedicated global.
- *
- * We use this approach here since we want to make sure that logic in assert can
- * never fail, and thus avoid dynamic allocations.
- *
- * @param line_number The line number.
- */
-void line_number_to_char_ptr(size_t line_number);
 
 /**
  * In debug mode, if the condition is not met, assert prints a message
@@ -24,12 +12,10 @@ void line_number_to_char_ptr(size_t line_number);
 #ifndef NDEBUG
 #define assertm(condition, message)                         \
     if (!(condition)) {                                     \
-        line_number_to_char_ptr(__LINE__);                  \
         Vga3::print("ASSERTION: ", Vga3::Color::LIGHT_RED); \
         Vga3::print(__FILE__ ":");                          \
         Vga3::print(__PRETTY_FUNCTION__);                   \
-        Vga3::print(":");                                   \
-        Vga3::print(line_number_as_char_ptr);               \
+        Vga3::print(":" STRINGIZE(__LINE__));               \
         if (message && *message) {                          \
             Vga3::print(": ");                              \
             Vga3::print(message);                           \

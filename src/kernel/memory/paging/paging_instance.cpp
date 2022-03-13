@@ -23,14 +23,21 @@ const PageDirectory& PagingInstance::get_directory() const {
     return directory_;
 }
 
-void PagingInstance::map(const void* virtual_address,
-                         const void* physical_address, const Flags& flags) {
-    PageDirectoryEntry& pde = get_page_directory_entry(virtual_address);
+Error PagingInstance::map(const void* virtual_address,
+                          const void* physical_address, const Flags& flags) {
+    auto [pde, error] = get_page_directory_entry(virtual_address);
+    if (error) {
+        return error;
+    }
     if (!pde.is_present()) {
-        assertm(false, "Can't map address because of non-present page table");
+        return WITH_LOCATION(
+            "Can't map address because of non-present page table");
     }
 
-    PageTableEntry& pte = get_page_table_entry(virtual_address);
+    auto [pte, error2] = get_page_table_entry(virtual_address);
+    if (error2) {
+        return error2;
+    }
 
     pte.set_page_address(reinterpret_cast<const std::byte*>(physical_address));
 
@@ -49,9 +56,11 @@ void PagingInstance::map(const void* virtual_address,
     }
 
     pte.mark_present();
+
+    return nullptr;
 }
 
-PageDirectoryEntry& PagingInstance::get_page_directory_entry(
+WithError<PageDirectoryEntry&> PagingInstance::get_page_directory_entry(
     const void* virtual_address) {
     const size_t offset = reinterpret_cast<unsigned int>(virtual_address) /
                           (PageTable::NUMBER_OF_ENTRIES * PAGE_SIZE_IN_BYTES);
@@ -59,9 +68,9 @@ PageDirectoryEntry& PagingInstance::get_page_directory_entry(
     return directory_[offset];
 }
 
-PageTableEntry& PagingInstance::get_page_table_entry(
+WithError<PageTableEntry&> PagingInstance::get_page_table_entry(
     const void* virtual_address) {
-    const PageDirectoryEntry& pde = get_page_directory_entry(virtual_address);
+    const auto [pde, error] = get_page_directory_entry(virtual_address);
 
     const size_t offset = reinterpret_cast<unsigned int>(virtual_address) /
                           PAGE_SIZE_IN_BYTES % PageTable::NUMBER_OF_ENTRIES;
