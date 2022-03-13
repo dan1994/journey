@@ -1,99 +1,98 @@
 #include "memory/paging/paging_instance.hpp"
 
-#include <cassert>
-#include <new>
+#include <stddef.h>
+
+#include <cstddef>
 
 #include "memory/paging/paging.hpp"
-#include "utilities/memory.hpp"
+#include "utilities/bitranges.hpp"
 
 namespace memory::paging {
 
-PagingInstance::PagingInstance(
-    const PageDirectoryEntry::Flags& page_directory_flags,
-    const PageTableEntry::Flags& page_table_flags,
-    PageTable::InitializationMode initialization_mode)
-    : tables_(initialize_page_tables(page_table_flags, initialization_mode)),
-      directory_(page_directory_flags, tables_) {}
+PagingInstance::PagingInstance(const directory::Flags& directory_flags,
+                               const table::Flags& table_flags,
+                               InitializationMode initialization_mode)
+    : directory_(new directory::Entry[directory::ENTRY_NUM]),
+      tables_(new table::Entry*[directory::ENTRY_NUM]) {
+    const std::byte* address = 0;
 
-PagingInstance::~PagingInstance() {
-    delete[] tables_;
+    for (size_t directory_index = 0; directory_index < directory::ENTRY_NUM;
+         directory_index++) {
+        directory_[directory_index] =
+            directory::make_entry(tables_[directory_index], directory_flags);
+
+        tables_[directory_index] = new table::Entry[table::ENTRY_NUM];
+        for (size_t table_index = 0; table_index < table::ENTRY_NUM;
+             table_index++) {
+            tables_[directory_index][table_index] =
+                table::make_entry(address, table_flags);
+
+            if (initialization_mode == InitializationMode::LINEAR) {
+                address += PAGE_SIZE_IN_BYTES;
+            }
+        }
+    }
 }
 
-const PageDirectory& PagingInstance::get_directory() const {
+PagingInstance::~PagingInstance() {
+    if (tables_ != nullptr) {
+        for (size_t i = 0; i < directory::ENTRY_NUM; i++) {
+            if (tables_[i] != nullptr) {
+                delete[] tables_[i];
+            }
+        }
+        delete[] tables_;
+    }
+    if (directory_ != nullptr) {
+        delete[] directory_;
+    }
+}
+
+const void* PagingInstance::get_directory() const {
     return directory_;
 }
 
 Error PagingInstance::map(const void* virtual_address,
                           const void* physical_address, const Flags& flags) {
-    auto [pde, error] = get_page_directory_entry(virtual_address);
-    if (error) {
-        return error;
-    }
-    if (!pde.is_present()) {
+    const size_t directory_offset = get_directory_offset(virtual_address);
+    directory::Entry* const pde = &directory_[directory_offset];
+    if (!directory::is_present(*pde)) {
         return WITH_LOCATION(
             "Can't map address because of non-present page table");
     }
 
-    auto [pte, error2] = get_page_table_entry(virtual_address);
-    if (error2) {
-        return error2;
-    }
+    const size_t table_offset = get_table_offset(virtual_address);
+    table::Entry* const pte = &tables_[directory_offset][table_offset];
 
-    pte.set_page_address(reinterpret_cast<const std::byte*>(physical_address));
+    table::set_page_address(pte, physical_address);
 
     if (flags.access_type == AccessType::READ_WRITE) {
-        pte.enable_writing();
-        pde.enable_writing();
+        table::enable_writing(pte);
+        directory::enable_writing(pde);
     } else {
-        pte.disable_writing();
+        table::disable_writing(pte);
     }
 
     if (flags.priviledge_level == PriviledgeLevel::USER) {
-        pte.enable_user_access();
-        pde.enable_user_access();
+        table::enable_user_access(pte);
+        directory::enable_user_access(pde);
     } else {
-        pte.disable_user_access();
+        table::disable_user_access(pte);
     }
 
-    pte.mark_present();
+    table::mark_present(pte);
 
     return nullptr;
 }
 
-WithError<PageDirectoryEntry&> PagingInstance::get_page_directory_entry(
-    const void* virtual_address) {
-    const size_t offset = reinterpret_cast<unsigned int>(virtual_address) /
-                          (PageTable::NUMBER_OF_ENTRIES * PAGE_SIZE_IN_BYTES);
-
-    return directory_[offset];
+size_t PagingInstance::get_directory_offset(const void* virtual_address) {
+    return reinterpret_cast<unsigned int>(virtual_address) /
+           (table::ENTRY_NUM * PAGE_SIZE_IN_BYTES);
 }
 
-WithError<PageTableEntry&> PagingInstance::get_page_table_entry(
-    const void* virtual_address) {
-    const auto [pde, error] = get_page_directory_entry(virtual_address);
-
-    const size_t offset = reinterpret_cast<unsigned int>(virtual_address) /
-                          PAGE_SIZE_IN_BYTES % PageTable::NUMBER_OF_ENTRIES;
-
-    PageTable page_table = pde.get_page_table();
-    return page_table[offset];
-}
-
-PageTable* PagingInstance::initialize_page_tables(
-    const PageTableEntry::Flags& page_table_flags,
-    PageTable::InitializationMode initialization_mode) {
-    PageTable* tables = utilities::uninitialized_array_of<PageTable>(
-        PageDirectory::NUMBER_OF_ENTRIES);
-
-    for (size_t i = 0; i < PageDirectory::NUMBER_OF_ENTRIES; i++) {
-        const size_t page_table_offset =
-            i * PageTable::NUMBER_OF_ENTRIES * PAGE_SIZE_IN_BYTES;
-
-        new (tables + i)
-            PageTable(page_table_flags, initialization_mode, page_table_offset);
-    }
-
-    return tables;
+size_t PagingInstance::get_table_offset(const void* virtual_address) {
+    return reinterpret_cast<unsigned int>(virtual_address) /
+           PAGE_SIZE_IN_BYTES % table::ENTRY_NUM;
 }
 
 }  // namespace memory::paging

@@ -35,7 +35,7 @@ memory::paging::PagingInstance Kernel::initialize_kernel_paging() {
             memory::paging::AccessType::READ_WRITE,
             memory::paging::Present::TRUE,
         },
-        memory::paging::PageTable::InitializationMode::LINEAR};
+        memory::paging::PagingInstance::InitializationMode::LINEAR};
 }
 
 std::unique_ptr<Kernel> Kernel::kernel_{nullptr};

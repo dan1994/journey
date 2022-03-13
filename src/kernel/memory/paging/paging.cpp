@@ -11,7 +11,7 @@ void enable_paging() {
 }
 
 void load(const PagingInstance& instance) {
-    load_page_directory(instance.get_directory().entries());
+    load_page_directory(instance.get_directory());
 }
 
 }  // namespace memory::paging
