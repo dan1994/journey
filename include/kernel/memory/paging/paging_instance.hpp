@@ -2,6 +2,7 @@
 
 #include "memory/paging/page_directory.hpp"
 #include "memory/paging/page_table.hpp"
+#include "utilities/error.hpp"
 
 namespace memory::paging {
 
@@ -39,14 +40,15 @@ class PagingInstance final {
      * @param virtual_address The virtual address to map.
      * @param physical_address The physical address to map to.
      * @param flags Flags to set for the page.
+     * @return Error if occured.
      */
-    [[nodiscard]] void map(const void* virtual_address,
-                           const void* physical_address, const Flags& flags);
+    [[nodiscard]] Error map(const void* virtual_address,
+                            const void* physical_address, const Flags& flags);
 
    private:
-    [[nodiscard]] PageDirectoryEntry& get_page_directory_entry(
+    [[nodiscard]] WithError<PageDirectoryEntry&> get_page_directory_entry(
         const void* virtual_address);
-    [[nodiscard]] PageTableEntry& get_page_table_entry(
+    [[nodiscard]] WithError<PageTableEntry&> get_page_table_entry(
         const void* virtual_address);
 
     [[nodiscard]] static PageTable* initialize_page_tables(

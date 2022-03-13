@@ -132,14 +132,15 @@ class PageDirectory final {
      * @param offset The offset of the entry to get.
      * @return A reference to the entry.
      */
-    [[nodiscard]] const PageDirectoryEntry& operator[](size_t offset) const;
+    [[nodiscard]] WithError<const PageDirectoryEntry&> operator[](
+        size_t offset) const;
 
     /**
      * Get a specific entry in the table.
      * @param offset The offset of the entry to get.
      * @return A reference to the entry.
      */
-    [[nodiscard]] PageDirectoryEntry& operator[](size_t offset);
+    [[nodiscard]] WithError<PageDirectoryEntry&> operator[](size_t offset);
 
     PageDirectory(const PageDirectory&) = delete;
     PageDirectory(PageDirectory&&) = delete;

@@ -5,6 +5,7 @@
 #include <cstddef>
 
 #include "memory/heap/heap_entry_table.hpp"
+#include "utilities/error.hpp"
 
 /**
  * A block based heap implementation. The heap is broken into contiguous blocks,
@@ -42,18 +43,16 @@ class Heap final {
      * Allocates enough blocks to accomodate the requested number of bytes.
      *
      * @param bytes The amount of bytes to allocate.
-     * @param status [OUT] Whether the operation succeeded or failed and why.
      * @return The starting address of the allocation.
      */
-    [[nodiscard]] void *allocate(size_t bytes, HeapStatus &status);
+    [[nodiscard]] WithError<void *> allocate(size_t bytes);
 
     /**
      * Frees an allocation at a given address.
      *
      * @param address The address of the start of the allocation.
-     * @param status [OUT] Whether the operation succeeded or failed and why.
      */
-    [[nodiscard]] void free(const void *address, HeapStatus &status);
+    [[nodiscard]] Error free(const void *address);
 
     Heap(const Heap &) = delete;
     Heap(Heap &&) = delete;

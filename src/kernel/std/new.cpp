@@ -1,6 +1,7 @@
 #include "std/new"
 
-#include "memory/heap/heap_status.hpp"
+#include <cassert>
+
 #include "memory/heap/kernel_heap.hpp"
 
 // Temporary fix for vscode. For some reason vscode expects operator new to
@@ -20,8 +21,9 @@ void* operator new[](size_t count) {
 }
 
 void* operator new(size_t count) {
-    memory::heap::HeapStatus status;
-    return memory::heap::kernel_heap->allocate(count, status);
+    auto [ptr, error] = memory::heap::kernel_heap->allocate(count);
+    assertm(!error, error.message());
+    return ptr;
 }
 
 void* operator new(size_t count, void* ptr) {
@@ -37,8 +39,8 @@ void operator delete[](void* ptr, size_t count) {
 }
 
 void operator delete(void* ptr, size_t count) {
-    memory::heap::HeapStatus status;
-    memory::heap::kernel_heap->free(ptr, status);
+    const Error error = memory::heap::kernel_heap->free(ptr);
+    assertm(!error, error.message());
 }
 
 void* fix_array_offset(const void* ptr) {

@@ -3,6 +3,8 @@
 #include <pair>
 #include <string>
 
+#include "utilities/macros.hpp"
+
 class Error final {
    public:
     /**
@@ -41,3 +43,5 @@ class Error final {
 
 template <typename T>
 using WithError = std::pair<T, Error>;
+
+#define WITH_LOCATION(message) __FILE__ ":" STRINGIZE(__LINE__) ": " message

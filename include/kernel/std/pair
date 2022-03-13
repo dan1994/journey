@@ -10,7 +10,7 @@ class pair final {
      * @param first The first object.
      * @param second The second object.
      */
-    explicit pair(const T1& first, const T2& second);
+    pair(const T1& first, const T2& second);
 
     pair(const pair<T1, T2>&) = default;
     pair(pair<T1, T2>&&) = default;
