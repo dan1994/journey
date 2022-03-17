@@ -62,6 +62,9 @@ void Pic8259::signal_end_of_interrupt(Interrupt interrupt) {
                               : io::Port::SLAVE_PIC_COMMAND;
 
     io::write_byte(port, END_OF_INTERRUPT);
+    if (controller == Id::SLAVE) {
+        io::write_byte(io::Port::MASTER_PIC_COMMAND, END_OF_INTERRUPT);
+    }
 }
 
 Pic8259::Id Pic8259::get_controller(Interrupt interrupt) {
