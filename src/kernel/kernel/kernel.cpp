@@ -23,8 +23,8 @@ Kernel::Kernel() : kernel_paging_(initialize_kernel_paging()) {
     Logger::debug("Initialized paging...");
 }
 
-memory::paging::PagingInstance Kernel::initialize_kernel_paging() {
-    return memory::paging::PagingInstance{
+memory::paging::Paging Kernel::initialize_kernel_paging() {
+    return memory::paging::Paging{
         {
             memory::paging::PriviledgeLevel::KERNEL,
             memory::paging::AccessType::READ_WRITE,
@@ -35,7 +35,7 @@ memory::paging::PagingInstance Kernel::initialize_kernel_paging() {
             memory::paging::AccessType::READ_WRITE,
             memory::paging::Present::TRUE,
         },
-        memory::paging::PagingInstance::InitializationMode::LINEAR};
+        memory::paging::Paging::InitializationMode::LINEAR};
 }
 
 std::unique_ptr<Kernel> Kernel::kernel_{nullptr};

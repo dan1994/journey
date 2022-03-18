@@ -3,8 +3,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "memory/paging/constants.hpp"
 #include "memory/paging/page_table.hpp"
+#include "memory/paging/shared.hpp"
 
 namespace memory::paging::directory {
 
@@ -26,7 +26,7 @@ struct Flags {
  * @param flags The PDE flags.
  * @return A new entry.
  */
-Entry make_entry(const PTE* table, const Flags& flags);
+[[nodiscard]] Entry make_entry(const PTE* table, const Flags& flags);
 
 /**
  * Get the address of the page table pointed to by this entry.
@@ -68,14 +68,14 @@ void reset_accessed(Entry* entry);
 [[nodiscard]] bool can_user_access(Entry entry);
 
 /**
- * Allow usermode to access the page table.
+ * Allow usermode access to the page table.
  *
  * @param entry The PDE.
  */
 void enable_user_access(Entry* entry);
 
 /**
- * Prevent usermode to access the page table.
+ * Prevent usermode access to the page table.
  *
  * @param entry The PDE.
  */

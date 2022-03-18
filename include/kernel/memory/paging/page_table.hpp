@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "memory/paging/constants.hpp"
+#include "memory/paging/shared.hpp"
 
 namespace memory::paging::table {
 
@@ -17,28 +17,28 @@ struct Flags {
 };
 
 /**
- * Create a new PTE with the given address and flags.
+ * Create a new PTE with the given logical address and flags.
  *
  * @param page_address The logical address the entry should point to.
  * @param flags The PTE flags.
  * @return A new entry.
  */
-Entry make_entry(const void* page_address, const Flags& flags);
+[[nodiscard]] Entry make_entry(const void* page_address, const Flags& flags);
 
 /**
- * Get the address of the page pointed to by this entry.
+ * Get the logical address of the page pointed to by this entry.
  *
  * @param entry The PTE.
- * @return The address of the page.
+ * @return The logical address of the page.
  */
 [[nodiscard]] const void* get_page_address(Entry entry);
 
 /**
- * Set the address of the page pointed to by this entry.
+ * Set the logical address of the page pointed to by this entry.
  *
  * @param entry The PTE.
- * @param address The address of the page. The address is rounded down to
- * a multiple of page size.
+ * @param address The logical address of the page. The address is rounded down
+ * to a multiple of page size.
  */
 void set_page_address(Entry* entry, const void* address);
 
@@ -74,14 +74,14 @@ void reset_accessed(Entry* entry);
 [[nodiscard]] bool can_user_access(Entry entry);
 
 /**
- * Allow usermode to access the page.
+ * Allow usermode access to the page.
  *
  * @param entry The PTE.
  */
 void enable_user_access(Entry* entry);
 
 /**
- * Prevent usermode to access the page.
+ * Prevent usermode access to the page.
  *
  * @param entry The PTE.
  */
