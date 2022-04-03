@@ -21,14 +21,19 @@ class Paging final {
     /**
      * Initialize a page directory and its page tables with the given
      * configurations.
+     *
      * @param directory_flags Flags to be passed to the page directory entries.
      * @param table_flags Flags to be passed to the page tables entries.
      * @param initialization_mode Whether to initialize with 1:1 mapping or have
      * all page tables point to page 0.
+     * @return An instance of an initialized paging object.
      */
-    explicit Paging(const directory::Flags& directory_flags,
-                    const table::Flags& table_flags,
-                    InitializationMode initialization_mode);
+    static WithError<Paging> make(const directory::Flags& directory_flags,
+                                  const table::Flags& table_flags,
+                                  InitializationMode initialization_mode);
+
+    Paging(Paging&& other);
+    Paging& operator=(Paging&& other);
 
     ~Paging();
 
@@ -48,7 +53,12 @@ class Paging final {
     [[nodiscard]] Error map(const void* virtual_address,
                             const void* physical_address, const Flags& flags);
 
+    Paging(const Paging&) = delete;
+    Paging& operator=(const Paging&) = delete;
+
    private:
+    explicit Paging(directory::Entry* directory, table::Entry** tables);
+
     [[nodiscard]] static size_t get_directory_offset(
         const void* virtual_address);
     [[nodiscard]] static size_t get_table_offset(const void* virtual_address);

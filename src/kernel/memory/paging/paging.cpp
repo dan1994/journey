@@ -3,6 +3,7 @@
 #include <stddef.h>
 
 #include <cstddef>
+#include <utility>
 
 #include "utilities/bitranges.hpp"
 
@@ -12,22 +13,34 @@ extern "C" void load_page_directory(const void* page_directory);
 
 namespace memory::paging {
 
-Paging::Paging(const directory::Flags& directory_flags,
-               const table::Flags& table_flags,
-               InitializationMode initialization_mode)
-    : directory_(new directory::Entry[directory::ENTRY_NUM]),
-      tables_(new table::Entry*[directory::ENTRY_NUM]) {
+WithError<Paging> Paging::make(const directory::Flags& directory_flags,
+                               const table::Flags& table_flags,
+                               InitializationMode initialization_mode) {
+    directory::Entry* const directory =
+        new directory::Entry[directory::ENTRY_NUM];
+    table::Entry** const tables = new table::Entry*[directory::ENTRY_NUM];
+
+    if (directory == nullptr || tables == nullptr) {
+        return {Paging(directory, tables),
+                WITH_LOCATION("Failed to allocate paging directory/tables")};
+    }
+
     const std::byte* address = 0;
 
     for (size_t directory_index = 0; directory_index < directory::ENTRY_NUM;
          directory_index++) {
-        directory_[directory_index] =
-            directory::make_entry(tables_[directory_index], directory_flags);
+        directory[directory_index] =
+            directory::make_entry(tables[directory_index], directory_flags);
 
-        tables_[directory_index] = new table::Entry[table::ENTRY_NUM];
+        tables[directory_index] = new table::Entry[table::ENTRY_NUM];
+        if (tables[directory_index] == nullptr) {
+            return {
+                Paging(directory, tables),
+                WITH_LOCATION("Failed to allocate paging directory/tables")};
+        }
         for (size_t table_index = 0; table_index < table::ENTRY_NUM;
              table_index++) {
-            tables_[directory_index][table_index] =
+            tables[directory_index][table_index] =
                 table::make_entry(address, table_flags);
 
             if (initialization_mode == InitializationMode::LINEAR) {
@@ -35,6 +48,32 @@ Paging::Paging(const directory::Flags& directory_flags,
             }
         }
     }
+
+    return {Paging(directory, tables), nullptr};
+}
+
+Paging::Paging(directory::Entry* directory, table::Entry** tables)
+    : directory_(directory), tables_(tables) {}
+
+Paging::Paging(Paging&& other)
+    : directory_(std::move(other.directory_)),
+      tables_(std::move(other.tables_)) {
+    other.directory_ = nullptr;
+    other.tables_ = nullptr;
+}
+
+Paging& Paging::operator=(Paging&& other) {
+    if (this == &other) {
+        return *this;
+    }
+
+    this->directory_ = std::move(other.directory_);
+    this->tables_ = std::move(other.tables_);
+
+    other.directory_ = nullptr;
+    other.tables_ = nullptr;
+
+    return *this;
 }
 
 Paging::~Paging() {
