@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stddef.h>
+
 #include <pair>
 #include <type_traits>
 

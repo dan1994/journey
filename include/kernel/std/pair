@@ -1,5 +1,7 @@
 #pragma once
 
+#include "std/internal/utility/move.hpp"
+
 namespace std {
 
 template <typename T1, typename T2>
@@ -11,6 +13,27 @@ class pair final {
      * @param second The second object.
      */
     pair(const T1& first, const T2& second);
+
+    /**
+     * Initialize a pair with the given objects.
+     * @param first The first object.
+     * @param second The second object.
+     */
+    pair(const T1& first, T2&& second);
+
+    /**
+     * Initialize a pair with the given objects.
+     * @param first The first object.
+     * @param second The second object.
+     */
+    pair(T1&& first, const T2& second);
+
+    /**
+     * Initialize a pair with the given objects.
+     * @param first The first object.
+     * @param second The second object.
+     */
+    pair(T1&& first, T2&& second);
 
     pair(const pair<T1, T2>&) = default;
     pair(pair<T1, T2>&&) = default;
@@ -24,5 +47,17 @@ class pair final {
 template <typename T1, typename T2>
 pair<T1, T2>::pair(const T1& first, const T2& second)
     : first(first), second(second) {}
+
+template <typename T1, typename T2>
+pair<T1, T2>::pair(const T1& first, T2&& second)
+    : first(first), second(std::move(second)) {}
+
+template <typename T1, typename T2>
+pair<T1, T2>::pair(T1&& first, const T2& second)
+    : first(std::move(first)), second(second) {}
+
+template <typename T1, typename T2>
+pair<T1, T2>::pair(T1&& first, T2&& second)
+    : first(std::move(first)), second(std::move(second)) {}
 
 }  // namespace std
