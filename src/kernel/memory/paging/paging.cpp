@@ -29,15 +29,13 @@ WithError<Paging> Paging::make(const directory::Flags& directory_flags,
 
     for (size_t directory_index = 0; directory_index < directory::ENTRY_NUM;
          directory_index++) {
-        directory[directory_index] =
-            directory::make_entry(tables[directory_index], directory_flags);
-
         tables[directory_index] = new table::Entry[table::ENTRY_NUM];
         if (tables[directory_index] == nullptr) {
             return {
                 Paging(directory, tables),
                 WITH_LOCATION("Failed to allocate paging directory/tables")};
         }
+
         for (size_t table_index = 0; table_index < table::ENTRY_NUM;
              table_index++) {
             tables[directory_index][table_index] =
@@ -47,6 +45,9 @@ WithError<Paging> Paging::make(const directory::Flags& directory_flags,
                 address += PAGE_SIZE_IN_BYTES;
             }
         }
+
+        directory[directory_index] =
+            directory::make_entry(tables[directory_index], directory_flags);
     }
 
     return {Paging(directory, tables), nullptr};
