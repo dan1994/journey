@@ -20,7 +20,7 @@ class Pic8259 final {
     // The offset in the IDT where we put Programmable Interrupt Controller
     // interrupts.
     static constexpr uint8_t MASTER_OFFSET = 0x20;
-    static constexpr uint8_t SLAVE_OFFSET = 0x70;
+    static constexpr uint8_t SLAVE_OFFSET = 0x28;
 
     enum class Id { MASTER, SLAVE, NONE };
 

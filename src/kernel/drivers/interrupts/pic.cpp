@@ -42,9 +42,13 @@ void Pic8259::remap(io::Port command_port, io::Port data_port,
     const uint8_t saved_masks = io::read_byte(data_port);
 
     io::write_byte(command_port, INITIALIZATION_WORD);
+    io::short_delay();
     io::write_byte(data_port, idt_offset);
+    io::short_delay();
     io::write_byte(data_port, connection_information);
+    io::short_delay();
     io::write_byte(data_port, EXTRA_INFORMATION);
+    io::short_delay();
 
     io::write_byte(data_port, saved_masks);
 }
@@ -62,6 +66,9 @@ void Pic8259::signal_end_of_interrupt(Interrupt interrupt) {
                               : io::Port::SLAVE_PIC_COMMAND;
 
     io::write_byte(port, END_OF_INTERRUPT);
+    if (controller == Id::SLAVE) {
+        io::write_byte(io::Port::MASTER_PIC_COMMAND, END_OF_INTERRUPT);
+    }
 }
 
 Pic8259::Id Pic8259::get_controller(Interrupt interrupt) {
