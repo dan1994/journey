@@ -18,7 +18,7 @@ gdb: compile
 .PHONY: run
 run: compile
 	$(call log_run,Qemu $(patsubst ../../%,%,${TARGET}))
-	${Q}qemu-system-x86_64 -hda $(TARGET) 2> /dev/null 2>&1
+	${Q}qemu-system-i386 -drive file=${TARGET},format=raw,index=0,media=disk 2> /dev/null 2>&1
 
 .PHONY: view
 view: compile

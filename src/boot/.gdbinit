@@ -1,4 +1,4 @@
-target remote | qemu-system-x86_64 -hda ../../bin/boot/boot.bin -S -gdb stdio
+target remote | qemu-system-i386 -drive file=../../bin/boot/boot.bin,format=raw,index=0,media=disk -S -gdb stdio
 set disassembly-flavor intel
 layout asm
 set confirm off
