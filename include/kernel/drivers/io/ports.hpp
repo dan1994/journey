@@ -64,37 +64,56 @@ enum class Port : uint16_t {
     SECONDARY_ATA_DRIVE_ADDRESS,
 };
 
+}  // namespace drivers::io
+
+extern "C" uint8_t insb(drivers::io::Port port);
+extern "C" uint16_t insw(drivers::io::Port port);
+extern "C" void outb(drivers::io::Port port, uint8_t value);
+extern "C" void outw(drivers::io::Port port, uint16_t value);
+
+namespace drivers::io {
+
 /**
  * Read a single byte from the given port.
  * @param port The port to read from.
  * @return The value read from the port.
  */
-[[nodiscard]] inline uint8_t read_byte(Port port);
+[[nodiscard]] inline uint8_t read_byte(Port port) {
+    return insb(port);
+}
 
 /**
  * Read a word (2 bytes) from the given port.
  * @param port The port to read from.
  * @return The value read from the port.
  */
-[[nodiscard]] inline uint16_t read_word(Port port);
+[[nodiscard]] inline uint16_t read_word(Port port) {
+    return insw(port);
+}
 
 /**
  * Write a single byte to the given port.
  * @param port The port to write to.
  * @param value The value to write to the port.
  */
-inline void write_byte(Port port, uint8_t value);
+inline void write_byte(Port port, uint8_t value) {
+    outb(port, value);
+}
 
 /**
  * Write a word (2 bytes) to the given port.
  * @param port The port to write to.
  * @param value The value to write to the port.
  */
-inline void write_word(Port port, uint16_t value);
+inline void write_word(Port port, uint16_t value) {
+    outw(port, value);
+}
 
 /**
  * Wait for a very short time.
  */
-inline void short_delay();
+inline void short_delay() {
+    write_byte(Port::DEFAULT_UNUSED, 0);
+}
 
 }  // namespace drivers::io
