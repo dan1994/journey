@@ -112,7 +112,7 @@ command = f"add-symbol-file {object_path} {sections_to_args(sections_in_memory)}
 execute(command)
 end
 
-target remote | qemu-system-i386 -hda bin/os.bin -gdb stdio 2> /dev/null
+target remote | qemu-system-i386 -drive file=bin/os.bin,format=raw,index=0,media=disk -gdb stdio 2> /dev/null
 set disassembly-flavor intel
 layout src
 set confirm off
