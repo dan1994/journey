@@ -42,9 +42,13 @@ void Pic8259::remap(io::Port command_port, io::Port data_port,
     const uint8_t saved_masks = io::read_byte(data_port);
 
     io::write_byte(command_port, INITIALIZATION_WORD);
+    io::short_delay();
     io::write_byte(data_port, idt_offset);
+    io::short_delay();
     io::write_byte(data_port, connection_information);
+    io::short_delay();
     io::write_byte(data_port, EXTRA_INFORMATION);
+    io::short_delay();
 
     io::write_byte(data_port, saved_masks);
 }

@@ -23,4 +23,8 @@ void write_word(Port port, uint16_t value) {
     outw(port, value);
 }
 
+void short_delay() {
+    write_byte(Port::DEFAULT_UNUSED, 0);
+}
+
 }  // namespace drivers::io
