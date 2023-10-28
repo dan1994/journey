@@ -15,14 +15,14 @@ Kernel& Kernel::get_kernel() {
 
 Kernel::Kernel() : kernel_paging_(initialize_kernel_paging()) {
     drivers::storage::discover_disks(disks_, MAX_NUMBER_OF_DISKS);
-    Logger::debug("Discovered disks...");
+    logging::debug("Discovered disks...");
 
     Interrupts::init();
-    Logger::debug("Initialized interrupts...");
+    logging::debug("Initialized interrupts...");
 
     memory::paging::load(kernel_paging_);
     memory::paging::enable_paging();
-    Logger::debug("Initialized paging...");
+    logging::debug("Initialized paging...");
 }
 
 memory::paging::Paging Kernel::initialize_kernel_paging() {

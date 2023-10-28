@@ -4,93 +4,98 @@
 
 #include "memory/layout.hpp"
 
-using namespace drivers::display;
+namespace drivers::display::vga3 {
 
-size_t Vga3::row_ = 0;
-size_t Vga3::column_ = 0;
-
-volatile uint16_t *const Vga3::VIDEO_MEMORY =
+volatile uint16_t *const VIDEO_MEMORY =
     reinterpret_cast<volatile uint16_t *const>(memory::Layout::VIDEO);
 
-void Vga3::print(const std::string &string, Color foreground,
-                 Color background) {
-    for (size_t i = 0; i < string.size(); i++) {
-        print(string[i], foreground, background);
-    }
-}
+constexpr static size_t SCREEN_WIDTH_IN_CHARACTERS = 80;
+constexpr static size_t SCREEN_HEIGHT_IN_CHARACTERS = 25;
 
-void Vga3::print(const char *string, Color foreground, Color background) {
+static size_t row = 0;
+static size_t column = 0;
+
+static bool is_non_printable(char character);
+static void scroll();
+static void put_char(uint8_t row, uint8_t column, char character,
+                     Color foreground, Color background);
+static size_t character_offset(uint8_t row, uint8_t column);
+static uint16_t make_char(char character, Color foreground, Color background);
+
+void print(const char *string, Color foreground, Color background) {
     while (*string) {
         print(*(string++), foreground, background);
     }
 }
 
-void Vga3::print(char character, Color foreground, Color background) {
+void print(char character, Color foreground, Color background) {
     if (is_non_printable(character)) {
         character = ' ';
     }
 
     if (character == '\n') {
-        row_ += 1;
-        column_ = 0;
+        row += 1;
+        column = 0;
     } else {
-        put_char(row_, column_, character, foreground, background);
-        column_++;
+        put_char(row, column, character, foreground, background);
+        column++;
     }
 
-    if (column_ >= SCREEN_WIDTH) {
-        column_ = 0;
-        row_++;
+    if (column >= SCREEN_WIDTH_IN_CHARACTERS) {
+        column = 0;
+        row++;
     }
 
-    if (row_ >= SCREEN_HEIGHT) {
+    if (row >= SCREEN_HEIGHT_IN_CHARACTERS) {
         scroll();
-        column_ = 0;
-        row_ = SCREEN_HEIGHT - 1;
+        column = 0;
+        row = SCREEN_HEIGHT_IN_CHARACTERS - 1;
     }
 }
 
-void Vga3::clear() {
-    for (row_ = 0; row_ < SCREEN_HEIGHT; row_++) {
-        for (column_ = 0; column_ < SCREEN_WIDTH; column_++) {
-            put_char(row_, column_, ' ', Color::BLACK, Color::BLACK);
+void clear() {
+    for (row = 0; row < SCREEN_HEIGHT_IN_CHARACTERS; row++) {
+        for (column = 0; column < SCREEN_WIDTH_IN_CHARACTERS; column++) {
+            put_char(row, column, ' ', Color::BLACK, Color::BLACK);
         }
     }
-    row_ = 0;
-    column_ = 0;
+    row = 0;
+    column = 0;
 }
 
-bool Vga3::is_non_printable(char character) {
+bool is_non_printable(char character) {
     constexpr char LAST_NON_PRINTABLE_CHARACTER = 31;
     return character <= LAST_NON_PRINTABLE_CHARACTER && character != '\n';
 }
 
-void Vga3::scroll() {
-    for (row_ = 0; row_ < SCREEN_HEIGHT - 1; row_++) {
-        for (column_ = 0; column_ < SCREEN_WIDTH; column_++) {
-            VIDEO_MEMORY[character_offset(row_, column_)] =
-                VIDEO_MEMORY[character_offset(row_ + 1, column_)];
+void scroll() {
+    for (row = 0; row < SCREEN_HEIGHT_IN_CHARACTERS - 1; row++) {
+        for (column = 0; column < SCREEN_WIDTH_IN_CHARACTERS; column++) {
+            VIDEO_MEMORY[character_offset(row, column)] =
+                VIDEO_MEMORY[character_offset(row + 1, column)];
         }
     }
 
-    for (column_ = 0; column_ < SCREEN_WIDTH; column_++) {
-        put_char(row_, column_, ' ', Color::BLACK, Color::BLACK);
+    for (column = 0; column < SCREEN_WIDTH_IN_CHARACTERS; column++) {
+        put_char(row, column, ' ', Color::BLACK, Color::BLACK);
     }
 }
 
-void Vga3::put_char(uint8_t row, uint8_t column, char character,
-                    Color foreground, Color background) {
+void put_char(uint8_t row, uint8_t column, char character, Color foreground,
+              Color background) {
     VIDEO_MEMORY[character_offset(row, column)] =
         make_char(character, foreground, background);
 }
 
-size_t Vga3::character_offset(uint8_t row, uint8_t column) {
-    return row * SCREEN_WIDTH + column;
+size_t character_offset(uint8_t row, uint8_t column) {
+    return row * SCREEN_WIDTH_IN_CHARACTERS + column;
 }
 
-uint16_t Vga3::make_char(char character, Color foreground, Color background) {
+uint16_t make_char(char character, Color foreground, Color background) {
     const uint8_t colors =
         (static_cast<std::underlying_type_t<Color>>(background) << 4) |
         (static_cast<std::underlying_type_t<Color>>(foreground) & 0x0f);
     return (colors << 8) | character;
 }
+
+}  // namespace drivers::display::vga3

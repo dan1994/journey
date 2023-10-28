@@ -3,11 +3,12 @@
 #include "logging/logger.hpp"
 
 extern "C" void main() {
-    drivers::display::Vga3::clear();
+    drivers::display::vga3::clear();
+    logging::set_level(logging::Level::DEBUG);
 
-    Logger::info("Initializing Journey...");
+    logging::info("Initializing Journey...");
 
     [[maybe_unused]] Kernel& kernel = Kernel::get_kernel();
 
-    Logger::warn("Kernel finished running. Going into infinite loop...");
+    logging::warn("Kernel finished running. Going into infinite loop...");
 }
