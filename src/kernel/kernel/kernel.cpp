@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include "interrupts/interrupts.hpp"
+#include "interrupts/idt.hpp"
 #include "logging/logger.hpp"
 
 Kernel& Kernel::get_kernel() {
@@ -17,7 +17,7 @@ Kernel::Kernel() : kernel_paging_(initialize_kernel_paging()) {
     drivers::storage::discover_disks(disks_, MAX_NUMBER_OF_DISKS);
     logging::debug("Discovered disks...");
 
-    Interrupts::init();
+    interrupts::init();
     logging::debug("Initialized interrupts...");
 
     memory::paging::load(kernel_paging_);

@@ -10,8 +10,9 @@
  * See https://wiki.osdev.org/PIC for more info.
  */
 
-// Forward declare to avoid circular header dependency
-enum class Interrupt : uint8_t;
+namespace interrupts {
+enum class Id : uint8_t;
+}
 
 namespace drivers::interrupts {
 
@@ -36,7 +37,7 @@ class Pic8259 final {
      *
      * @param interrupt The interrupt that was handled
      */
-    static void signal_end_of_interrupt(Interrupt interrupt);
+    static void signal_end_of_interrupt(::interrupts::Id interrupt);
 
    private:
     static void remap_master();
@@ -44,7 +45,7 @@ class Pic8259 final {
     static void remap(drivers::io::Port command_port,
                       drivers::io::Port data_port, uint8_t idt_offest,
                       uint8_t connection_information);
-    [[nodiscard]] static Id get_controller(Interrupt interrupt);
+    [[nodiscard]] static Id get_controller(::interrupts::Id interrupt);
 };
 
 }  // namespace drivers::interrupts

@@ -53,7 +53,7 @@ void Pic8259::remap(io::Port command_port, io::Port data_port,
     io::write_byte(data_port, saved_masks);
 }
 
-void Pic8259::signal_end_of_interrupt(Interrupt interrupt) {
+void Pic8259::signal_end_of_interrupt(::interrupts::Id interrupt) {
     constexpr uint8_t END_OF_INTERRUPT = 0x20;
 
     const Id controller = get_controller(interrupt);
@@ -71,7 +71,7 @@ void Pic8259::signal_end_of_interrupt(Interrupt interrupt) {
     }
 }
 
-Pic8259::Id Pic8259::get_controller(Interrupt interrupt) {
+Pic8259::Id Pic8259::get_controller(::interrupts::Id interrupt) {
     constexpr uint8_t INTERRUPTS_PER_CONTROLLER = 8;
 
     const uint8_t interrupt_number = static_cast<uint8_t>(interrupt);
