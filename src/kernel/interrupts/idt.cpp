@@ -42,17 +42,17 @@ enum class GateSize : uint8_t { BITS16, BITS32 };
 
 enum class PriviledgeLevel : uint8_t { KERNEL, RING_1, RING_2, USER };
 
-using ServiceRoutine = void (*)(void *);
+using InterruptServiceRoutine = void (*)();
+using TrapServiceRoutine = void (*)();
 
 static void register_all();
 static void register_task(Id interrupt, PriviledgeLevel dpl);
-static void register_interrupt(Id interrupt, ServiceRoutine isr,
+static void register_interrupt(Id interrupt, InterruptServiceRoutine sr,
                                PriviledgeLevel dpl, GateSize size);
-static void register_trap(Id interrupt, ServiceRoutine isr, PriviledgeLevel dpl,
-                          GateSize size);
-static void register_internal(Id interrupt, ServiceRoutine isr,
-                              PriviledgeLevel dpl, GateType type,
-                              GateSize size);
+static void register_trap(Id interrupt, TrapServiceRoutine sr,
+                          PriviledgeLevel dpl, GateSize size);
+static void register_internal(Id interrupt, uint32_t sr, PriviledgeLevel dpl,
+                              GateType type, GateSize size);
 
 // Maximum is 512, but since the int command can only get an 8 bit operand,
 // we can never invoke more than 256 interrupts.
@@ -77,34 +77,36 @@ void init() {
 }
 
 void register_all() {
-    register_interrupt(Id::PIC_TIMER, isr_acknowledge_interrupt,
+    register_interrupt(Id::PIC_TIMER, isr_pic_timer_wrapper,
                        PriviledgeLevel::KERNEL, GateSize::BITS32);
-    register_interrupt(Id::PIC_HDD, isr_acknowledge_interrupt,
-                       PriviledgeLevel::KERNEL, GateSize::BITS32);
-
-    register_interrupt(Id::DIVIDE_BY_ZERO, isr_divide_by_zero,
+    register_interrupt(Id::PIC_HDD, isr_pic_hdd_wrapper,
                        PriviledgeLevel::KERNEL, GateSize::BITS32);
 
-    register_interrupt(Id::PIC_KEYBOARD, isr_keyboard_press,
+    register_interrupt(Id::DIVIDE_BY_ZERO, isr_divide_by_zero_wrapper,
+                       PriviledgeLevel::KERNEL, GateSize::BITS32);
+
+    register_interrupt(Id::PIC_KEYBOARD, isr_pic_keyboard_wrapper,
                        PriviledgeLevel::KERNEL, GateSize::BITS32);
 }
 
 void register_task(Id interrupt, PriviledgeLevel dpl) {
-    constexpr ServiceRoutine no_isr = nullptr;
-    register_internal(interrupt, no_isr, dpl, GateType::TASK, GateSize::BITS16);
+    constexpr uint32_t no_sr = 0;
+    register_internal(interrupt, no_sr, dpl, GateType::TASK, GateSize::BITS16);
 }
 
-void register_interrupt(Id interrupt, ServiceRoutine isr, PriviledgeLevel dpl,
-                        GateSize size) {
-    register_internal(interrupt, isr, dpl, GateType::INTERRUPT, size);
+void register_interrupt(Id interrupt, InterruptServiceRoutine sr,
+                        PriviledgeLevel dpl, GateSize size) {
+    register_internal(interrupt, reinterpret_cast<uint32_t>(sr), dpl,
+                      GateType::INTERRUPT, size);
 }
 
-void register_trap(Id interrupt, ServiceRoutine isr, PriviledgeLevel dpl,
-                   GateSize size) {
-    register_internal(interrupt, isr, dpl, GateType::TRAP, size);
+void register_trap(Id interrupt, InterruptServiceRoutine sr,
+                   PriviledgeLevel dpl, GateSize size) {
+    register_internal(interrupt, reinterpret_cast<uint32_t>(sr), dpl,
+                      GateType::TRAP, size);
 }
 
-void register_internal(Id interrupt, ServiceRoutine isr, PriviledgeLevel dpl,
+void register_internal(Id interrupt, uint32_t sr, PriviledgeLevel dpl,
                        GateType type, GateSize size) {
     // Enable by default
     constexpr uint8_t ACTIVE = 1;
@@ -116,9 +118,8 @@ void register_internal(Id interrupt, ServiceRoutine isr, PriviledgeLevel dpl,
     IdtDescriptor *const entry =
         &interrupt_table[static_cast<std::underlying_type_t<Id>>(interrupt)];
 
-    const uint32_t handler_address_uint32 = reinterpret_cast<uint32_t>(isr);
-    entry->offset_lsb = handler_address_uint32 & 0xffff;
-    entry->offset_msb = handler_address_uint32 >> 16;
+    entry->offset_lsb = sr & 0xffff;
+    entry->offset_msb = sr >> 16;
 
     // All interrupts are executed in the kernel
     entry->selector = KERNEL_CODE_SELECTOR;

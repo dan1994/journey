@@ -1,22 +1,31 @@
-#include "interrupts/isr.hpp"
-
 #include "drivers/interrupts/pic.hpp"
 #include "interrupts/idt.hpp"
-#include "interrupts/interrupts.hpp"
 #include "logging/logger.hpp"
 
-#define ISR(NAME, BODY)                          \
-    extern "C" void isr_##NAME(void *reserved) { \
-        DISABLE_INTERRUPTS();                    \
-        BODY ENABLE_INTERRUPTS();                \
-    }
+/**
+ * This file should contain all ISR methods.
+ * It's compiled with the `-mgeneral-regs-only` flag which is required for the
+ * correct generation of ISR methods. See
+ * https://wiki.osdev.org/Interrupt_Service_Routines#GCC_.2F_G.2B.2B for more
+ * info.
+ */
 
-#define PIC_ISR(NAME, BODY, ID) \
-    ISR(NAME, BODY drivers::interrupts::Pic8259::signal_end_of_interrupt(ID);)
+extern "C" void isr_divide_by_zero() {
+    logging::error("divide by zero");
+}
 
-ISR(divide_by_zero, logging::error("Divide by zero error!");)
+extern "C" void isr_pic_timer() {
+    drivers::interrupts::Pic8259::signal_end_of_interrupt(
+        interrupts::Id::PIC_TIMER);
+}
 
-PIC_ISR(acknowledge_interrupt, , interrupts::Id::PIC_TIMER);
+extern "C" void isr_pic_hdd() {
+    drivers::interrupts::Pic8259::signal_end_of_interrupt(
+        interrupts::Id::PIC_HDD);
+}
 
-PIC_ISR(keyboard_press, logging::info("Key was pressed!\n");
-        , interrupts::Id::PIC_KEYBOARD)
+extern "C" void isr_pic_keyboard() {
+    logging::info("key was pressed");
+    drivers::interrupts::Pic8259::signal_end_of_interrupt(
+        interrupts::Id::PIC_KEYBOARD);
+}

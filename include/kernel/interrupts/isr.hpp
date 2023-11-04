@@ -1,20 +1,14 @@
 #pragma once
 
-/**
- * This file and its corresponding source should contain all ISR methods.
- * The source is compiled with the `-mgeneral-regs-only` flag which is required
- * for the correct generation of ISR methods.
- * See https://wiki.osdev.org/Interrupt_Service_Routines#GCC_.2F_G.2B.2B for
- * more info.
- */
+// Declares an interrupt method. Note that this declaration points to an
+// assembly wrapper that calls a C function without the _wrapper suffix. The C
+// functions are intentionally not declared here to avoid using them instead of
+// the wrappers.
+#define INTERRUPT_DECLARATION(NAME) extern "C" void isr_##NAME##_wrapper()
 
-extern "C" void isr_divide_by_zero(void *reserved) __attribute__((interrupt));
+INTERRUPT_DECLARATION(divide_by_zero);
 
 // Programmable interrupt controller interrupts
-/**
- * Empty handler for PIC interrupts.
- */
-extern "C" void isr_acknowledge_interrupt(void *reserved)
-    __attribute__((interrupt));
-
-extern "C" void isr_keyboard_press(void *reserved) __attribute__((interrupt));
+INTERRUPT_DECLARATION(pic_timer);
+INTERRUPT_DECLARATION(pic_hdd);
+INTERRUPT_DECLARATION(pic_keyboard);
