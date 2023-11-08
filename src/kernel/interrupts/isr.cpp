@@ -15,17 +15,17 @@ extern "C" void isr_divide_by_zero() {
 }
 
 extern "C" void isr_pic_timer() {
-    drivers::interrupts::Pic8259::signal_end_of_interrupt(
+    drivers::interrupts::pic8259::signal_end_of_interrupt(
         interrupts::Id::PIC_TIMER);
 }
 
 extern "C" void isr_pic_hdd() {
-    drivers::interrupts::Pic8259::signal_end_of_interrupt(
+    drivers::interrupts::pic8259::signal_end_of_interrupt(
         interrupts::Id::PIC_HDD);
 }
 
 extern "C" void isr_pic_keyboard() {
     logging::info("key was pressed");
-    drivers::interrupts::Pic8259::signal_end_of_interrupt(
+    drivers::interrupts::pic8259::signal_end_of_interrupt(
         interrupts::Id::PIC_KEYBOARD);
 }

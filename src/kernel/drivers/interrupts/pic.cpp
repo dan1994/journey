@@ -1,59 +1,61 @@
 #include "drivers/interrupts/pic.hpp"
 
-// These defines are from https://wiki.osdev.org/PIC
-#define ICW1_ICW4 0x01      /* ICW4 (not) needed */
-#define ICW1_SINGLE 0x02    /* Single (cascade) mode */
-#define ICW1_INTERVAL4 0x04 /* Call address interval 4 (8) */
-#define ICW1_LEVEL 0x08     /* Level triggered (edge) mode */
-#define ICW1_INIT 0x10      /* Initialization - required! */
+#include "drivers/io/ports.hpp"
 
-#define ICW4_8086 0x01       /* 8086/88 (MCS-80/85) mode */
-#define ICW4_AUTO 0x02       /* Auto (normal) EOI */
-#define ICW4_BUF_SLAVE 0x08  /* Buffered mode/slave */
-#define ICW4_BUF_MASTER 0x0C /* Buffered mode/master */
-#define ICW4_SFNM 0x10       /* Special fully nested (not) */
+namespace drivers::interrupts::pic8259 {
 
-namespace io = drivers::io;
+enum class Id { MASTER, SLAVE, NONE };
 
-namespace drivers::interrupts {
+static void remap_master();
+static void remap_slave();
+static void remap(drivers::io::Port command_port, drivers::io::Port data_port,
+                  uint8_t idt_offest, uint8_t connection_information);
+[[nodiscard]] static Id get_controller(::interrupts::Id interrupt);
 
-void Pic8259::init() {
+void init() {
     remap_master();
     remap_slave();
 }
 
-void Pic8259::remap_master() {
+void remap_master() {
     constexpr uint8_t CASCADE_THROUGH_IRQ2 = 1 << 2;
     remap(io::Port::MASTER_PIC_COMMAND, io::Port::MASTER_PIC_DATA,
           MASTER_OFFSET, CASCADE_THROUGH_IRQ2);
 }
 
-void Pic8259::remap_slave() {
+void remap_slave() {
     constexpr uint8_t CASCADE_IDENTITY = 2;
     remap(io::Port::SLAVE_PIC_COMMAND, io::Port::SLAVE_PIC_DATA, SLAVE_OFFSET,
           CASCADE_IDENTITY);
 }
 
-void Pic8259::remap(io::Port command_port, io::Port data_port,
-                    uint8_t idt_offset, uint8_t connection_information) {
-    constexpr uint8_t INITIALIZATION_WORD = ICW1_INIT | ICW1_ICW4;
-    constexpr uint8_t EXTRA_INFORMATION = ICW4_8086;
+void remap(io::Port command_port, io::Port data_port, uint8_t idt_offset,
+           uint8_t connection_information) {
+    // See https://wiki.osdev.org/PIC for more info
+
+    constexpr uint8_t WITH_FOURTH_INITIALIZATION_WORD = 0x1;
+    constexpr uint8_t INITIALIZATION_BIT = 0x10;
+    constexpr uint8_t INITIALIZATION_WORD_1 =
+        INITIALIZATION_BIT | WITH_FOURTH_INITIALIZATION_WORD;
+
+    constexpr uint8_t MODE_8086 = 0x1;
+    constexpr uint8_t INITIALIZATION_WORD_4 = MODE_8086;
 
     const uint8_t saved_masks = io::read_byte(data_port);
 
-    io::write_byte(command_port, INITIALIZATION_WORD);
+    io::write_byte(command_port, INITIALIZATION_WORD_1);
     io::short_delay();
     io::write_byte(data_port, idt_offset);
     io::short_delay();
     io::write_byte(data_port, connection_information);
     io::short_delay();
-    io::write_byte(data_port, EXTRA_INFORMATION);
+    io::write_byte(data_port, INITIALIZATION_WORD_4);
     io::short_delay();
 
     io::write_byte(data_port, saved_masks);
 }
 
-void Pic8259::signal_end_of_interrupt(::interrupts::Id interrupt) {
+void signal_end_of_interrupt(::interrupts::Id interrupt) {
     constexpr uint8_t END_OF_INTERRUPT = 0x20;
 
     const Id controller = get_controller(interrupt);
@@ -71,7 +73,7 @@ void Pic8259::signal_end_of_interrupt(::interrupts::Id interrupt) {
     }
 }
 
-Pic8259::Id Pic8259::get_controller(::interrupts::Id interrupt) {
+Id get_controller(::interrupts::Id interrupt) {
     constexpr uint8_t INTERRUPTS_PER_CONTROLLER = 8;
 
     const uint8_t interrupt_number = static_cast<uint8_t>(interrupt);
@@ -89,4 +91,4 @@ Pic8259::Id Pic8259::get_controller(::interrupts::Id interrupt) {
     return Id::NONE;
 }
 
-}  // namespace drivers::interrupts
+}  // namespace drivers::interrupts::pic8259

@@ -69,7 +69,7 @@ void init() {
 
     load_idt(&idtr);
 
-    drivers::interrupts::Pic8259::init();
+    drivers::interrupts::pic8259::init();
 
     register_all();
 
