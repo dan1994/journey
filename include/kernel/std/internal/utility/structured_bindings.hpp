@@ -31,4 +31,13 @@ struct tuple_element<1, std::pair<T1, T2>> {
     using type = T2;
 };
 
+template <size_t I, typename T1, typename T2>
+auto get(std::pair<T1, T2> pair) {
+    if constexpr (I == 0) {
+        return pair.first;
+    } else {
+        return pair.second;
+    }
+}
+
 }  // namespace std
