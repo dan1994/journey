@@ -68,11 +68,11 @@ compile: message $(BUILD_DIR) $(BIN_DIR) $(TARGET)
 
 $(TARGET): $(TARGET_ELF) $(SRC_DIR)/linker.ld
 	$(call log_link,$(patsubst ../../%,%,$@))
-	${Q}$(CXX) $(BINFLAGS) -T $(SRC_DIR)/linker.ld $< -o $@
+	${Q}$(CXX) $(BINFLAGS) -T $(SRC_DIR)/linker.ld $< -o $@ 2>&1 | c++filt
 
 $(TARGET_ELF): $(OBJECTS) $(ISR_BUILT_ASSEMBLY_PATH)
 	$(call log_link,$(patsubst ../../%,%,$@))
-	${Q}$(LD) $(LINKFLAGS) $^ -o $@
+	${Q}$(LD) $(LINKFLAGS) $^ -o $@ 2>&1 | c++filt
 
 # ISR methods require the `-mgeneral-regs-only` flag to be compiled correctly.
 $(BUILD_DIR)/interrupts/isr.cpp.o: interrupts/isr.cpp
