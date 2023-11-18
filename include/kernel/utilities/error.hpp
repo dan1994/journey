@@ -1,7 +1,6 @@
 #pragma once
 
 #include <pair>
-#include <string>
 
 #include "utilities/macros.hpp"
 
@@ -27,13 +26,6 @@ class Error final {
      * @return The message.
      */
     [[nodiscard]] const char* message() const;
-
-    /**
-     * Get the message as a std::string.
-     *
-     * @return The message.
-     */
-    [[nodiscard]] std::string to_string() const;
 
    private:
     const char* message_;

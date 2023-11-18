@@ -8,8 +8,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <string>
-
 namespace drivers::display::vga3 {
 
 enum class Color : uint8_t {

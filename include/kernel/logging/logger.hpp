@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 namespace logging {
 enum class Level { DEBUG, INFO, WARN, ERROR, FATAL };
 

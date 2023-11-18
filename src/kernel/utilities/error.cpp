@@ -14,8 +14,4 @@ const char *Error::message() const {
     return message_;
 }
 
-std::string Error::to_string() const {
-    return message_;
-}
-
 const char *const Error::no_error_ = "";
