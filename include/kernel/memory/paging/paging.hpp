@@ -1,5 +1,6 @@
 #pragma once
 
+#include "memory/allocation/allocator.hpp"
 #include "memory/paging/page_directory.hpp"
 #include "memory/paging/page_table.hpp"
 #include "memory/paging/shared.hpp"
@@ -28,7 +29,8 @@ class Paging final {
      * all page tables point to page 0.
      * @return An instance of an initialized paging object.
      */
-    static WithError<Paging> make(const directory::Flags& directory_flags,
+    static WithError<Paging> make(allocator* allocator,
+                                  const directory::Flags& directory_flags,
                                   const table::Flags& table_flags,
                                   InitializationMode initialization_mode);
 
@@ -57,12 +59,14 @@ class Paging final {
     Paging& operator=(const Paging&) = delete;
 
    private:
-    explicit Paging(directory::Entry* directory, table::Entry** tables);
+    explicit Paging(allocator* allocator, directory::Entry* directory,
+                    table::Entry** tables);
 
     [[nodiscard]] static size_t get_directory_offset(
         const void* virtual_address);
     [[nodiscard]] static size_t get_table_offset(const void* virtual_address);
 
+    allocator* allocator_;
     directory::Entry* directory_;
     table::Entry** tables_;
 };

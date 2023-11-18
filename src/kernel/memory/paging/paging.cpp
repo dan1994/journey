@@ -13,15 +13,18 @@ extern "C" void load_page_directory(const void* page_directory);
 
 namespace memory::paging {
 
-WithError<Paging> Paging::make(const directory::Flags& directory_flags,
+WithError<Paging> Paging::make(allocator* allocator,
+                               const directory::Flags& directory_flags,
                                const table::Flags& table_flags,
                                InitializationMode initialization_mode) {
-    directory::Entry* const directory =
-        new directory::Entry[directory::ENTRY_NUM];
-    table::Entry** const tables = new table::Entry*[directory::ENTRY_NUM];
+    directory::Entry* const directory = reinterpret_cast<directory::Entry*>(
+        malloc(allocator, directory::ENTRY_NUM * sizeof(directory::Entry)));
+
+    table::Entry** const tables = reinterpret_cast<table::Entry**>(
+        malloc(allocator, directory::ENTRY_NUM * sizeof(table::Entry*)));
 
     if (directory == nullptr || tables == nullptr) {
-        return {Paging(directory, tables),
+        return {Paging(allocator, directory, tables),
                 WITH_LOCATION("Failed to allocate paging directory/tables")};
     }
 
@@ -29,10 +32,11 @@ WithError<Paging> Paging::make(const directory::Flags& directory_flags,
 
     for (size_t directory_index = 0; directory_index < directory::ENTRY_NUM;
          directory_index++) {
-        tables[directory_index] = new table::Entry[table::ENTRY_NUM];
+        tables[directory_index] = reinterpret_cast<table::Entry*>(
+            malloc(allocator, table::ENTRY_NUM * sizeof(table::Entry)));
         if (tables[directory_index] == nullptr) {
             return {
-                Paging(directory, tables),
+                Paging(allocator, directory, tables),
                 WITH_LOCATION("Failed to allocate paging directory/tables")};
         }
 
@@ -50,11 +54,12 @@ WithError<Paging> Paging::make(const directory::Flags& directory_flags,
             directory::make_entry(tables[directory_index], directory_flags);
     }
 
-    return {Paging(directory, tables), nullptr};
+    return {Paging(allocator, directory, tables), nullptr};
 }
 
-Paging::Paging(directory::Entry* directory, table::Entry** tables)
-    : directory_(directory), tables_(tables) {}
+Paging::Paging(allocator* allocator, directory::Entry* directory,
+               table::Entry** tables)
+    : allocator_(allocator), directory_(directory), tables_(tables) {}
 
 Paging::Paging(Paging&& other)
     : directory_(std::move(other.directory_)),
@@ -81,13 +86,13 @@ Paging::~Paging() {
     if (tables_ != nullptr) {
         for (size_t i = 0; i < directory::ENTRY_NUM; i++) {
             if (tables_[i] != nullptr) {
-                delete[] tables_[i];
+                free(allocator_, tables_[i]);
             }
         }
-        delete[] tables_;
+        free(allocator_, tables_);
     }
     if (directory_ != nullptr) {
-        delete[] directory_;
+        free(allocator_, directory_);
     }
 }
 

@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "drivers/storage/ata.hpp"
+#include "memory/allocation/allocator.hpp"
 #include "memory/paging/paging.hpp"
 
 class Kernel final {
@@ -10,7 +11,7 @@ class Kernel final {
     /**
      * Get the kernel singleton.
      */
-    [[nodiscard]] static Kernel& get_kernel();
+    [[nodiscard]] static Kernel& get_kernel(allocator* allocator);
 
     /**
      * Dtor.
@@ -27,12 +28,13 @@ class Kernel final {
     /**
      * Ctor. Performs all kernel startup activities.
      */
-    explicit Kernel();
+    explicit Kernel(allocator* allocator);
 
     // The kernel singleton.
     static std::unique_ptr<Kernel> kernel_;
 
-    [[nodiscard]] static memory::paging::Paging initialize_kernel_paging();
+    [[nodiscard]] static memory::paging::Paging initialize_kernel_paging(
+        allocator* allocator);
 
     constexpr static size_t MAX_NUMBER_OF_DISKS = 4;
 

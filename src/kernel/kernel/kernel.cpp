@@ -5,21 +5,23 @@
 #include "interrupts/idt.hpp"
 #include "logging/logger.hpp"
 
-Kernel& Kernel::get_kernel() {
+Kernel& Kernel::get_kernel(allocator* allocator) {
     if (!kernel_) {
-        kernel_ = std::unique_ptr<Kernel>(new Kernel);
+        Kernel* const kernel =
+            reinterpret_cast<Kernel*>(malloc(allocator, sizeof(Kernel)));
+        kernel_ = std::unique_ptr<Kernel>(allocator, kernel);
     }
 
     return *kernel_;
 }
 
-Kernel::Kernel()
+Kernel::Kernel(allocator* allocator)
     : boot_disk_(drivers::storage::ata::disk{
           .bus = drivers::storage::ata::Bus::PRIMARY,
           .port = drivers::storage::ata::Port::MASTER,
           .mode = drivers::storage::ata::Mode::PIO,
       }),
-      kernel_paging_(initialize_kernel_paging()) {
+      kernel_paging_(initialize_kernel_paging(allocator)) {
     interrupts::init();
     logging::debug("Initialized interrupts...");
 
@@ -28,8 +30,9 @@ Kernel::Kernel()
     logging::debug("Initialized paging...");
 }
 
-memory::paging::Paging Kernel::initialize_kernel_paging() {
+memory::paging::Paging Kernel::initialize_kernel_paging(allocator* allocator) {
     WithError<memory::paging::Paging> paging_err = memory::paging::Paging::make(
+        allocator,
         {
             memory::paging::PriviledgeLevel::KERNEL,
             memory::paging::AccessType::READ_WRITE,
@@ -45,4 +48,4 @@ memory::paging::Paging Kernel::initialize_kernel_paging() {
     return std::move(paging_err.first);
 }
 
-std::unique_ptr<Kernel> Kernel::kernel_{nullptr};
+std::unique_ptr<Kernel> Kernel::kernel_{nullptr, nullptr};
