@@ -13,10 +13,13 @@ Kernel& Kernel::get_kernel() {
     return *kernel_;
 }
 
-Kernel::Kernel() : kernel_paging_(initialize_kernel_paging()) {
-    drivers::storage::discover_disks(disks_, MAX_NUMBER_OF_DISKS);
-    logging::debug("Discovered disks...");
-
+Kernel::Kernel()
+    : boot_disk_(drivers::storage::ata::disk{
+          .bus = drivers::storage::ata::Bus::PRIMARY,
+          .port = drivers::storage::ata::Port::MASTER,
+          .mode = drivers::storage::ata::Mode::PIO,
+      }),
+      kernel_paging_(initialize_kernel_paging()) {
     interrupts::init();
     logging::debug("Initialized interrupts...");
 

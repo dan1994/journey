@@ -1,18 +1,15 @@
 #include "drivers/storage/ata.hpp"
 
-#include <type_traits>
-
 #include "drivers/io/ports.hpp"
-#include "drivers/storage/ata_pio.hpp"
 
-namespace drivers::storage {
+namespace drivers::storage::ata {
 
-std::unique_ptr<Ata> get_ata(Ata::Mode mode, Ata::Bus bus, Ata::Port port) {
-    switch (mode) {
-        case Ata::Mode::PIO:
+void read_sectors(disk* disk, sector* buffer, size_t offset, size_t amount) {
+    switch (disk->mode) {
+        case Mode::PIO:
         default:
-            return std::make_unique<AtaPio>(bus, port);
+            pio::read_sectors(disk, buffer, offset, amount);
     }
 }
 
-}  // namespace drivers::storage
+}  // namespace drivers::storage::ata

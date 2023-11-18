@@ -1,6 +1,8 @@
 #pragma once
 
-#include "drivers/storage/disk.hpp"
+#include <memory>
+
+#include "drivers/storage/ata.hpp"
 #include "memory/paging/paging.hpp"
 
 class Kernel final {
@@ -34,6 +36,6 @@ class Kernel final {
 
     constexpr static size_t MAX_NUMBER_OF_DISKS = 4;
 
-    std::unique_ptr<drivers::storage::Disk> disks_[MAX_NUMBER_OF_DISKS];
+    drivers::storage::ata::disk boot_disk_;
     memory::paging::Paging kernel_paging_;
 };
