@@ -5,58 +5,50 @@
 #include "interrupts/idt.hpp"
 #include "logging/logger.hpp"
 #include "memory/allocation/allocator.hpp"
+#include "memory/allocation/block_heap.hpp"
 #include "memory/layout.hpp"
 
-with_error<kernel> make() {
-    constexpr size_t HEAP_BLOCK_SIZE = 4096;
-    constexpr size_t HEAP_SIZE = 100 * 1024 * 1024;
-    constexpr size_t HEAP_BLOCKS = HEAP_SIZE / HEAP_BLOCK_SIZE;
-    memory::allocation::block_heap::block_heap heap_implementation =
-        memory::allocation::block_heap::make_block_heap(
-            reinterpret_cast<uint8_t *>(memory::Layout::KERNEL_HEAP),
-            reinterpret_cast<memory::allocation::block_heap::block_metadata *>(
-                memory::Layout::KERNEL_HEAP_ENTRY_TABLE),
-            HEAP_BLOCK_SIZE, HEAP_BLOCKS);
-
-    allocator heap =
-        memory::allocation::block_heap::make_allocator(&heap_implementation);
-
-    drivers::storage::ata::disk boot_disk{
-        .bus = drivers::storage::ata::Bus::PRIMARY,
-        .port = drivers::storage::ata::Port::MASTER,
-        .mode = drivers::storage::ata::Mode::PIO};
+with_error<kernel> make(allocator* heap) {
+    kernel kernel{.heap = heap,
+                  .boot_disk = {.bus = drivers::storage::ata::Bus::PRIMARY,
+                                .port = drivers::storage::ata::Port::MASTER,
+                                .mode = drivers::storage::ata::Mode::PIO}};
 
     interrupts::init();
     logging::debug("Initialized interrupts...");
 
-    with_error<memory::paging::Paging> paging_err =
-        memory::paging::Paging::make(
-            &heap,
-            {
-                memory::paging::PriviledgeLevel::KERNEL,
-                memory::paging::AccessType::READ_WRITE,
-                memory::paging::Present::TRUE,
-            },
-            {
-                memory::paging::PriviledgeLevel::KERNEL,
-                memory::paging::AccessType::READ_WRITE,
-                memory::paging::Present::TRUE,
-            },
-            memory::paging::Paging::InitializationMode::LINEAR);
-
-    if (errors::set(paging_err.second)) {
-        errors::enrich(&paging_err.second, "initialize paging");
+    auto [paging, error] =
+        memory::paging::make(kernel.heap,
+                             {
+                                 memory::paging::PriviledgeLevel::KERNEL,
+                                 memory::paging::AccessType::READ_WRITE,
+                                 memory::paging::Present::TRUE,
+                             },
+                             {
+                                 memory::paging::PriviledgeLevel::KERNEL,
+                                 memory::paging::AccessType::READ_WRITE,
+                                 memory::paging::Present::TRUE,
+                             });
+    kernel.kernel_paging = paging;
+    if (errors::set(error)) {
+        errors::enrich(&error, "initialize paging");
+        return {kernel, error};
     }
 
-    memory::paging::load(paging_err.first);
-    memory::paging::enable_paging();
+    memory::paging::load(paging);
+    memory::paging::enable();
     logging::debug("Initialized paging...");
 
-    return {kernel{
-                .heap_implementation = heap_implementation,
-                .heap = heap,
-                .boot_disk = boot_disk,
-                .kernel_paging = std::move(paging_err.first),
-            },
-            paging_err.second};
+    return {kernel, errors::nil()};
+}
+
+error destroy(kernel* kernel) {
+    memory::paging::disable();
+    error err = memory::paging::destroy(&kernel->kernel_paging);
+    if (errors::set(err)) {
+        errors::enrich(&err, "destory paging");
+        return err;
+    }
+
+    return errors::nil();
 }

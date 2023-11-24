@@ -26,3 +26,14 @@ enable_paging:
     mov cr0, eax
     pop ebp
     ret
+
+global disable_paging
+
+disable_paging:
+    push ebp
+    mov ebp, esp
+    mov eax, cr0
+    and eax, 7fffffffh
+    mov cr0, eax
+    pop ebp
+    ret
