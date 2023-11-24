@@ -13,32 +13,42 @@ extern "C" void load_page_directory(const void* page_directory);
 
 namespace memory::paging {
 
-WithError<Paging> Paging::make(allocator* allocator,
-                               const directory::Flags& directory_flags,
-                               const table::Flags& table_flags,
-                               InitializationMode initialization_mode) {
-    directory::Entry* const directory = reinterpret_cast<directory::Entry*>(
-        malloc(allocator, directory::ENTRY_NUM * sizeof(directory::Entry)));
-
-    table::Entry** const tables = reinterpret_cast<table::Entry**>(
-        malloc(allocator, directory::ENTRY_NUM * sizeof(table::Entry*)));
-
-    if (directory == nullptr || tables == nullptr) {
-        return {Paging(allocator, directory, tables),
-                WITH_LOCATION("Failed to allocate paging directory/tables")};
+with_error<Paging> Paging::make(allocator* allocator,
+                                const directory::Flags& directory_flags,
+                                const table::Flags& table_flags,
+                                InitializationMode initialization_mode) {
+    auto [directory_allocation, directory_error] =
+        try_malloc(allocator, directory::ENTRY_NUM * sizeof(directory::Entry));
+    if (errors::set(directory_error)) {
+        errors::enrich(&directory_error, "allocate page directory");
+        return {Paging{allocator, nullptr, nullptr}, directory_error};
     }
+
+    directory::Entry* const directory =
+        reinterpret_cast<directory::Entry*>(directory_allocation);
+
+    auto [tables_allocation, tables_error] =
+        try_malloc(allocator, directory::ENTRY_NUM * sizeof(table::Entry*));
+    if (errors::set(tables_error)) {
+        errors::enrich(&tables_error, "allocate page tables");
+        return {Paging{allocator, directory, nullptr}, tables_error};
+    }
+
+    table::Entry** const tables =
+        reinterpret_cast<table::Entry**>(tables_allocation);
 
     const std::byte* address = 0;
 
     for (size_t directory_index = 0; directory_index < directory::ENTRY_NUM;
          directory_index++) {
-        tables[directory_index] = reinterpret_cast<table::Entry*>(
-            malloc(allocator, table::ENTRY_NUM * sizeof(table::Entry)));
-        if (tables[directory_index] == nullptr) {
-            return {
-                Paging(allocator, directory, tables),
-                WITH_LOCATION("Failed to allocate paging directory/tables")};
+        auto [table, table_error] =
+            try_malloc(allocator, table::ENTRY_NUM * sizeof(table::Entry));
+        if (errors::set(table_error)) {
+            errors::enrich(&table_error, "allocate page table");
+            return {Paging{allocator, directory, tables}, table_error};
         }
+
+        tables[directory_index] = reinterpret_cast<table::Entry*>(table);
 
         for (size_t table_index = 0; table_index < table::ENTRY_NUM;
              table_index++) {
@@ -54,7 +64,7 @@ WithError<Paging> Paging::make(allocator* allocator,
             directory::make_entry(tables[directory_index], directory_flags);
     }
 
-    return {Paging(allocator, directory, tables), nullptr};
+    return {Paging(allocator, directory, tables), errors::nil()};
 }
 
 Paging::Paging(allocator* allocator, directory::Entry* directory,
@@ -100,13 +110,13 @@ const void* Paging::get_directory() const {
     return directory_;
 }
 
-Error Paging::map(const void* virtual_address, const void* physical_address,
+error Paging::map(const void* virtual_address, const void* physical_address,
                   const Flags& flags) {
     const size_t directory_offset = get_directory_offset(virtual_address);
     directory::Entry* const pde = &directory_[directory_offset];
     if (!directory::is_present(*pde)) {
-        return WITH_LOCATION(
-            "Can't map address because of non-present page table");
+        return errors::make(WITH_LOCATION(
+            "can't map address because of non-present page table"));
     }
 
     const size_t table_offset = get_table_offset(virtual_address);
@@ -130,7 +140,7 @@ Error Paging::map(const void* virtual_address, const void* physical_address,
 
     table::mark_present(pte);
 
-    return nullptr;
+    return errors::nil();
 }
 
 size_t Paging::get_directory_offset(const void* virtual_address) {

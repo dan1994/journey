@@ -13,8 +13,8 @@ namespace memory::allocation::block_heap {
 typedef uint8_t block_metadata;
 
 struct block_heap {
-    WithError<void *> (*malloc)(block_heap *self, size_t size);
-    Error (*free)(block_heap *self, const void *allocation);
+    with_error<void *> (*malloc)(block_heap *self, size_t size);
+    error (*free)(block_heap *self, const void *allocation);
 
     uint8_t *_start;
     block_metadata *_block_table;

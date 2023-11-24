@@ -11,7 +11,10 @@ extern "C" void main() {
 
     logging::info("Initializing Journey...");
 
-    kernel kernel = make();
+    auto [kernel, error] = make();
+    if (errors::set(error)) {
+        errors::log(error);
+    }
 
     logging::warn("Kernel finished running. Going into infinite loop...");
 }

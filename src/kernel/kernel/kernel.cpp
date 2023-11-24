@@ -7,9 +7,7 @@
 #include "memory/allocation/allocator.hpp"
 #include "memory/layout.hpp"
 
-memory::paging::Paging initialize_kernel_paging(allocator *allocator);
-
-kernel make() {
+with_error<kernel> make() {
     constexpr size_t HEAP_BLOCK_SIZE = 4096;
     constexpr size_t HEAP_SIZE = 100 * 1024 * 1024;
     constexpr size_t HEAP_BLOCKS = HEAP_SIZE / HEAP_BLOCK_SIZE;
@@ -31,34 +29,34 @@ kernel make() {
     interrupts::init();
     logging::debug("Initialized interrupts...");
 
-    memory::paging::Paging kernel_paging = initialize_kernel_paging(&heap);
+    with_error<memory::paging::Paging> paging_err =
+        memory::paging::Paging::make(
+            &heap,
+            {
+                memory::paging::PriviledgeLevel::KERNEL,
+                memory::paging::AccessType::READ_WRITE,
+                memory::paging::Present::TRUE,
+            },
+            {
+                memory::paging::PriviledgeLevel::KERNEL,
+                memory::paging::AccessType::READ_WRITE,
+                memory::paging::Present::TRUE,
+            },
+            memory::paging::Paging::InitializationMode::LINEAR);
 
-    memory::paging::load(kernel_paging);
+    if (errors::set(paging_err.second)) {
+        errors::enrich(&paging_err.second, "initialize paging");
+    }
+
+    memory::paging::load(paging_err.first);
     memory::paging::enable_paging();
     logging::debug("Initialized paging...");
 
-    return kernel{
-        .heap_implementation = heap_implementation,
-        .heap = heap,
-        .boot_disk = boot_disk,
-        .kernel_paging = std::move(kernel_paging),
-    };
-}
-
-memory::paging::Paging initialize_kernel_paging(allocator *allocator) {
-    WithError<memory::paging::Paging> paging_err = memory::paging::Paging::make(
-        allocator,
-        {
-            memory::paging::PriviledgeLevel::KERNEL,
-            memory::paging::AccessType::READ_WRITE,
-            memory::paging::Present::TRUE,
-        },
-        {
-            memory::paging::PriviledgeLevel::KERNEL,
-            memory::paging::AccessType::READ_WRITE,
-            memory::paging::Present::TRUE,
-        },
-        memory::paging::Paging::InitializationMode::LINEAR);
-
-    return std::move(paging_err.first);
+    return {kernel{
+                .heap_implementation = heap_implementation,
+                .heap = heap,
+                .boot_disk = boot_disk,
+                .kernel_paging = std::move(paging_err.first),
+            },
+            paging_err.second};
 }

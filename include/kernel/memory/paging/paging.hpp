@@ -29,10 +29,10 @@ class Paging final {
      * all page tables point to page 0.
      * @return An instance of an initialized paging object.
      */
-    static WithError<Paging> make(allocator* allocator,
-                                  const directory::Flags& directory_flags,
-                                  const table::Flags& table_flags,
-                                  InitializationMode initialization_mode);
+    static with_error<Paging> make(allocator* allocator,
+                                   const directory::Flags& directory_flags,
+                                   const table::Flags& table_flags,
+                                   InitializationMode initialization_mode);
 
     Paging(Paging&& other);
     Paging& operator=(Paging&& other);
@@ -52,7 +52,7 @@ class Paging final {
      * @param flags Flags to set for the page.
      * @return Error if occured.
      */
-    [[nodiscard]] Error map(const void* virtual_address,
+    [[nodiscard]] error map(const void* virtual_address,
                             const void* physical_address, const Flags& flags);
 
     Paging(const Paging&) = delete;

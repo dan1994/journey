@@ -9,8 +9,8 @@
 
 namespace memory::allocation {
 
-using MallocType = WithError<void *> (*)(void *self, size_t size);
-using FreeType = Error (*)(void *self, const void *allocation);
+using MallocType = with_error<void *> (*)(void *self, size_t size);
+using FreeType = error (*)(void *self, const void *allocation);
 
 struct allocator {
     void *self;
@@ -19,9 +19,9 @@ struct allocator {
 };
 
 void *malloc(allocator *self, size_t size);
-WithError<void *> try_malloc(allocator *self, size_t size);
+with_error<void *> try_malloc(allocator *self, size_t size);
 void free(allocator *self, const void *allocation);
-Error try_free(allocator *self, const void *allocation);
+error try_free(allocator *self, const void *allocation);
 
 }  // namespace memory::allocation
 

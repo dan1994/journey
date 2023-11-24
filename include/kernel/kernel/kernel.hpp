@@ -11,4 +11,4 @@ struct kernel {
     memory::paging::Paging kernel_paging;
 };
 
-kernel make();
+with_error<kernel> make();
