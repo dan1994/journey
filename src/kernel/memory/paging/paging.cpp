@@ -103,6 +103,11 @@ error destroy(paging* paging) {
 
 error map(paging* paging, const void* virtual_address,
           const void* physical_address, const flags& flags) {
+    if (reinterpret_cast<uint32_t>(virtual_address) % PAGE_SIZE_IN_BYTES != 0) {
+        return errors::make(
+            WITH_LOCATION("virtual address is not a multiple of page size"));
+    }
+
     const size_t directory_offset = get_directory_offset(virtual_address);
     directory::Entry* const pde = &paging->directory[directory_offset];
     if (!directory::is_present(*pde)) {
@@ -134,13 +139,13 @@ error map(paging* paging, const void* virtual_address,
 }
 
 size_t get_directory_offset(const void* virtual_address) {
-    return reinterpret_cast<unsigned int>(virtual_address) /
-           (table::ENTRY_NUM * PAGE_SIZE_IN_BYTES);
+    return reinterpret_cast<size_t>(virtual_address) >>
+           (PAGE_TABLE_BITS + PAGE_SIZE_BITS);
 }
 
 size_t get_table_offset(const void* virtual_address) {
-    return reinterpret_cast<unsigned int>(virtual_address) /
-           PAGE_SIZE_IN_BYTES % table::ENTRY_NUM;
+    return (reinterpret_cast<size_t>(virtual_address) >> PAGE_SIZE_BITS) &
+           ((1 << PAGE_TABLE_BITS) - 1);
 }
 
 void enable() {
