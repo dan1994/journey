@@ -32,6 +32,10 @@ define log_message
 	$(call log,@echo,#### $1 ####,,${CYAN},)
 endef
 
+define log_generate
+	$(call log,${vecho},[Generate],$1,${BROWN},"\\t")
+endef
+
 define log_compile
 	$(call log,${vecho},[Compile],$1,${BLUE},"\\t")
 endef

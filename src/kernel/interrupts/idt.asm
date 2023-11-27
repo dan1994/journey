@@ -9,8 +9,8 @@ load_idt:
     push ebp
     mov ebp, esp
 
-    mov ebx, [ebp + 8]
-    lidt [ebx]
+    mov eax, [ebp + 8]
+    lidt [eax]
 
     pop ebp
     ret

@@ -1,47 +1,31 @@
 #pragma once
 
+#include <stddef.h>
+
 #include <pair>
-#include <string>
 
 #include "utilities/macros.hpp"
 
-class Error final {
-   public:
-    /**
-     * Create a new error with the given message.
-     *
-     * @param message The error message.
-     */
-    Error(const char* message = Error::no_error_);
+namespace errors {
 
-    /**
-     * Convert the error to a bool.
-     *
-     * @return True iff the message is not empty.
-     */
-    [[nodiscard]] operator bool() const;
+constexpr size_t MAX_DEPTH = 10;
 
-    /**
-     * Get the message as a char array.
-     *
-     * @return The message.
-     */
-    [[nodiscard]] const char* message() const;
-
-    /**
-     * Get the message as a std::string.
-     *
-     * @return The message.
-     */
-    [[nodiscard]] std::string to_string() const;
-
-   private:
-    const char* message_;
-
-    static const char* const no_error_;
+struct error {
+    const char* messages[MAX_DEPTH];
 };
 
+error nil();
+error make(const char* message);
+bool set(error error);
+void enrich(error* error, const char* message);
+void log(error error);
+
 template <typename T>
-using WithError = std::pair<T, Error>;
+using with_error = std::pair<T, error>;
+
+}  // namespace errors
+
+using errors::error;
+using errors::with_error;
 
 #define WITH_LOCATION(message) __FILE__ ":" STRINGIZE(__LINE__) ": " message

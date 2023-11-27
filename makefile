@@ -13,7 +13,7 @@ all: compile
 
 .PHONY: gdb
 gdb: compile
-	@gdb -q 2> /dev/null
+	@gdb -q
 
 .PHONY: run
 run: compile

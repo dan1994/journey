@@ -4,6 +4,8 @@
 #include <type_traits>
 #include <utility>
 
+#include "memory/allocation/allocator.hpp"
+
 namespace std {
 
 template <typename T>
@@ -18,7 +20,7 @@ class unique_ptr {
      * Take ownership of a dynamically allocated pointer.
      * @param ptr The pointer to take ownership of.
      */
-    explicit unique_ptr(T* ptr);
+    explicit unique_ptr(allocator* allocator, T* ptr);
 
     /**
      * Unique pointers can't be copied.
@@ -54,7 +56,7 @@ class unique_ptr {
      * Replace the owned pointer with a new one. The old pointer is deleted.
      * @param t The new pointer.
      */
-    void reset(T* t = nullptr);
+    void reset(allocator* allocator = nullptr, T* t = nullptr);
 
     /**
      * Replace the pointers owned with another unique pointer.
@@ -99,16 +101,19 @@ class unique_ptr {
 
    private:
     T* ptr_;
+    allocator* allocator_;
 };
 
 template <typename T>
-unique_ptr<T>::unique_ptr() : ptr_(nullptr) {}
+unique_ptr<T>::unique_ptr() : ptr_(nullptr), allocator_(nullptr) {}
 
 template <typename T>
-unique_ptr<T>::unique_ptr(T* ptr) : ptr_(ptr) {}
+unique_ptr<T>::unique_ptr(allocator* allocator, T* ptr)
+    : ptr_(ptr), allocator_(allocator) {}
 
 template <typename T>
-unique_ptr<T>::unique_ptr(unique_ptr<T>&& other) : ptr_(move(other.ptr_)) {
+unique_ptr<T>::unique_ptr(unique_ptr<T>&& other)
+    : ptr_(move(other.ptr_)), allocator_(move(other.allocator_)) {
     other.ptr_ = nullptr;
 }
 
@@ -137,11 +142,12 @@ T* unique_ptr<T>::release() {
 }
 
 template <typename T>
-void unique_ptr<T>::reset(T* t) {
+void unique_ptr<T>::reset(allocator* allocator, T* t) {
     if (ptr_ != nullptr) {
-        delete ptr_;
+        free(allocator_, ptr_);
     }
     ptr_ = t;
+    allocator_ = allocator;
 }
 
 template <typename T>
@@ -149,6 +155,10 @@ void unique_ptr<T>::swap(unique_ptr<T>& other) {
     T* const temp = ptr_;
     ptr_ = other.ptr_;
     other.ptr_ = temp;
+
+    allocator* const temp_allocator = allocator_;
+    allocator_ = other.allocator_;
+    other.allocator_ = temp_allocator;
 }
 
 template <typename T>
@@ -178,16 +188,8 @@ template <typename Base>
 requires std::derived_from<T, Base> unique_ptr<T>::operator unique_ptr<Base>() {
     Base* const new_ptr = reinterpret_cast<Base*>(ptr_);
     ptr_ = nullptr;
-    return unique_ptr<Base>(new_ptr);
+    return unique_ptr<Base>(allocator_, new_ptr);
 }
-
-/**
- * Allocate a new pointer, and create a unique pointer to own it.
- * @param args The arguments to use when creating the allocated object.
- * @return The smart pointer.
- */
-template <typename T, typename... Args>
-unique_ptr<T> make_unique(Args&&... args);
 
 /**
  * Check if a pointer is equal to another pointer.
@@ -350,11 +352,6 @@ bool operator>=(const unique_ptr<T1>& lhs, const T2* rhs);
  */
 template <typename T1, typename T2>
 bool operator>=(const T1* lhs, const unique_ptr<T2>& rhs);
-
-template <typename T, typename... Args>
-unique_ptr<T> make_unique(Args&&... args) {
-    return unique_ptr<T>(new T(args...));
-}
 
 template <typename T1, typename T2>
 bool operator==(const unique_ptr<T1>& lhs, const unique_ptr<T2>& rhs) {

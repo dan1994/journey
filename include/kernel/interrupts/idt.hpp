@@ -1,36 +1,33 @@
 #pragma once
 
-/**
- * Structures relevant to the IDT (Interrupt Descriptor Table).
- * See https://wiki.osdev.org/IDT for more info.
- */
-
-#include <stddef.h>
 #include <stdint.h>
 
-typedef struct __attribute__((packed)) {
-    uint16_t offset_lsb;     // Offset in memory
-    uint16_t selector;       // Selector from the GDT
-    uint8_t zero;            // Reserved
-    uint8_t type_attribute;  // Equivalent to (assuming LSB->MSB):
-    // uint8_t gate_type : 3;        // Task/Interrupt/Trap
-    // uint8_t gate_size : 1;        // 16/32 bits
-    // uint8_t storage_segment : 1;  // Always 0 according to manual
-    // uint8_t dpl : 2;              // Ring from which can be invoked
-    // uint8_t present : 1;          // Is it active?
-    uint16_t offset_msb;  // Offset in memory
-} IdtDescriptor;
+#include "drivers/interrupts/pic.hpp"
 
-// Structure of the IDT register
-typedef struct __attribute__((packed)) {
-    uint16_t limit;  // The length of the IDT - 1 in bytes
-    uint32_t base;   // The address of the IDT in memory
-} IdtRegister;
+namespace interrupts {
 
-/**
- * Loads the IDT register.
- *
- * @param idtr Pointer to memory that contains the content to be loaded to the
- * IDT register.
- */
-extern "C" void load_idt(const IdtRegister *idtr);
+// Setup the interrupt descriptor table.
+void init();
+
+// The number used with the int instruction
+enum class Id : uint8_t {
+    DIVIDE_BY_ZERO,
+    PIC_TIMER = drivers::interrupts::pic8259::MASTER_OFFSET,
+    PIC_KEYBOARD,
+    PIC_CASCADE,
+    PIC_COM2,
+    PIC_COM1,
+    PIC_LPT2,
+    PIC_FLOPPY,
+    PIC_LPT1,
+    PIC_CMOS_RTC = drivers::interrupts::pic8259::SLAVE_OFFSET,
+    PIC_CGA,
+    PIC_UNUSED_0,
+    PIC_UNUSED_1,
+    PIC_PS2,
+    PIC_FPU,
+    PIC_HDD,
+    PIC_UNUSED_2,
+};
+
+}  // namespace interrupts

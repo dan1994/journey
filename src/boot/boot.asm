@@ -34,11 +34,7 @@ start:
     ; Start stack where we are loaded
     mov sp, 7c00h
 
-    sti ; Enable interrupts
-
 .enter_protected_mode:
-    cli
-
     lgdt[gdt_descriptor] ; Load global descriptor table
 
     ; Enable protected mode by setting cr0 lowest bit

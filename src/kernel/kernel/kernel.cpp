@@ -2,44 +2,53 @@
 
 #include <utility>
 
-#include "interrupts/interrupts.hpp"
+#include "interrupts/idt.hpp"
 #include "logging/logger.hpp"
+#include "memory/allocation/allocator.hpp"
+#include "memory/allocation/block_heap.hpp"
+#include "memory/layout.hpp"
 
-Kernel& Kernel::get_kernel() {
-    if (!kernel_) {
-        kernel_ = std::unique_ptr<Kernel>(new Kernel);
+with_error<kernel> make(allocator* heap) {
+    kernel kernel{.heap = heap,
+                  .boot_disk = {.bus = drivers::storage::ata::Bus::PRIMARY,
+                                .port = drivers::storage::ata::Port::MASTER,
+                                .mode = drivers::storage::ata::Mode::PIO}};
+
+    interrupts::init();
+    logging::debug("Initialized interrupts...");
+
+    auto [paging, error] =
+        memory::paging::make(kernel.heap,
+                             {
+                                 memory::paging::PriviledgeLevel::KERNEL,
+                                 memory::paging::AccessType::READ_WRITE,
+                                 memory::paging::Present::TRUE,
+                             },
+                             {
+                                 memory::paging::PriviledgeLevel::KERNEL,
+                                 memory::paging::AccessType::READ_WRITE,
+                                 memory::paging::Present::TRUE,
+                             });
+    kernel.kernel_paging = paging;
+    if (errors::set(error)) {
+        errors::enrich(&error, "initialize paging");
+        return {kernel, error};
     }
 
-    return *kernel_;
+    memory::paging::load(paging);
+    memory::paging::enable();
+    logging::debug("Initialized paging...");
+
+    return {kernel, errors::nil()};
 }
 
-Kernel::Kernel() : kernel_paging_(initialize_kernel_paging()) {
-    drivers::storage::discover_disks(disks_, MAX_NUMBER_OF_DISKS);
-    Logger::debug("Discovered disks...");
+error destroy(kernel* kernel) {
+    memory::paging::disable();
+    error err = memory::paging::destroy(&kernel->kernel_paging);
+    if (errors::set(err)) {
+        errors::enrich(&err, "destory paging");
+        return err;
+    }
 
-    Interrupts::init();
-    Logger::debug("Initialized interrupts...");
-
-    memory::paging::load(kernel_paging_);
-    memory::paging::enable_paging();
-    Logger::debug("Initialized paging...");
+    return errors::nil();
 }
-
-memory::paging::Paging Kernel::initialize_kernel_paging() {
-    WithError<memory::paging::Paging> paging_err = memory::paging::Paging::make(
-        {
-            memory::paging::PriviledgeLevel::KERNEL,
-            memory::paging::AccessType::READ_WRITE,
-            memory::paging::Present::TRUE,
-        },
-        {
-            memory::paging::PriviledgeLevel::KERNEL,
-            memory::paging::AccessType::READ_WRITE,
-            memory::paging::Present::TRUE,
-        },
-        memory::paging::Paging::InitializationMode::LINEAR);
-
-    return std::move(paging_err.first);
-}
-
-std::unique_ptr<Kernel> Kernel::kernel_{nullptr};

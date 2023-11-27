@@ -3,7 +3,6 @@
 section .start
 
 global _start
-extern get_kernel_heap
 extern initialize_global_variables
 extern main
 extern finalize_global_variables
@@ -29,7 +28,6 @@ _start:
     out 0x92, al
 
 .switch_to_cpp:
-    call get_kernel_heap
     call initialize_global_variables
     call main
     call finalize_global_variables

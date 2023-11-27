@@ -74,6 +74,8 @@ def to_sections_in_memory(
 
     offset = INITIAL_OFFSET_IN_MEMORY
     for linker_section in linker_sections_names:
+        if linker_section not in sections_on_disk:
+            continue
         sections[linker_section] = deepcopy(sections_on_disk[linker_section])
         sections[linker_section].offset = offset
         offset += align(sections_on_disk[linker_section].size)
